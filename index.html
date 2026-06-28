@@ -114,9 +114,9 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 /* ── CONTROLS ── */
 #ctrl{
   flex-shrink:0;background:var(--panel);border-top:1px solid var(--border);
-  padding:10px 18px 12px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;z-index:10;
+  padding:7px 14px 8px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;z-index:10;
 }
-#tblock{display:flex;flex-direction:column;gap:6px;min-width:310px;flex-shrink:0;}
+#tblock{display:flex;flex-direction:column;gap:5px;min-width:280px;flex-shrink:0;}
 #trow{display:flex;align-items:center;gap:8px;}
 #bplay{
   width:30px;height:30px;border-radius:50%;
@@ -151,14 +151,51 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 #tscrub::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;}
 
 /* Params */
-.pgrid{display:flex;gap:14px;flex-wrap:wrap;flex:1;align-items:center;}
-.pm{display:flex;flex-direction:column;gap:5px;min-width:108px;}
-.ph{display:flex;justify-content:space-between;align-items:baseline;gap:6px;}
-.pn{font-size:.57rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
-.pv{font-family:'Space Mono',monospace;font-size:.70rem;color:var(--gold);font-weight:700;white-space:nowrap;}
+.pgrid{display:flex;gap:10px;flex-wrap:wrap;flex:1;align-items:center;}
+.pm{display:flex;flex-direction:column;gap:3px;min-width:100px;}
+.ph{display:flex;justify-content:space-between;align-items:baseline;gap:4px;}
+.pn{font-size:.54rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
+.pv{font-family:'Space Mono',monospace;font-size:.66rem;color:var(--gold);font-weight:700;white-space:nowrap;}
 input[type=range]{width:100%;height:2px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,.12);border-radius:1px;outline:none;cursor:pointer;}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:var(--cyan);cursor:pointer;}
 input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;}
+
+/* ── MOBILE LANDSCAPE ── */
+@media (max-height: 500px){
+  /* Topbar plus fine */
+  #topbar-inner{min-height:40px;}
+  #title-text{font-size:.78rem;}
+  #title-chevron{font-size:.60rem;padding:2px 8px;}
+  .hstat{padding:4px 10px;}
+  .hv{font-size:.78rem;}
+  .hl{font-size:.42rem;margin-top:2px;}
+  #hdet{padding:4px 10px;}
+  .dc{font-size:.78rem;}
+  .dlog{font-size:.48rem;}
+
+  /* Barre de contrôle compacte */
+  #ctrl{padding:4px 10px 5px;gap:8px;flex-wrap:nowrap;align-items:center;}
+  #tblock{min-width:0;flex:0 0 auto;gap:3px;}
+  #trow{gap:5px;}
+  #tdisp{font-size:.65rem;min-width:80px;}
+  .spds{gap:2px;}
+  .spd{padding:2px 4px;font-size:.50rem;}
+  #bplay{width:24px;height:24px;font-size:.70rem;}
+  #timeline-wrap{height:16px;}
+
+  /* Sliders en ligne unique, plus petits */
+  .pgrid{flex-wrap:nowrap;gap:8px;flex:1;overflow:hidden;}
+  .pm{min-width:0;flex:1;gap:2px;}
+  .pn{font-size:.48rem;}
+  .pv{font-size:.58rem;}
+
+  /* Bloc droite */
+  #rblock{gap:4px;flex-shrink:0;}
+  #bregen{padding:3px 8px;font-size:.50rem;}
+  .leg{gap:5px;}
+  .li{font-size:.46rem;gap:3px;}
+  .ld{width:6px;height:6px;}
+}
 
 #rblock{display:flex;flex-direction:column;gap:7px;align-items:flex-end;flex-shrink:0;}
 #bregen{
@@ -247,8 +284,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
             <strong>N</strong> — nombre total de civilisations émettrices sur les 200 000 ans de simulation<br>
             <strong>L</strong> — durée d'émission moyenne (années) → épaisseur des anneaux<br>
             <strong>Portée S</strong> — distance maximale de détection (al) → rayon max des anneaux<br>
-            <strong>Vie Terre</strong> — durée pendant laquelle nous existons et pouvons recevoir<br>
-            <strong>Luminosité</strong> — visibilité des étoiles de fond
+            <strong>Vie Terre</strong> — durée pendant laquelle nous existons et pouvons recevoir
           </div>
           <p style="margin-top:12px;">Le paradoxe de Fermi s'observe directement : même avec des centaines de civilisations, les fenêtres de contact simultané sont rares. Augmentez N, L et S pour voir les premières détections apparaître.</p>
         </div>
@@ -294,10 +330,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div class="ph"><span class="pn">Vie civ. Terre (an)</span><span class="pv" id="vU">2 000</span></div>
       <input type="range" id="slU" min="100" max="100000" step="100" value="2000">
     </div>
-    <div class="pm">
-      <div class="ph"><span class="pn">Luminosité étoiles</span><span class="pv" id="vB">100%</span></div>
-      <input type="range" id="slB" min="2" max="100" step="1" value="100">
-    </div>
+
   </div>
 
   <div id="rblock">
@@ -716,12 +749,12 @@ function readP(){
   P.L=+document.getElementById('slL').value;
   P.S=+document.getElementById('slS').value;
   P.U=+document.getElementById('slU').value;
-  P.B=+document.getElementById('slB').value/100;
+  P.B=1.0;
   document.getElementById('vN').textContent=P.N;
   document.getElementById('vL').textContent=P.L.toLocaleString('fr-FR');
   document.getElementById('vS').textContent=P.S.toLocaleString('fr-FR');
   document.getElementById('vU').textContent=P.U.toLocaleString('fr-FR');
-  document.getElementById('vB').textContent=Math.round(P.B*100)+'%';
+
   document.getElementById('hsimul').textContent=(P.N*P.L/SIM_DUR).toFixed(1);
   updateEarthMarker();
 }
@@ -772,7 +805,7 @@ document.addEventListener('touchend',()=>{
     readP();precomputeDetections();updateEarthMarker();
   });
 });
-document.getElementById('slB').addEventListener('input',()=>{readP();gCache=null;});
+
 document.getElementById('bregen').addEventListener('click',()=>{
   readP();spawnCivs();simTime=SIM_START;playing=true;
   document.getElementById('bplay').textContent='⏸';lastTS=null;
