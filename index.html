@@ -441,9 +441,20 @@ function countDetectionsAt(t){
 }
 
 // Is Earth currently detecting anything at time t?
+// Geometric check: any ring brackets Earth (innerLy <= dist <= outerLy) while Earth is alive.
 function isDetectingAt(t){
-  for(const d of detections){
-    if(t >= d.start && t <= d.end) return true;
+  const earthStart = EARTH_BIRTH;
+  const earthEnd   = EARTH_BIRTH + P.U;
+  if(t < earthStart || t > earthEnd) return false;
+  const S = P.S;
+  for(let i=0;i<civs.length;i++){
+    const civ = civs[i];
+    if(t <= civ.birth) continue;
+    const dist = dist2earth(civ.gx, civ.gy);
+    if(dist > S) continue;
+    const outerLy = Math.min(t - civ.birth, S);
+    const innerLy = Math.min(Math.max(0, t - civ.death), S);
+    if(outerLy > innerLy && dist <= outerLy && dist >= innerLy) return true;
   }
   return false;
 }
@@ -523,10 +534,11 @@ function drawSim(t, W, H){
     if(alive) nActive++;
 
     // Is this civ currently creating a detection?
-    let contact = false;
-    for(const d of detections){
-      if(d.civIdx === i && t >= d.start && t <= d.end){ contact=true; break; }
-    }
+    // Geometric check: ring brackets Earth (innerLy <= dist <= outerLy) while Earth is alive
+    const dist = dist2earth(civ.gx, civ.gy);
+    const outerLyNow = Math.min(Math.max(0, t - civ.birth), S);
+    const innerLyNow = Math.min(Math.max(0, t - civ.death), S);
+    const contact = earthAlive && dist <= outerLyNow && dist >= innerLyNow && outerLyNow > innerLyNow;
 
     // Color selection
     let col;
