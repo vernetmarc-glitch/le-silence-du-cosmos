@@ -1,0 +1,23 @@
+{
+  "name": "Le silence du cosmos",
+  "short_name": "Cosmos",
+  "description": "Simulation du paradoxe de Fermi — équation de Drake",
+  "start_url": "/le-silence-du-cosmos/",
+  "scope": "/le-silence-du-cosmos/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#000005",
+  "theme_color": "#000005",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/vernetmarc-glitch/le-silence-du-cosmos/main/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/vernetmarc-glitch/le-silence-du-cosmos/main/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
