@@ -178,10 +178,12 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
     <div id="info-panel">
       <div id="info-cols">
         <div class="info-col">
-          <h2>La simulation</h2>
-          <p>Chaque <strong style="color:#4aaeff">anneau bleu</strong> est le front d'onde d'une émission radio se propageant à la vitesse de la lumière depuis une civilisation extraterrestre. Le bord extérieur de l'anneau est le premier photon émis ; le bord intérieur est le dernier. L'anneau disparaît quand son bord intérieur atteint la portée de détection S.</p>
-          <p>L'anneau devient <strong style="color:#8ab4d4">bleu clair</strong> quand la civilisation a cessé d'émettre (signal fossile). Il passe au <strong style="color:#50fa7b">vert</strong> quand il touche la Terre pendant son existence.</p>
-          <p>Le <strong style="color:#f4c430">anneau doré</strong> est l'onde émise par la Terre elle-même, à partir de t = 0. La barre jaune sur le curseur de temps marque la fenêtre d'existence de notre civilisation.</p>
+          <h2>Le silence</h2>
+          <p>Nous avons scruté le ciel pendant des siècles. Rien. Pas un signal, pas un écho, pas la moindre trace d'une autre voix dans l'immensité. Et pourtant les étoiles sont légion, les planètes innombrables, le temps vertigineux. La vie aurait dû surgir ailleurs. L'intelligence aurait dû fleurir. Quelqu'un, quelque part, aurait dû parler.</p>
+          <p>Ce silence est la question la plus troublante que l'humanité ait jamais posée.</p>
+          <p>Cette simulation explore une réponse possible. Chaque <strong style="color:#4aaeff">anneau bleu</strong> est une civilisation technologique — une brève flamme dans le noir qui émet ses signaux radio dans toutes les directions, à la vitesse de la lumière. Ces ondes se propagent pendant des millénaires après l'extinction de leur source, fantômes d'une présence révolue. L'anneau devient <strong style="color:#8ab4d4">bleu clair</strong> quand la civilisation s'est éteinte (signal fossile). Il passe au <strong style="color:#50fa7b">vert</strong> quand il touche la Terre pendant son existence.</p>
+          <p>La <strong style="color:#f4c430">Terre</strong> est ce point doré. Sa fenêtre d'existence — quelques milliers d'années sur deux cent mille — est infiniment étroite. Pour qu'un contact ait lieu, il faut que deux miracles se produisent au même moment : que quelqu'un émette, et que nous soyons là pour recevoir.</p>
+          <p>Jouez avec les paramètres. Regardez les anneaux se multiplier, se croiser, parfois frôler la Terre. Et demandez-vous pourquoi, dans notre univers réel, nous n'en avons capté aucun. Peut-être sommes-nous trop tôt. Peut-être trop tard. Peut-être seuls.</p>
         </div>
         <div class="info-col">
           <h2>Les paramètres</h2>
@@ -215,7 +217,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
     <div id="timeline-wrap">
       <div id="tl-bg"></div>
       <div id="tl-earth"></div>
-      <input type="range" id="tscrub" min="-100000" max="100000" step="100" value="-100000">
+      <input type="range" id="tscrub" min="-100000" max="100000" step="100" value="0">
     </div>
   </div>
 
@@ -278,7 +280,7 @@ const R0_SP     = 2500;
 // ══════════════════════════════════════════════════
 let P = {N:200, L:2000, S:10000, U:2000, B:1.0};
 let civs=[], gStars=[];
-let simTime=SIM_START, playing=true, speed=5000;
+let simTime=EARTH_BIRTH, playing=true, speed=5000;
 let lastTS=null, animId=null, scrubbing=false;
 let gCache=null, cacheW=0, cacheH=0;
 
