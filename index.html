@@ -306,19 +306,19 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 }
 #hint-timeline.show{display:flex;}
 #hint-timeline-arrow{
-  position:absolute;bottom:-7px;left:50%;
+  position:absolute;top:-7px;left:50%;
   transform:translateX(-50%);
   width:0;height:0;
   border-left:6px solid transparent;
   border-right:6px solid transparent;
-  border-top:7px solid rgba(244,196,48,.45);
+  border-bottom:7px solid rgba(244,196,48,.45);
 }
 #hint-timeline-arrow::after{
-  content:'';position:absolute;bottom:2px;left:-5px;
+  content:'';position:absolute;top:2px;left:-5px;
   width:0;height:0;
   border-left:5px solid transparent;
   border-right:5px solid transparent;
-  border-top:6px solid rgba(3,7,24,0.96);
+  border-bottom:6px solid rgba(3,7,24,0.96);
 }
 #hint-timeline-close{
   position:absolute;top:6px;right:8px;
@@ -382,7 +382,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
     </div>
     <div class="hstat"><span class="hv" id="hactive">0</span><span class="hl">Civs</span></div>
     <div class="hstat"><span class="hv" id="hwaves">0</span><span class="hl">Ondes</span></div>
-    <div class="hstat"><span class="hv" id="hsimul">—</span><span class="hl">Simult.</span></div>
+    <div class="hstat"><span class="hv" id="hsimul">—</span><span class="hl">Act.</span></div>
     <div id="hdet">
       <span class="dc" id="hdc">0 détection</span>
       <span class="dlog" id="hdlog">Aucune détection</span>
@@ -392,7 +392,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   <div id="kpi-bar">
     <div class="hstat"><span class="hv" id="hactive2">0</span><span class="hl">Civs</span></div>
     <div class="hstat"><span class="hv" id="hwaves2">0</span><span class="hl">Ondes</span></div>
-    <div class="hstat"><span class="hv" id="hsimul2">—</span><span class="hl">Simult.</span></div>
+    <div class="hstat"><span class="hv" id="hsimul2">—</span><span class="hl">Act.</span></div>
     <div class="hstat"><span class="dc" id="hdc2">0 détection</span></div>
   </div>
   <!-- Ligne 2 : contrôles temporels -->
@@ -458,8 +458,8 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div class="info-col">
         <h2>Les paramètres</h2>
         <div class="param-list">
-          <strong>N</strong> — civilisations communicant simultanément
-          <span class="pi-btn" tabindex="0">i<span class="pi-tip">Nombre de civilisations capables d'émettre des signaux radio <em>simultanément</em> dans la galaxie. C'est le terme central de l'équation de Drake.<br><br>Drake estimait N entre 1 et plusieurs milliers. Dans notre galaxie réelle, N pourrait être… 1. Valeurs plausibles : 1–50.</span></span><br>
+          <strong>N</strong> — civilisations apparues sur 200 000 ans
+          <span class="pi-btn" tabindex="0">i<span class="pi-tip">Nombre total de civilisations technologiques apparues dans la galaxie sur les 200 000 ans simulés. Indépendant de leur durée de vie — si L est courte, elles se succèdent rapidement ; si L est longue, elles coexistent davantage.<br><br>Le nombre simultané à tout instant est affiché en temps réel (Act.). Valeurs plausibles : 10–500.</span></span><br>
           <strong>L</strong> — durée d'émission moyenne
           <span class="pi-btn" tabindex="0">i<span class="pi-tip">Durée pendant laquelle une civilisation émet des signaux détectables. Correspond à l'épaisseur des anneaux bleus.<br><br>Notre civilisation émet depuis ~100 ans. Une guerre, une extinction ou une transition technologique pourraient l'arrêter. Valeurs plausibles : 100–10 000 ans.</span></span><br>
           <strong>S</strong> — portée du signal
@@ -467,7 +467,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
           <strong>U</strong> — fenêtre de réception terrestre
           <span class="pi-btn" tabindex="0">i<span class="pi-tip">Durée pendant laquelle la Terre héberge une civilisation technologique capable de recevoir des signaux. Représente l'anneau doré et la zone verte de contact.<br><br>Nous recevons depuis ~100 ans. Combien de temps encore ? C'est la variable la plus personnelle — et la plus incertaine. Valeurs plausibles : 100–10 000 ans.</span></span>
         </div>
-        <p style="margin-top:12px;">Le paradoxe de Fermi s'observe directement : même avec plusieurs civilisations, les fenêtres de contact simultané sont rares. Ajustez N, L et S pour voir les premières détections apparaître.</p>
+        <p style="margin-top:12px;">Le paradoxe de Fermi s'observe directement : même avec plusieurs civilisations, les fenêtres de contact simultané sont rares. Augmentez N pour spawner plus de civilisations, L pour les faire durer plus longtemps, S pour élargir leur portée.</p>
       </div>
     </div>
   </div>
@@ -482,12 +482,12 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
     <div class="pgrid-modal">
       <div class="pm-modal">
         <div class="ph-modal">
-          <span class="pn-modal">N — Civs communicant simultanément
-            <span class="pi-btn" tabindex="0">i<span class="pi-tip">Nombre de civilisations capables d'émettre des signaux radio <em>simultanément</em> dans la galaxie.<br><br>Drake estimait N entre 1 et plusieurs milliers. Dans notre galaxie réelle, N pourrait être… 1 (nous). Valeurs plausibles&nbsp;: 1–50.</span></span>
+          <span class="pn-modal">N — Civs apparues sur 200 000 ans
+            <span class="pi-btn" tabindex="0">i<span class="pi-tip">Nombre total de civilisations technologiques apparues dans la galaxie sur les 200 000 ans simulés. Indépendant de leur durée de vie — si L est courte, elles se succèdent rapidement ; si L est longue, elles coexistent davantage.<br><br>Le nombre simultané à tout instant est affiché en temps réel (Act.). Valeurs plausibles&nbsp;: 10–500.</span></span>
           </span>
-          <span class="pv-modal" id="vNm">2</span>
+          <span class="pv-modal" id="vNm">200</span>
         </div>
-        <input type="range" id="slNm" min="1" max="10" step="1" value="2">
+        <input type="range" id="slNm" min="1" max="1000" step="1" value="200">
       </div>
       <div class="pm-modal">
         <div class="ph-modal">
@@ -550,7 +550,7 @@ const R0_SP     = 2500;
 // ══════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════
-let P = {N:2, L:2000, S:10000, U:1000, B:1.0};
+let P = {N:200, L:2000, S:10000, U:1000, B:1.0};
 let zoomLevel = 1.0; // 1 = vue galactique complète, >1 = zoom sur Terre
 let zoomTarget = 1.0;
 let civs=[], gStars=[];
@@ -741,10 +741,10 @@ function dist2earth(gx,gy){
 }
 
 function spawnCivs(){
-  // N = civilisations simultanées en moyenne (équation de Drake)
-  // total à spawner = N * SIM_DUR / L pour maintenir cette densité
-  const total = Math.max(1, Math.round(P.N * SIM_DUR / P.L));
-  document.getElementById('hsimul').textContent=P.N.toFixed(1);
+  // N = nombre total de civilisations apparues sur toute la simulation (~200 000 ans)
+  // Indépendant de L : on spawne exactement N civs, leurs durées varient via log-normale
+  const total = Math.max(1, P.N);
+  document.getElementById('hsimul').textContent='—';
   civs=[];
   for(let i=0;i<total;i++){
     // Tirage pondéré par la Zone Habitable Galactique (GHZ)
@@ -995,6 +995,7 @@ function drawSim(t, W, H){
   updateDetHUD(currentlyDetecting && earthAlive, detNow);
   document.getElementById('hactive').textContent = nActive;
   document.getElementById('hwaves').textContent  = nWaves;
+  document.getElementById('hsimul').textContent  = nActive; // civs simultanées réelles
   syncKpiBar(nActive, nWaves);
 }
 
@@ -1069,8 +1070,7 @@ function readP(){
   document.getElementById('vLm').textContent=P.L.toLocaleString('fr-FR');
   document.getElementById('vSm').textContent=P.S.toLocaleString('fr-FR');
   document.getElementById('vUm').textContent=P.U.toLocaleString('fr-FR');
-  document.getElementById('hsimul').textContent=P.N.toFixed(0);
-  const s2=document.getElementById('hsimul2'); if(s2) s2.textContent=P.N.toFixed(0);
+  // hsimul affiche nActive en temps réel (mis à jour dans drawSim)
   updateEarthMarker();
 }
 
@@ -1170,20 +1170,19 @@ function positionHintTimeline(){
 
   const er = earth.getBoundingClientRect();
   const htW = ht.offsetWidth || 220;
-  const htH = ht.offsetHeight || 100;
-
-  // Positionner au-dessus du début (bord gauche) de la barre jaune
-  let left = er.left - htW/2 + 4; // centré sur le début de la barre
   const margin = 8;
+
+  // Positionner EN DESSOUS du début (bord gauche) de la barre jaune
+  let left = er.left - htW/2 + 4;
   if(left < margin) left = margin;
   if(left + htW > window.innerWidth - margin) left = window.innerWidth - htW - margin;
 
-  const top = er.top - htH - 12;
+  const top = er.bottom + 10; // sous la barre de temps
 
   ht.style.left = left + 'px';
   ht.style.top  = top  + 'px';
 
-  // Positionner la flèche sur le début de la barre
+  // Flèche pointe vers le haut sur le début de la barre
   const arrowLeft = (er.left + 4) - left;
   const arrow = document.getElementById('hint-timeline-arrow');
   if(arrow) arrow.style.left = Math.max(10, Math.min(htW-10, arrowLeft)) + 'px';
