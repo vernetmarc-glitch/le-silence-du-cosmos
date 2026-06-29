@@ -468,7 +468,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 /* ── POPUP HINT ? ── */
 #hint-popup{
   position:fixed;z-index:200;
-  top:54px;left:12px;
+  bottom:230px;right:10px;
   background:rgba(3,7,24,0.96);border:1px solid rgba(74,174,255,.35);
   border-radius:10px;padding:10px 14px;
   font-family:'Space Mono',monospace;font-size:.65rem;color:var(--cyan);
@@ -476,6 +476,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   pointer-events:all;cursor:pointer;
   animation:fadeInHint .4s ease;
   box-shadow:0 0 18px rgba(74,174,255,.15);
+  max-width:220px;
 }
 #hint-popup.show{display:flex;}
 #hint-close{
@@ -484,19 +485,19 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 }
 #hint-close:hover{color:var(--txt);}
 #hint-arrow{
-  position:absolute;top:-7px;left:50%; /* JS ajustera left */
-  transform:translateX(-50%);
+  position:absolute;bottom:-7px;right:20px;
+  transform:none;
   width:0;height:0;
   border-left:6px solid transparent;
   border-right:6px solid transparent;
-  border-bottom:7px solid rgba(74,174,255,.35);
+  border-top:7px solid rgba(74,174,255,.35);
 }
 #hint-arrow::after{
-  content:'';position:absolute;top:2px;left:-5px;
+  content:'';position:absolute;bottom:2px;left:-5px;
   width:0;height:0;
   border-left:5px solid transparent;
   border-right:5px solid transparent;
-  border-bottom:6px solid rgba(3,7,24,0.96);
+  border-top:6px solid rgba(3,7,24,0.96);
 }
 @keyframes fadeInHint{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
 
@@ -513,9 +514,6 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   <div id="topbar-inner">
     <div id="title-block">
       <span id="title-text" onclick="toggleInfo()">Le silence du cosmos</span>
-      <span id="title-chevron" onclick="toggleInfo()" aria-label="En savoir plus">?</span>
-      <button id="bparams" onclick="toggleParams()">⚙</button>
-      <button id="bregen" onclick="doRegen()" title="Régénérer la simulation">↺</button>
     </div>
     <div class="hstat"><span class="hv" id="hactive">0</span><span class="hl">Civs</span></div>
     <div class="hstat"><span class="hv" id="hwaves">0</span><span class="hl">Ondes</span></div>
@@ -1584,16 +1582,7 @@ function dismissHint(){
   if(p) p.classList.remove('show');
 }
 function positionHintArrow(){
-  const chevron = document.getElementById('title-chevron');
-  const popup   = document.getElementById('hint-popup');
-  const arrow   = document.getElementById('hint-arrow');
-  if(!chevron || !popup || !arrow) return;
-  const cr = chevron.getBoundingClientRect();
-  const pr = popup.getBoundingClientRect();
-  // Centre du ? en relatif au popup
-  const arrowLeft = (cr.left + cr.width/2) - pr.left;
-  arrow.style.left = Math.max(10, Math.min(pr.width-10, arrowLeft)) + 'px';
-  arrow.style.transform = 'translateX(-50%)';
+  // La flèche est positionnée en CSS fixe vers fab-info — rien à calculer
 }
 function onHintClick(){
   // Ouvre la modale puis ferme le popup
