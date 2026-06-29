@@ -133,7 +133,39 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 #tdisp{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--gold);font-weight:700;white-space:nowrap;flex-shrink:0;}
 #timeline-wrap{position:relative;flex:1;height:26px;min-width:0;}
 #tl-bg{position:absolute;top:50%;left:0;right:0;height:3px;border-radius:2px;background:rgba(255,255,255,.12);transform:translateY(-50%);pointer-events:none;z-index:1;}
-#tl-earth{position:absolute;top:50%;height:5px;border-radius:2px;background:var(--gold);opacity:.85;transform:translateY(-50%);pointer-events:none;z-index:2;}
+#tl-earth{position:absolute;top:50%;height:5px;border-radius:2px;background:var(--gold);opacity:.85;transform:translateY(-50%);pointer-events:none;z-index:2;transition:background .3s;}
+#tl-earth.warning{background:linear-gradient(90deg,var(--gold) 30%,#ff6b35);}
+/* Poignée drag droite de la barre Terre */
+#tl-earth-handle{
+  position:absolute;top:50%;z-index:4;
+  width:10px;height:16px;border-radius:3px;
+  background:var(--gold);border:1.5px solid rgba(255,255,255,.4);
+  transform:translate(-50%,-50%);
+  cursor:ew-resize;touch-action:none;
+  transition:background .3s;
+}
+#tl-earth-handle.warning{background:#ff6b35;}
+/* Bouton i sur le début de la barre Terre */
+#tl-earth-info{
+  position:absolute;top:50%;z-index:5;
+  width:13px;height:13px;border-radius:50%;
+  background:var(--gold);color:#000;
+  font-family:'Space Mono',monospace;font-size:.48rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  transform:translate(-50%,-50%);
+  cursor:pointer;pointer-events:all;
+  border:none;flex-shrink:0;
+}
+#tl-earth-info:hover{opacity:.8;}
+/* Warning inline sous le slider U */
+#u-warning{
+  display:none;font-size:.56rem;color:#ff6b35;
+  font-family:'Space Mono',monospace;line-height:1.45;
+  margin-top:4px;padding:5px 7px;
+  border-left:2px solid #ff6b35;
+  background:rgba(255,107,53,.08);border-radius:0 4px 4px 0;
+}
+#u-warning.show{display:block;}
 #tscrub{
   position:absolute;top:0;left:0;width:100%;height:100%;
   -webkit-appearance:none;appearance:none;background:transparent;outline:none;cursor:pointer;z-index:3;margin:0;
@@ -402,6 +434,8 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
     <div id="timeline-wrap">
       <div id="tl-bg"></div>
       <div id="tl-earth"></div>
+      <button id="tl-earth-info" title="Fenêtre terrestre">i</button>
+      <div id="tl-earth-handle" title="Glisser pour modifier la durée de réception"></div>
       <input type="range" id="tscrub" min="-10000" max="10000" step="10" value="0">
     </div>
     <select id="spd-select">
@@ -515,6 +549,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
           <span class="pv-modal" id="vUm">500</span>
         </div>
         <input type="range" id="slUm" min="100" max="10000" step="100" value="1000">
+        <div id="u-warning">⚠ Au-delà de 500 ans, il est très peu probable qu'une civilisation évite une catastrophe existentielle — guerre nucléaire, effondrement climatique, pandémie, IA incontrôlable.</div>
       </div>
     </div>
     <div class="leg-modal">
@@ -1019,15 +1054,40 @@ function updateDetHUD(activeDet, count){
 // TIMELINE MARKER
 // ══════════════════════════════════════════════════
 function updateEarthMarker(){
-  const el=document.getElementById('tl-earth');
-  const wrap=document.getElementById('timeline-wrap');
-  const W=wrap.offsetWidth;
-  // Marker positionné dans le range du curseur (-10000 → +10000)
+  const el     = document.getElementById('tl-earth');
+  const handle = document.getElementById('tl-earth-handle');
+  const info   = document.getElementById('tl-earth-info');
+  const wrap   = document.getElementById('timeline-wrap');
+  const W      = wrap.offsetWidth;
   const CURSOR_START = -10000, CURSOR_DUR = 20000;
-  const t0pct=(EARTH_BIRTH - CURSOR_START)/CURSOR_DUR;
-  const t1pct=Math.min(1, (EARTH_BIRTH + P.U - CURSOR_START)/CURSOR_DUR);
-  el.style.left=Math.max(0,t0pct*W)+'px';
-  el.style.width=Math.max(2,(t1pct-t0pct)*W)+'px';
+  const t0pct = (EARTH_BIRTH - CURSOR_START) / CURSOR_DUR;
+  const t1pct = Math.min(1, (EARTH_BIRTH + P.U - CURSOR_START) / CURSOR_DUR);
+  const x0px  = Math.max(0, t0pct * W);
+  const x1px  = Math.max(x0px + 2, t1pct * W);
+
+  el.style.left  = x0px + 'px';
+  el.style.width = (x1px - x0px) + 'px';
+
+  // Poignée à l'extrémité droite
+  if(handle) handle.style.left = x1px + 'px';
+
+  // Bouton i au début de la barre
+  if(info) info.style.left = x0px + 'px';
+
+  // Couleur warning si U > 500
+  const warn = P.U > 500;
+  el.classList.toggle('warning', warn);
+  if(handle) handle.classList.toggle('warning', warn);
+
+  // Warning inline dans la modale
+  const uw = document.getElementById('u-warning');
+  if(uw) uw.classList.toggle('show', warn);
+
+  // Sync slider + affichage
+  const sl = document.getElementById('slUm');
+  if(sl && +sl.value !== P.U) sl.value = P.U;
+  const vUm = document.getElementById('vUm');
+  if(vUm) vUm.textContent = P.U.toLocaleString('fr-FR');
 }
 
 // ══════════════════════════════════════════════════
@@ -1261,6 +1321,73 @@ document.addEventListener('click', function(e){
     dismissHint();
   }
 });
+
+// ── Drag poignée barre Terre ──
+(function(){
+  const handle = document.getElementById('tl-earth-handle');
+  const wrap   = document.getElementById('timeline-wrap');
+  if(!handle || !wrap) return;
+
+  const CURSOR_START = -10000, CURSOR_DUR = 20000;
+  const U_MIN = 100, U_MAX = 10000, U_STEP = 100;
+  let dragging = false;
+
+  function pxToU(clientX){
+    const wr = wrap.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (clientX - wr.left) / wr.width));
+    const yr = CURSOR_START + pct * CURSOR_DUR;  // année correspondante
+    const u = yr - 0;                             // EARTH_BIRTH = 0
+    return Math.max(U_MIN, Math.min(U_MAX, Math.round(u / U_STEP) * U_STEP));
+  }
+
+  function onMove(clientX){
+    const newU = pxToU(clientX);
+    if(newU === P.U) return;
+    P.U = newU;
+    updateEarthMarker();
+    precomputeDetections();
+  }
+
+  // Mouse
+  handle.addEventListener('mousedown', function(e){
+    dragging = true; e.preventDefault();
+  });
+  document.addEventListener('mousemove', function(e){
+    if(dragging) onMove(e.clientX);
+  });
+  document.addEventListener('mouseup', function(){
+    dragging = false;
+  });
+
+  // Touch
+  handle.addEventListener('touchstart', function(e){
+    dragging = true; e.preventDefault();
+  },{passive:false});
+  document.addEventListener('touchmove', function(e){
+    if(dragging) onMove(e.touches[0].clientX);
+  },{passive:true});
+  document.addEventListener('touchend', function(){
+    dragging = false;
+  });
+})();
+
+// ── Bouton i sur la barre Terre (ouvre hint-timeline) ──
+(function(){
+  const btn = document.getElementById('tl-earth-info');
+  if(!btn) return;
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    const ht = document.getElementById('hint-timeline');
+    if(!ht) return;
+    ht.classList.toggle('show');
+    if(ht.classList.contains('show')){
+      requestAnimationFrame(function(){
+        requestAnimationFrame(positionHintTimeline);
+      });
+    }
+    sessionStorage.removeItem('lsdc_tl_hint'); // permet de rouvrir même si déjà vu
+  });
+})();
 
 // ── Bouton régénérer (topbar) ──
 function doRegen(){
