@@ -439,41 +439,8 @@ function handleParamsOverlay(e){
 }
 
 // Sync sliders desktop ↔ mobile
-function syncSliders(srcId, dstId, displayId, displayIdM){
-  const src = document.getElementById(srcId);
-  const dst = document.getElementById(dstId);
-  const disp = document.getElementById(displayId);
-  const dispM = displayIdM ? document.getElementById(displayIdM) : null;
-  src.addEventListener('input', ()=>{
-    dst.value = src.value;
-    if(dispM) dispM.textContent = disp.textContent;
-  });
-  dst.addEventListener('input', ()=>{
-    src.value = dst.value;
-    if(dispM) dispM.textContent = disp.textContent;
-  });
-}
 
-// Bouton régénérer de la modale mobile
-document.getElementById('bregen-modal').addEventListener('click',()=>{
-  readP();spawnCivs();simTime=EARTH_BIRTH;playing=true;
-  document.getElementById('bplay').textContent='⏸';lastTS=null;
-  toggleParams();
-});
-
-// Sync display mobile quand desktop change (et vice versa)
-['N','L','S','U'].forEach(k=>{
-  const slD = document.getElementById('sl'+k);
-  const slM = document.getElementById('sl'+k+'m');
-  const vD  = document.getElementById('v'+k);
-  const vM  = document.getElementById('v'+k+'m');
-  slD.addEventListener('input',()=>{ slM.value=slD.value; vM.textContent=vD.textContent; });
-  slM.addEventListener('input',()=>{ slD.value=slM.value; vM.textContent=vD.textContent;
-    // Déclencher l'event sur le slider desktop pour que readP() soit appelé
-    slD.dispatchEvent(new Event('input'));
-  });
-});
-
+function toggleInfo(){
   const overlay = document.getElementById('info-overlay');
   const btn = document.getElementById('title-chevron');
   const isOpen = overlay.classList.contains('open');
@@ -903,6 +870,12 @@ document.addEventListener('touchend',()=>{
     if(desktop){ desktop.value = el.value; desktop.dispatchEvent(new Event('input')); }
   });
 });
+document.getElementById('bregen-modal').addEventListener('click',()=>{
+  readP();spawnCivs();simTime=EARTH_BIRTH;playing=true;
+  document.getElementById('bplay').textContent='⏸';lastTS=null;
+  toggleParams();
+});
+
 function syncToMobile(){
   ['N','L','S','U'].forEach(k=>{
     const vm = document.getElementById('v'+k+'m');
