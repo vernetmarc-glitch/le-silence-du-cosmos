@@ -1046,7 +1046,20 @@ scrubEl.addEventListener('mousedown',()=>{
   playing=false;
   document.getElementById('bplay').textContent='▶';
 });
-scrubEl.addEventListener('touchstart',()=>{scrubbing=true;playing=false;document.getElementById('bplay').textContent='▶';},{passive:true});
+// Touch : gestion manuelle pour mobile
+scrubEl.addEventListener('touchstart',function(e){
+  scrubbing=true;playing=false;
+  document.getElementById('bplay').textContent='▶';
+},{passive:true});
+scrubEl.addEventListener('touchmove',function(e){
+  if(!scrubbing) return;
+  const touch=e.touches[0];
+  const rect=scrubEl.getBoundingClientRect();
+  const pct=Math.max(0,Math.min(1,(touch.clientX-rect.left)/rect.width));
+  const min=+scrubEl.min, max=+scrubEl.max;
+  simTime=Math.round((min+pct*(max-min))/10)*10;
+  scrubEl.value=simTime;
+},{passive:true});
 scrubEl.addEventListener('input',()=>{ simTime=+scrubEl.value; });
 document.addEventListener('mouseup',()=>{
   if(scrubbing){
