@@ -632,6 +632,15 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
         </div>
         <p style="margin-top:12px;">Le paradoxe de Fermi s'observe directement : même avec plusieurs civilisations, les fenêtres de contact simultané sont rares. Augmentez N pour spawner plus de civilisations, L pour les faire durer plus longtemps, S pour élargir leur portée.</p>
       </div>
+      <div class="info-col">
+        <h2>Détail du modèle</h2>
+        <p><strong style="color:var(--cyan)">Distribution spatiale.</strong> Les civilisations ne sont pas réparties uniformément dans la galaxie. Le modèle applique un biais de Zone Habitable Galactique (GHZ) : une gaussienne de pic à 6 000 al du centre galactique (σ = 4 000 al), qui exclut le centre (trop de radiations, perturbations gravitationnelles) et la périphérie (trop peu de métaux lourds pour la chimie du vivant). La Terre est placée à 8 500 al du centre, dans le Bras d'Orion.</p>
+        <p><strong style="color:var(--cyan)">Distribution des durées de vie.</strong> La durée d'émission de chaque civilisation suit une loi log-normale de médiane L et d'écart-type logarithmique σ = 0,8. Ce choix reflète l'hypothèse que L est très incertaine et que quelques civilisations durent bien plus longtemps que la médiane. L'espérance réelle est L × e<sup>σ²/2</sup> ≈ 1,38 × L.</p>
+        <p><strong style="color:var(--cyan)">Fenêtre temporelle.</strong> La simulation couvre 200 000 ans (−100 000 à +100 000), calée sur t = 0 = aujourd'hui. Les naissances de civilisations sont tirées uniformément sur cette fenêtre. La Terre émet depuis t = 0 pendant U ans.</p>
+        <p><strong style="color:var(--cyan)">Propagation des signaux.</strong> Un signal émis par une civilisation à distance d met exactement d années à atteindre la Terre. La fenêtre de détection terrestre d'une civ née en t<sub>b</sub> et éteinte en t<sub>b</sub>+L est donc [t<sub>b</sub>+d, t<sub>b</sub>+L+d] ∩ [0, U].</p>
+        <p><strong style="color:var(--cyan)">Calcul de la probabilité.</strong> Un Monte Carlo continu tire des civilisations fictives selon les mêmes règles que la simulation. Pour chaque paramètre (N, L, S, U), il estime P(une civ donnée contacte la Terre), puis applique la loi de Poisson : μ = N × P<sub>une</sub>, P(contact) = 1 − e<sup>−μ</sup>. Le calcul converge automatiquement (arrêt quand σ des derniers lots &lt; 0,3 %).</p>
+        <p><strong style="color:var(--cyan)">Paramètres fixes.</strong> Rayon galactique : 52 000 al. Nombre d'étoiles simulées : 20 000 (rendu). Profil spiral : 4 bras logarithmiques, pas 13°. La galaxie est inclinée à 40 % (projection sur l'écran).</p>
+      </div>
     </div>
   </div>
 </div>
