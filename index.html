@@ -153,19 +153,26 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 /* Warning flottant au-dessus de la poignée */
 #u-warning-tip{
   position:absolute;z-index:10;
-  bottom:calc(100% + 8px);
+  top:calc(100% + 10px);
   left:50%;transform:translateX(-50%);
   background:rgba(20,5,0,0.97);border:1px solid #ff6b35;
-  border-radius:7px;padding:7px 10px;
+  border-radius:7px;padding:8px 28px 8px 10px;
   font-family:'Space Mono',monospace;font-size:.56rem;
-  color:#ff9966;line-height:1.5;width:200px;
-  pointer-events:none;display:none;
+  color:#ff9966;line-height:1.6;width:210px;
+  pointer-events:all;display:none;
   box-shadow:0 4px 16px rgba(255,107,53,.3);
 }
-#u-warning-tip::after{
-  content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
-  border:5px solid transparent;border-top-color:#ff6b35;
+#u-warning-tip::before{
+  content:'';position:absolute;top:-6px;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-bottom-color:#ff6b35;
 }
+#u-warning-close{
+  position:absolute;top:5px;right:7px;
+  background:transparent;border:none;
+  color:rgba(255,107,53,.6);font-size:.65rem;cursor:pointer;
+  transition:color .15s;padding:0;
+}
+#u-warning-close:hover{color:#ff6b35;}
 #tl-earth-handle.warning #u-warning-tip{display:block;}
 /* Bouton i sur le début de la barre Terre */
 #tl-earth-info{
@@ -459,7 +466,10 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <button id="tl-earth-info" title="Fenêtre terrestre">i</button>
       <div id="tl-earth-handle">
   <span id="tl-handle-val">1 000</span>
-  <div id="u-warning-tip">⚠ Au-delà de 500 ans, une catastrophe existentielle devient très probable — guerre nucléaire, effondrement climatique, pandémie, IA.</div>
+  <div id="u-warning-tip">
+    <button id="u-warning-close" onclick="dismissUWarning(event)">✕</button>
+    Guerre nucléaire, pandémie, IA… pensez-vous vraiment que notre civilisation saurait rester à l'écoute plus de 500 ans&nbsp;?
+  </div>
 </div>
       <input type="range" id="tscrub" min="-10000" max="10000" step="10" value="0">
     </div>
@@ -1104,13 +1114,15 @@ function updateEarthMarker(){
   if(info) info.style.left = x0px + 'px';
 
   // Couleur warning si U > 500
-  const warn = P.U > 500;
+  // Réarmer si on repassé sous 500 puis au-dessus
+  if(P.U <= 500){ uWarningDismissed = false; }
+  const warn = P.U > 500 && !uWarningDismissed;
   el.classList.toggle('warning', warn);
   if(handle) handle.classList.toggle('warning', warn);
 
   // Warning inline dans la modale
   const uw = document.getElementById('u-warning');
-  if(uw) uw.classList.toggle('show', warn);
+  if(uw) uw.classList.toggle('show', P.U > 500);
 
   // Sync slider + affichage
   const sl = document.getElementById('slUm');
@@ -1399,6 +1411,19 @@ document.addEventListener('click', function(e){
     dragging = false;
   });
 })();
+
+// ── Fermer manuellement le warning U ──
+let uWarningDismissed = false;
+function dismissUWarning(e){
+  e.stopPropagation();
+  uWarningDismissed = true;
+  const handle = document.getElementById('tl-earth-handle');
+  if(handle) handle.classList.remove('warning');
+  const el = document.getElementById('tl-earth');
+  if(el) el.classList.remove('warning');
+}
+// Réarmer le warning si on repasse sous 500 puis au-dessus
+let uWasBelowThreshold = (typeof P !== 'undefined' && P.U <= 500);
 
 // ── Bouton i sur la barre Terre (ouvre hint-timeline) ──
 (function(){
