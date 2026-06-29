@@ -312,8 +312,8 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
     <h3>Paramètres</h3>
     <div class="pgrid-modal">
       <div class="pm-modal">
-        <div class="ph-modal"><span class="pn-modal">N — Civs simultanées (Drake)</span><span class="pv-modal" id="vNm">20</span></div>
-        <input type="range" id="slNm" min="1" max="1000" step="1" value="20">
+        <div class="ph-modal"><span class="pn-modal">N — Civs simultanées (Drake)</span><span class="pv-modal" id="vNm">10</span></div>
+        <input type="range" id="slNm" min="1" max="20" step="1" value="10">
       </div>
       <div class="pm-modal">
         <div class="ph-modal"><span class="pn-modal">L — Durée d'émission (ans)</span><span class="pv-modal" id="vLm">10 000</span></div>
@@ -362,7 +362,7 @@ const R0_SP     = 2500;
 // ══════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════
-let P = {N:20, L:10000, S:40000, U:500, B:1.0};
+let P = {N:10, L:10000, S:40000, U:500, B:1.0};
 let civs=[], gStars=[];
 let simTime=EARTH_BIRTH, playing=true, speed=500;
 let lastTS=null, animId=null, scrubbing=false;
@@ -583,8 +583,12 @@ function isDetectingAt(t){
 // Opacity: solid color fill, no gradient. Simple and clean.
 // ══════════════════════════════════════════════════
 function drawRing(emitGx, emitGy, birth, death, S, col, W, H){
-  const outerLy = Math.min(Math.max(0, simTime - birth),  S);
-  const innerLy = Math.min(Math.max(0, simTime - death),  S);
+  const lifespan = death - birth;
+  const outerLy = Math.min(Math.max(0, simTime - birth), S);
+  // Physical trailing edge: max(0, t - death), clamped to S
+  // But also enforce shell thickness = lifespan (anneau ne peut pas être plus épais que L)
+  const trailingEdge = Math.min(Math.max(0, simTime - death), S);
+  const innerLy = Math.max(trailingEdge, outerLy - lifespan);
 
   if(outerLy <= 0) return false;          // not started
   if(innerLy >= S) return false;          // inner past S → ring gone
@@ -670,12 +674,14 @@ function drawSim(t, W, H){
   }
 
   // ── Earth ring ──
+  // Ensure Earth's ring is visible: enforce min visual thickness = 8% of S
   const earthAliveForRing = t >= earthStart;
   if(earthAliveForRing){
     const eCol = currentlyDetecting && earthAlive
       ? [80, 250, 123, 0.82]
       : [244, 196, 48, 0.82];
-    drawRing(EARTH_GX, EARTH_GY, earthStart, earthEnd, S, eCol, W, H);
+    const earthLifespan = Math.max(P.U, S * 0.08); // visual min thickness
+    drawRing(EARTH_GX, EARTH_GY, earthStart, earthStart + earthLifespan, S, eCol, W, H);
   }
 
   // ── Earth dot ──
