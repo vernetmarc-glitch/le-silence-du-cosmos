@@ -131,13 +131,13 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   background:transparent;
 }
 #tdisp{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--gold);font-weight:700;white-space:nowrap;flex-shrink:0;}
-#timeline-wrap{position:relative;flex:1;height:26px;min-width:0;}
+#timeline-wrap{position:relative;flex:1;height:26px;min-width:0;overflow:visible;}
 #tl-bg{position:absolute;top:50%;left:0;right:0;height:3px;border-radius:2px;background:rgba(255,255,255,.12);transform:translateY(-50%);pointer-events:none;z-index:1;}
 #tl-earth{position:absolute;top:50%;height:5px;border-radius:2px;background:var(--gold);opacity:.85;transform:translateY(-50%);pointer-events:none;z-index:2;transition:background .3s;}
 #tl-earth.warning{background:linear-gradient(90deg,var(--gold) 30%,#ff6b35);}
 /* Poignée drag droite de la barre Terre */
 #tl-earth-handle{
-  position:absolute;top:50%;z-index:4;
+  position:absolute;top:50%;z-index:6;
   min-width:36px;height:18px;border-radius:4px;
   background:var(--gold);border:1.5px solid rgba(255,255,255,.35);
   transform:translate(-50%,-50%);
@@ -152,9 +152,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 #tl-earth-handle.warning{background:#ff6b35;color:#fff;}
 /* Warning flottant au-dessus de la poignée */
 #u-warning-tip{
-  position:absolute;z-index:10;
-  top:calc(100% + 10px);
-  left:50%;transform:translateX(-50%);
+  position:fixed;z-index:9999;
   background:rgba(20,5,0,0.97);border:1px solid #ff6b35;
   border-radius:7px;padding:8px 28px 8px 10px;
   font-family:'Space Mono',monospace;font-size:.56rem;
@@ -163,7 +161,8 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   box-shadow:0 4px 16px rgba(255,107,53,.3);
 }
 #u-warning-tip::before{
-  content:'';position:absolute;top:-6px;left:50%;transform:translateX(-50%);
+  content:'';position:absolute;top:-6px;
+  left:var(--arrow-left, 50%);transform:translateX(-50%);
   border:5px solid transparent;border-bottom-color:#ff6b35;
 }
 #u-warning-close{
@@ -176,7 +175,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 #tl-earth-handle.warning #u-warning-tip{display:block;}
 /* Bouton i sur le début de la barre Terre */
 #tl-earth-info{
-  position:absolute;top:50%;z-index:5;
+  position:absolute;top:50%;z-index:7;
   width:13px;height:13px;border-radius:50%;
   background:var(--gold);color:#000;
   font-family:'Space Mono',monospace;font-size:.48rem;font-weight:700;
@@ -1118,7 +1117,28 @@ function updateEarthMarker(){
   if(P.U <= 500){ uWarningDismissed = false; }
   const warn = P.U > 500 && !uWarningDismissed;
   el.classList.toggle('warning', warn);
-  if(handle) handle.classList.toggle('warning', warn);
+  if(handle){
+    handle.classList.toggle('warning', warn);
+    // Positionner le warning tip en fixed sous la poignée
+    if(warn){
+      requestAnimationFrame(function(){
+        const tip = document.getElementById('u-warning-tip');
+        const hr  = handle.getBoundingClientRect();
+        if(tip && hr.width > 0){
+          const tipW = tip.offsetWidth || 210;
+          let left = hr.left + hr.width/2 - tipW/2;
+          const margin = 8;
+          if(left < margin) left = margin;
+          if(left + tipW > window.innerWidth - margin) left = window.innerWidth - tipW - margin;
+          tip.style.left = left + 'px';
+          tip.style.top  = (hr.bottom + 8) + 'px';
+          // Ajuster la flèche
+          const arrow_left = (hr.left + hr.width/2) - left;
+          tip.style.setProperty('--arrow-left', Math.max(10, Math.min(tipW-10, arrow_left)) + 'px');
+        }
+      });
+    }
+  }
 
   // Warning inline dans la modale
   const uw = document.getElementById('u-warning');
