@@ -312,20 +312,20 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
     <h3>Paramètres</h3>
     <div class="pgrid-modal">
       <div class="pm-modal">
-        <div class="ph-modal"><span class="pn-modal">N — Civs simultanées (Drake)</span><span class="pv-modal" id="vNm">10</span></div>
-        <input type="range" id="slNm" min="1" max="20" step="1" value="10">
+        <div class="ph-modal"><span class="pn-modal">N — Civs simultanées (Drake)</span><span class="pv-modal" id="vNm">5</span></div>
+        <input type="range" id="slNm" min="1" max="20" step="1" value="5">
       </div>
       <div class="pm-modal">
         <div class="ph-modal"><span class="pn-modal">L — Durée d'émission (ans)</span><span class="pv-modal" id="vLm">10 000</span></div>
-        <input type="range" id="slLm" min="100" max="50000" step="100" value="10000">
+        <input type="range" id="slLm" min="100" max="50000" step="100" value="2000">
       </div>
       <div class="pm-modal">
         <div class="ph-modal"><span class="pn-modal">S — Portée du signal (al)</span><span class="pv-modal" id="vSm">40 000</span></div>
-        <input type="range" id="slSm" min="100" max="52000" step="100" value="40000">
+        <input type="range" id="slSm" min="100" max="52000" step="100" value="20000">
       </div>
       <div class="pm-modal">
         <div class="ph-modal"><span class="pn-modal">U — Vie civ. terrestre (ans)</span><span class="pv-modal" id="vUm">500</span></div>
-        <input type="range" id="slUm" min="100" max="100000" step="100" value="500">
+        <input type="range" id="slUm" min="100" max="100000" step="100" value="2000">
       </div>
     </div>
     <div class="leg-modal">
@@ -343,9 +343,9 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 // ══════════════════════════════════════════════════
 // CONSTANTS
 // ══════════════════════════════════════════════════
-const SIM_START   = -10000;
-const SIM_END     =  10000;
-const SIM_DUR     =  20000;
+const SIM_START   = -100000; // civs spawn depuis -100000
+const SIM_END     =   10000;
+const SIM_DUR     =  110000; // durée totale de spawn
 const MW_R        =  52000;
 const EARTH_GX    =  8500;
 const EARTH_GY    =  0;
@@ -362,9 +362,9 @@ const R0_SP     = 2500;
 // ══════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════
-let P = {N:10, L:10000, S:40000, U:500, B:1.0};
+let P = {N:5, L:2000, S:20000, U:2000, B:1.0};
 let civs=[], gStars=[];
-let simTime=EARTH_BIRTH, playing=true, speed=500;
+let simTime=-10000, playing=true, speed=500;
 let lastTS=null, animId=null, scrubbing=false;
 let gCache=null, cacheW=0, cacheH=0;
 
@@ -600,6 +600,9 @@ function drawRing(emitGx, emitGy, birth, death, S, col, W, H){
 
   if(outerPx < 0.3) return false;
 
+  // Garantir 1px minimum d'épaisseur visible
+  const safeInnerPx = Math.min(innerPx, Math.max(0, outerPx - 1));
+
   const [r,g,b,a] = col; // col = [r,g,b,alpha]
 
   sc.save();
@@ -609,8 +612,8 @@ function drawRing(emitGx, emitGy, birth, death, S, col, W, H){
   // Draw annulus: filled circle minus inner hole
   sc.beginPath();
   sc.arc(0, 0, outerPx, 0, Math.PI*2, false);
-  if(innerPx > 0.5){
-    sc.arc(0, 0, innerPx, 0, Math.PI*2, true);
+  if(safeInnerPx > 0.5){
+    sc.arc(0, 0, safeInnerPx, 0, Math.PI*2, true);
   }
   sc.fillStyle = `rgba(${r},${g},${b},${a})`;
   sc.fill();
@@ -674,14 +677,15 @@ function drawSim(t, W, H){
   }
 
   // ── Earth ring ──
-  // Ensure Earth's ring is visible: enforce min visual thickness = 8% of S
-  const earthAliveForRing = t >= earthStart;
+  // Physique exacte : birth=earthStart, death=earthEnd, épaisseur = U en al
+  // Le ring émetteur disparaît quand innerLy >= S (signal sorti de la galaxie)
+  // earthAliveForRing : on dessine dès t > earthStart (signal déjà parti)
+  const earthAliveForRing = t > earthStart;
   if(earthAliveForRing){
     const eCol = currentlyDetecting && earthAlive
       ? [80, 250, 123, 0.82]
       : [244, 196, 48, 0.82];
-    const earthLifespan = Math.max(P.U, S * 0.08); // visual min thickness
-    drawRing(EARTH_GX, EARTH_GY, earthStart, earthStart + earthLifespan, S, eCol, W, H);
+    drawRing(EARTH_GX, EARTH_GY, earthStart, earthEnd, S, eCol, W, H);
   }
 
   // ── Earth dot ──
@@ -727,8 +731,10 @@ function updateEarthMarker(){
   const el=document.getElementById('tl-earth');
   const wrap=document.getElementById('timeline-wrap');
   const W=wrap.offsetWidth;
-  const t0pct=(EARTH_BIRTH - SIM_START)/SIM_DUR;
-  const t1pct=(EARTH_BIRTH + P.U - SIM_START)/SIM_DUR;
+  // Marker positionné dans le range du curseur (-10000 → +10000)
+  const CURSOR_START = -10000, CURSOR_DUR = 20000;
+  const t0pct=(EARTH_BIRTH - CURSOR_START)/CURSOR_DUR;
+  const t1pct=Math.min(1, (EARTH_BIRTH + P.U - CURSOR_START)/CURSOR_DUR);
   el.style.left=Math.max(0,t0pct*W)+'px';
   el.style.width=Math.max(2,(t1pct-t0pct)*W)+'px';
 }
@@ -742,7 +748,7 @@ function loop(ts){
   lastTS=ts;
   if(playing&&!scrubbing){
     simTime+=dt*speed;
-    if(simTime>SIM_END){simTime=SIM_START;}
+    if(simTime>SIM_END){simTime=-10000;}
     document.getElementById('tscrub').value=simTime;
   }
   const yr=Math.round(simTime);
@@ -811,7 +817,7 @@ document.addEventListener('touchend',()=>{
 // Desktop sliders → trigger sim + sync mobile
 ['slNm','slLm'].forEach(id=>{
   document.getElementById(id).addEventListener('input',()=>{
-    readP();spawnCivs();simTime=EARTH_BIRTH;
+    readP();spawnCivs();simTime=-10000;
   });
 });
 ['slSm','slUm'].forEach(id=>{
@@ -830,7 +836,7 @@ document.addEventListener('touchend',()=>{
   });
 });
 document.getElementById('bregen-modal').addEventListener('click',()=>{
-  readP();spawnCivs();simTime=EARTH_BIRTH;playing=true;
+  readP();spawnCivs();simTime=-10000;playing=true;
   document.getElementById('bplay').textContent='⏸';lastTS=null;
   toggleParams();
 });
