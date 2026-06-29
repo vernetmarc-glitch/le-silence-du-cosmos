@@ -437,8 +437,13 @@ const cs=document.getElementById('cs'), sc=cs.getContext('2d');
 
 function resize(){
   const wr=document.getElementById('wrap');
-  cg.width=cs.width=wr.clientWidth;
-  cg.height=cs.height=wr.clientHeight;
+  const tb=document.getElementById('topbar');
+  // Sur mobile, clientHeight peut être 0 si le layout n'est pas stabilisé.
+  // On utilise window.innerHeight - topbar comme fallback fiable.
+  const W = wr.clientWidth  || window.innerWidth;
+  const H = wr.clientHeight || (window.innerHeight - (tb ? tb.offsetHeight : 0));
+  cg.width = cs.width  = Math.max(1, W);
+  cg.height= cs.height = Math.max(1, H);
   gCache=null;
 }
 
@@ -915,6 +920,9 @@ resize();
 updateEarthMarker();
 spawnCivs();
 startLoop();
+// Resize différé : garantit la hauteur correcte sur mobile après stabilisation du layout
+setTimeout(function(){ resize(); gCache=null; }, 100);
+setTimeout(function(){ resize(); gCache=null; }, 500);
 
 </script>
 </body>
