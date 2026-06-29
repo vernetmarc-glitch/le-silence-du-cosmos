@@ -130,7 +130,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   accent-color:var(--cyan);
   background:transparent;
 }
-#tdisp{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--gold);font-weight:700;white-space:nowrap;flex-shrink:0;}
+#tdisp{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--gold);font-weight:700;white-space:nowrap;flex-shrink:0;min-width:7.5ch;text-align:right;display:inline-block;}
 #timeline-wrap{position:relative;flex:1;height:26px;min-width:0;overflow:visible;}
 #tl-bg{position:absolute;top:50%;left:0;right:0;height:3px;border-radius:2px;background:rgba(255,255,255,.12);transform:translateY(-50%);pointer-events:none;z-index:1;}
 #tl-earth{position:absolute;top:50%;height:5px;border-radius:2px;background:var(--gold);opacity:.85;transform:translateY(-50%);pointer-events:none;z-index:2;transition:background .3s;}
@@ -154,9 +154,16 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   font-family:'Space Mono',monospace;font-size:.52rem;
   color:var(--gold);white-space:nowrap;
   pointer-events:none;display:none;z-index:10;
+  text-align:center;
 }
-#tl-earth-handle.dragging #tl-handle-label{display:block;}
+#tl-earth-handle.dragging #tl-handle-label{display:flex;flex-direction:column;gap:3px;}
 #tl-earth-handle.warning #tl-handle-label{border-color:#ff6b35;color:#ff9966;}
+#tl-handle-warn-text{
+  font-size:.46rem;color:#ff9966;
+  max-width:160px;white-space:normal;line-height:1.4;
+  display:none;
+}
+#tl-earth-handle.warning #tl-handle-warn-text{display:block;}
 /* Icône warning : visible quand > 500, pas de bloc qui bloque */
 #tl-warning-icon{
   position:absolute;top:50%;z-index:6;
@@ -480,7 +487,10 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div id="tl-earth"></div>
       <button id="tl-earth-info" title="Fenêtre terrestre">i</button>
       <div id="tl-earth-handle">
-        <div id="tl-handle-label">1 000 ans</div>
+        <div id="tl-handle-label">
+          <span id="tl-handle-val">1 000 ans</span>
+          <span id="tl-handle-warn-text">Guerre nucléaire, pandémie, IA… vraiment plus de 500 ans&nbsp;?</span>
+        </div>
       </div>
       <span id="tl-warning-icon">⚠</span>
       <div id="u-warning-tip">
@@ -1122,8 +1132,8 @@ function updateEarthMarker(){
   // Poignée à l'extrémité droite
   if(handle){
     handle.style.left = x1px + 'px';
-    const labelEl = document.getElementById('tl-handle-label');
-    if(labelEl) labelEl.textContent = P.U.toLocaleString('fr-FR') + ' ans';
+    const valEl = document.getElementById('tl-handle-val');
+    if(valEl) valEl.textContent = P.U.toLocaleString('fr-FR') + ' ans';
   }
 
   // Bouton i au début de la barre
