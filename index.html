@@ -516,7 +516,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
         <button id="u-warning-close" onclick="dismissUWarning(event)">✕</button>
         Aucune civilisation connue n'a maintenu une infrastructure technologique active sur plus de quelques siècles. Au-delà de 1&nbsp;000 ans, l'hypothèse d'une écoute continue implique une stabilité institutionnelle, énergétique et sociale que l'histoire ne documente pas.
       </div>
-      <input type="range" id="tscrub" min="-10000" max="10000" step="10" value="0">
+      <input type="range" id="tscrub" min="-1000" max="10000" step="10" value="0">
     </div>
     <select id="spd-select">
       <option value="50">×50</option>
@@ -669,7 +669,7 @@ let P = {N:50, L:1000, S:10000, U:1000, B:1.0};
 let zoomLevel = 3.2; // 1 = vue galactique complète, >1 = zoom sur Terre
 let zoomTarget = 3.2;
 let civs=[], gStars=[];
-let simTime=-10000, playing=true, speed=500;
+let simTime=-1000, playing=true, speed=500;
 let lastTS=null, animId=null, scrubbing=false;
 let gCache=null, cacheW=0, cacheH=0;
 
@@ -1139,7 +1139,7 @@ function updateEarthMarker(){
   const info   = document.getElementById('tl-earth-info');
   const wrap   = document.getElementById('timeline-wrap');
   const W      = wrap.offsetWidth;
-  const CURSOR_START = -10000, CURSOR_DUR = 20000;
+  const CURSOR_START = -1000, CURSOR_DUR = 11000;
   const t0pct = (EARTH_BIRTH - CURSOR_START) / CURSOR_DUR;
   const t1pct = Math.min(1, (EARTH_BIRTH + P.U - CURSOR_START) / CURSOR_DUR);
   const x0px  = Math.max(0, t0pct * W);
@@ -1198,7 +1198,7 @@ function loop(ts){
   lastTS=ts;
   if(playing&&!scrubbing){
     simTime+=dt*speed;
-    if(simTime>SIM_END){simTime=-10000;}
+    if(simTime>SIM_END){simTime=-1000;}
     document.getElementById('tscrub').value=simTime;
   }
   const yr=Math.round(simTime);
@@ -1411,7 +1411,7 @@ document.addEventListener('click', function(e){
   const wrap   = document.getElementById('timeline-wrap');
   if(!handle || !wrap) return;
 
-  const CURSOR_START = -10000, CURSOR_DUR = 20000;
+  const CURSOR_START = -1000, CURSOR_DUR = 11000;
   const U_MIN = 100, U_MAX = 10000, U_STEP = 100;
   let dragging = false;
 
