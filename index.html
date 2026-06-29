@@ -108,10 +108,40 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   border:1px solid rgba(74,174,255,.45);background:rgba(74,174,255,.10);
   color:var(--cyan);font-size:.75rem;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
-  transition:background .15s;
+  transition:background .15s;position:relative;
 }
 #bzoom:hover{background:rgba(74,174,255,.22);}
-#bzoom.zoomed{background:rgba(74,174,255,.30);border-color:var(--cyan);}
+#bzoom.active{background:rgba(74,174,255,.30);border-color:var(--cyan);}
+
+/* Panneau zoom vertical */
+#zoom-panel{
+  position:fixed;
+  bottom:60px; /* au-dessus de la ctrlbar */
+  right:12px;
+  width:36px;
+  background:rgba(3,7,24,0.94);
+  border:1px solid rgba(74,174,255,.30);
+  border-radius:18px;
+  padding:10px 0;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  z-index:50;
+  opacity:0;pointer-events:none;
+  transform:translateY(8px);
+  transition:opacity .22s ease, transform .22s ease;
+}
+#zoom-panel.open{opacity:1;pointer-events:all;transform:translateY(0);}
+#zoom-label-max{font-size:.44rem;color:var(--cyan);font-family:'Space Mono',monospace;letter-spacing:.03em;text-align:center;line-height:1.2;}
+#zoom-label-min{font-size:.44rem;color:var(--lbl);font-family:'Space Mono',monospace;letter-spacing:.03em;text-align:center;line-height:1.2;}
+#szoom{
+  -webkit-appearance:slider-vertical;
+  appearance:slider-vertical;
+  writing-mode:vertical-lr;
+  direction:rtl;
+  width:6px;height:120px;
+  cursor:pointer;
+  accent-color:var(--cyan);
+  background:transparent;
+}
 #tdisp{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--gold);font-weight:700;white-space:nowrap;flex-shrink:0;}
 #timeline-wrap{position:relative;flex:1;height:26px;min-width:0;}
 #tl-bg{position:absolute;top:50%;left:0;right:0;height:3px;border-radius:2px;background:rgba(255,255,255,.12);transform:translateY(-50%);pointer-events:none;z-index:1;}
@@ -308,6 +338,13 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
     </select>
     <button id="bzoom" title="Zoom sur la Terre">🔍</button>
   </div>
+</div>
+
+<!-- Panneau zoom vertical -->
+<div id="zoom-panel">
+  <span id="zoom-label-max">🔍<br>Terre</span>
+  <input type="range" id="szoom" min="1" max="12" step="0.1" value="1">
+  <span id="zoom-label-min">🌌<br>Voie<br>Lactée</span>
 </div>
 
 <div id="wrap">
@@ -940,26 +977,44 @@ spawnCivs();
 startLoop();
 
 // ── Zoom sur la Terre ──
-const ZOOM_IN = 12.0; // facteur de zoom (ajustable)
-document.getElementById('bzoom').addEventListener('click', function(){
-  if(zoomTarget === 1.0){
-    zoomTarget = ZOOM_IN;
-    this.classList.add('zoomed');
-    this.title = 'Vue galactique';
-  } else {
-    zoomTarget = 1.0;
-    this.classList.remove('zoomed');
-    this.title = 'Zoom sur la Terre';
+const ZOOM_MAX = 12.0;
+const zoomPanelEl = document.getElementById('zoom-panel');
+const szoomEl     = document.getElementById('szoom');
+const bzoomEl     = document.getElementById('bzoom');
+
+function setZoomPanelOpen(open){
+  zoomPanelEl.classList.toggle('open', open);
+  bzoomEl.classList.toggle('active', open);
+}
+
+bzoomEl.addEventListener('click', function(e){
+  e.stopPropagation();
+  setZoomPanelOpen(!zoomPanelEl.classList.contains('open'));
+});
+
+// Fermer le panneau si clic dehors
+document.addEventListener('click', function(e){
+  if(zoomPanelEl.classList.contains('open') &&
+     !zoomPanelEl.contains(e.target) &&
+     e.target !== bzoomEl){
+    setZoomPanelOpen(false);
   }
+});
+
+// Le curseur contrôle zoomTarget directement
+szoomEl.addEventListener('input', function(){
+  zoomTarget = parseFloat(this.value);
 });
 
 // Animation douce du zoom dans la loop principale
 function updateZoom(){
-  if(Math.abs(zoomLevel - zoomTarget) > 0.01){
-    zoomLevel += (zoomTarget - zoomLevel) * 0.08;
+  if(Math.abs(zoomLevel - zoomTarget) > 0.005){
+    zoomLevel += (zoomTarget - zoomLevel) * 0.10;
   } else {
     zoomLevel = zoomTarget;
   }
+  // Sync le curseur si le zoom a été modifié autrement
+  // (pas nécessaire ici mais garde la cohérence)
 }
 
 // ── Hint popup après 10s ──
