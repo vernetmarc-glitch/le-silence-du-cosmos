@@ -132,9 +132,9 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 /* ── CONTROLS ── */
 #ctrl{
   flex-shrink:0;background:var(--panel);border-top:1px solid var(--border);
-  padding:7px 14px 8px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;z-index:10;
+  padding:7px 14px 8px;display:flex;gap:10px;align-items:center;z-index:10;
 }
-#tblock{display:flex;flex-direction:column;gap:5px;min-width:280px;flex-shrink:0;}
+#tblock{display:flex;flex-direction:column;gap:5px;flex:1;min-width:0;}
 #trow{display:flex;align-items:center;gap:8px;}
 #bplay{
   width:30px;height:30px;border-radius:50%;
@@ -143,7 +143,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0;
 }
 #bplay:hover{background:rgba(74,174,255,.22);}
-#tdisp{font-family:'Space Mono',monospace;font-size:.78rem;color:var(--gold);min-width:112px;font-weight:700;}
+#tdisp{font-family:'Space Mono',monospace;font-size:.78rem;color:var(--gold);min-width:100px;font-weight:700;}
 .spds{display:flex;gap:3px;margin-left:auto;}
 .spd{
   padding:3px 7px;font-family:'Space Mono',monospace;font-size:.60rem;
@@ -168,7 +168,17 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 }
 #tscrub::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;}
 
-/* Params */
+/* Bouton paramètres (desktop: masqué; mobile: visible) */
+#bparams{
+  display:none;
+  width:32px;height:32px;border-radius:50%;
+  border:1px solid rgba(74,174,255,.45);background:rgba(74,174,255,.10);
+  color:var(--cyan);font-size:1rem;cursor:pointer;flex-shrink:0;
+  align-items:center;justify-content:center;transition:background .15s;
+}
+#bparams:hover{background:rgba(74,174,255,.22);}
+
+/* Params (desktop inline) */
 .pgrid{display:flex;gap:10px;flex-wrap:wrap;flex:1;align-items:center;}
 .pm{display:flex;flex-direction:column;gap:3px;min-width:100px;}
 .ph{display:flex;justify-content:space-between;align-items:baseline;gap:4px;}
@@ -177,43 +187,6 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 input[type=range]{width:100%;height:2px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,.12);border-radius:1px;outline:none;cursor:pointer;}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:var(--cyan);cursor:pointer;}
 input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;}
-
-/* ── MOBILE LANDSCAPE ── */
-@media (max-height: 500px){
-  /* Topbar plus fine */
-  #topbar-inner{min-height:40px;}
-  #title-text{font-size:.78rem;}
-  #title-chevron{font-size:.60rem;padding:2px 8px;}
-  .hstat{padding:4px 10px;}
-  .hv{font-size:.78rem;}
-  .hl{font-size:.42rem;margin-top:2px;}
-  #hdet{padding:4px 10px;}
-  .dc{font-size:.78rem;}
-  .dlog{font-size:.48rem;}
-
-  /* Barre de contrôle compacte */
-  #ctrl{padding:4px 10px 5px;gap:8px;flex-wrap:nowrap;align-items:center;}
-  #tblock{min-width:0;flex:0 0 auto;gap:3px;}
-  #trow{gap:5px;}
-  #tdisp{font-size:.65rem;min-width:80px;}
-  .spds{gap:2px;}
-  .spd{padding:2px 4px;font-size:.50rem;}
-  #bplay{width:24px;height:24px;font-size:.70rem;}
-  #timeline-wrap{height:16px;}
-
-  /* Sliders en ligne unique, plus petits */
-  .pgrid{flex-wrap:nowrap;gap:8px;flex:1;overflow:hidden;}
-  .pm{min-width:0;flex:1;gap:2px;}
-  .pn{font-size:.48rem;}
-  .pv{font-size:.58rem;}
-
-  /* Bloc droite */
-  #rblock{gap:4px;flex-shrink:0;}
-  #bregen{padding:3px 8px;font-size:.50rem;}
-  .leg{gap:5px;}
-  .li{font-size:.46rem;gap:3px;}
-  .ld{width:6px;height:6px;}
-}
 
 #rblock{display:flex;flex-direction:column;gap:7px;align-items:flex-end;flex-shrink:0;}
 #bregen{
@@ -226,6 +199,71 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 .leg{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
 .li{display:flex;align-items:center;gap:5px;font-size:.56rem;color:var(--lbl);}
 .ld{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* ── MODALE PARAMÈTRES ── */
+#params-overlay{
+  display:none;position:fixed;inset:0;z-index:60;
+  background:rgba(0,0,10,.80);backdrop-filter:blur(4px);
+  align-items:flex-end;justify-content:center;
+}
+#params-overlay.open{display:flex;}
+#params-panel{
+  background:rgba(3,7,24,0.98);border:1px solid var(--border);
+  border-radius:14px 14px 0 0;
+  padding:20px 22px 28px;width:100%;max-width:520px;
+}
+#params-handle{
+  width:36px;height:4px;border-radius:2px;
+  background:rgba(255,255,255,.2);margin:0 auto 18px;
+}
+#params-panel h3{
+  font-family:'Space Mono',monospace;font-size:.72rem;font-weight:700;
+  color:var(--cyan);letter-spacing:.10em;text-transform:uppercase;
+  margin-bottom:16px;
+}
+.pgrid-modal{display:flex;flex-direction:column;gap:16px;}
+.pm-modal{display:flex;flex-direction:column;gap:6px;}
+.ph-modal{display:flex;justify-content:space-between;align-items:baseline;}
+.pn-modal{font-size:.70rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.05em;}
+.pv-modal{font-family:'Space Mono',monospace;font-size:.80rem;color:var(--gold);font-weight:700;}
+#params-panel .leg{justify-content:flex-start;margin-top:18px;}
+#params-panel .li{font-size:.62rem;}
+#bregen-modal{
+  margin-top:18px;width:100%;padding:10px;
+  font-family:'Space Mono',monospace;font-size:.62rem;
+  letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid rgba(74,174,255,.35);background:rgba(74,174,255,.07);
+  color:var(--cyan);border-radius:6px;cursor:pointer;transition:background .15s;
+}
+#bregen-modal:hover{background:rgba(74,174,255,.16);}
+
+/* ── MOBILE : cacher params inline, montrer bouton ⚙ ── */
+@media (max-height: 500px){
+  #topbar-inner{min-height:40px;}
+  #title-text{font-size:.80rem;}
+  #title-chevron{width:20px;height:20px;font-size:.70rem;}
+  .hstat{padding:4px 8px;}
+  .hv{font-size:.78rem;}
+  .hl{font-size:.40rem;margin-top:1px;}
+  #hdet{padding:4px 8px;}
+  .dc{font-size:.78rem;}
+  .dlog{font-size:.46rem;}
+
+  #ctrl{padding:5px 10px 6px;gap:8px;}
+  #bplay{width:26px;height:26px;font-size:.75rem;}
+  #tdisp{font-size:.68rem;min-width:86px;}
+  .spds{gap:2px;}
+  .spd{padding:2px 5px;font-size:.52rem;}
+  #timeline-wrap{height:16px;}
+
+  /* Cacher les params desktop et le rblock, montrer le bouton ⚙ */
+  .pgrid{display:none;}
+  #rblock{display:none;}
+  #bparams{display:flex;}
+
+  /* Sheet remonte un peu plus sur mobile paysage */
+  #params-panel{border-radius:12px;margin:12px;width:auto;}
+}
 /* ── ROTATE SCREEN OVERLAY (portrait mobile only) ── */
 #rotate-overlay{
   display:none;
@@ -297,7 +335,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
         <p>Nous avons scruté le ciel pendant des siècles. Rien. Pas un signal, pas un écho, pas la moindre trace d'une autre voix dans l'immensité. Et pourtant les étoiles sont légion, les planètes innombrables, le temps vertigineux. La vie aurait dû surgir ailleurs. L'intelligence aurait dû fleurir. Quelqu'un, quelque part, aurait dû parler.</p>
         <p>Ce silence est la question la plus troublante que l'humanité ait jamais posée.</p>
         <p>Cette simulation explore une réponse possible. Chaque <strong style="color:#4aaeff">anneau bleu</strong> est une civilisation technologique — une brève flamme dans le noir qui émet ses signaux radio dans toutes les directions, à la vitesse de la lumière. Ces ondes se propagent pendant des millénaires après l'extinction de leur source, fantômes d'une présence révolue. L'anneau devient <strong style="color:#8ab4d4">bleu clair</strong> quand la civilisation s'est éteinte (signal fossile). Il passe au <strong style="color:#50fa7b">vert</strong> quand il touche la Terre pendant son existence.</p>
-        <p>La <strong style="color:#f4c430">Terre</strong> est ce point doré. Sa fenêtre d'existence — quelques milliers d'années sur deux cent mille — est infiniment étroite. Pour qu'un contact ait lieu, il faut que deux miracles se produisent au même moment : que quelqu'un émette, et que nous soyons là pour recevoir.</p>
+        <p>La <strong style="color:#f4c430">Terre</strong> est ce point doré. Mais la planète seule ne suffit pas — ce qui compte, c'est la fenêtre où une civilisation technologique y existe, capable d'émettre et de recevoir des signaux radio. Cette fenêtre — quelques milliers d'années sur deux cent mille simulées — est infiniment étroite. Pour qu'un contact ait lieu, il faut que deux miracles coïncident : que quelqu'un émette, et que nous soyons là pour recevoir.</p>
         <p>Jouez avec les paramètres. Regardez les anneaux se multiplier, se croiser, parfois frôler la Terre. Et demandez-vous pourquoi, dans notre univers réel, nous n'en avons capté aucun. Peut-être sommes-nous trop tôt. Peut-être trop tard. Peut-être seuls.</p>
       </div>
       <div class="info-col">
@@ -318,7 +356,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   <div id="tblock">
     <div id="trow">
       <button id="bplay">⏸</button>
-      <span id="tdisp">An −100 000</span>
+      <span id="tdisp">An 0</span>
       <div class="spds">
         <button class="spd" data-s="50">×50</button>
         <button class="spd" data-s="200">×200</button>
@@ -334,6 +372,10 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
     </div>
   </div>
 
+  <!-- Bouton ⚙ visible uniquement sur mobile -->
+  <button id="bparams" onclick="toggleParams()" title="Paramètres">⚙</button>
+
+  <!-- Params inline (desktop) -->
   <div class="pgrid">
     <div class="pm">
       <div class="ph"><span class="pn">N total / 200k ans</span><span class="pv" id="vN">200</span></div>
@@ -351,7 +393,6 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div class="ph"><span class="pn">Vie civ. Terre (an)</span><span class="pv" id="vU">2 000</span></div>
       <input type="range" id="slU" min="100" max="100000" step="100" value="2000">
     </div>
-
   </div>
 
   <div id="rblock">
@@ -362,6 +403,39 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div class="li"><div class="ld" style="background:#f4c430;box-shadow:0 0 5px #f4c430"></div>Onde Terre</div>
       <div class="li"><div class="ld" style="background:#50fa7b;box-shadow:0 0 4px #50fa7b"></div>Contact !</div>
     </div>
+  </div>
+</div>
+
+<!-- Modale paramètres (mobile) -->
+<div id="params-overlay" onclick="handleParamsOverlay(event)">
+  <div id="params-panel">
+    <div id="params-handle"></div>
+    <h3>Paramètres</h3>
+    <div class="pgrid-modal">
+      <div class="pm-modal">
+        <div class="ph-modal"><span class="pn-modal">N — Civilisations / 200k ans</span><span class="pv-modal" id="vNm">200</span></div>
+        <input type="range" id="slNm" min="1" max="1000" step="1" value="200">
+      </div>
+      <div class="pm-modal">
+        <div class="ph-modal"><span class="pn-modal">L — Durée d'émission (ans)</span><span class="pv-modal" id="vLm">2 000</span></div>
+        <input type="range" id="slLm" min="100" max="50000" step="100" value="2000">
+      </div>
+      <div class="pm-modal">
+        <div class="ph-modal"><span class="pn-modal">S — Portée du signal (al)</span><span class="pv-modal" id="vSm">10 000</span></div>
+        <input type="range" id="slSm" min="100" max="52000" step="100" value="10000">
+      </div>
+      <div class="pm-modal">
+        <div class="ph-modal"><span class="pn-modal">U — Vie civ. terrestre (ans)</span><span class="pv-modal" id="vUm">2 000</span></div>
+        <input type="range" id="slUm" min="100" max="100000" step="100" value="2000">
+      </div>
+    </div>
+    <div class="leg">
+      <div class="li"><div class="ld" style="background:#4aaeff;box-shadow:0 0 4px #4aaeff"></div>Onde active</div>
+      <div class="li"><div class="ld" style="background:#7ab0d8"></div>Fossile</div>
+      <div class="li"><div class="ld" style="background:#f4c430;box-shadow:0 0 5px #f4c430"></div>Onde Terre</div>
+      <div class="li"><div class="ld" style="background:#50fa7b;box-shadow:0 0 4px #50fa7b"></div>Contact !</div>
+    </div>
+    <button id="bregen-modal">↺ Régénérer</button>
   </div>
 </div>
 
@@ -414,7 +488,49 @@ function resize(){
 // ══════════════════════════════════════════════════
 // INFO PANEL
 // ══════════════════════════════════════════════════
-function toggleInfo(){
+function toggleParams(){
+  document.getElementById('params-overlay').classList.toggle('open');
+}
+function handleParamsOverlay(e){
+  if(e.target===document.getElementById('params-overlay')) toggleParams();
+}
+
+// Sync sliders desktop ↔ mobile
+function syncSliders(srcId, dstId, displayId, displayIdM){
+  const src = document.getElementById(srcId);
+  const dst = document.getElementById(dstId);
+  const disp = document.getElementById(displayId);
+  const dispM = displayIdM ? document.getElementById(displayIdM) : null;
+  src.addEventListener('input', ()=>{
+    dst.value = src.value;
+    if(dispM) dispM.textContent = disp.textContent;
+  });
+  dst.addEventListener('input', ()=>{
+    src.value = dst.value;
+    if(dispM) dispM.textContent = disp.textContent;
+  });
+}
+
+// Bouton régénérer de la modale mobile
+document.getElementById('bregen-modal').addEventListener('click',()=>{
+  readP();spawnCivs();simTime=EARTH_BIRTH;playing=true;
+  document.getElementById('bplay').textContent='⏸';lastTS=null;
+  toggleParams();
+});
+
+// Sync display mobile quand desktop change (et vice versa)
+['N','L','S','U'].forEach(k=>{
+  const slD = document.getElementById('sl'+k);
+  const slM = document.getElementById('sl'+k+'m');
+  const vD  = document.getElementById('v'+k);
+  const vM  = document.getElementById('v'+k+'m');
+  slD.addEventListener('input',()=>{ slM.value=slD.value; vM.textContent=vD.textContent; });
+  slM.addEventListener('input',()=>{ slD.value=slM.value; vM.textContent=vD.textContent;
+    // Déclencher l'event sur le slider desktop pour que readP() soit appelé
+    slD.dispatchEvent(new Event('input'));
+  });
+});
+
   const overlay = document.getElementById('info-overlay');
   const btn = document.getElementById('title-chevron');
   const isOpen = overlay.classList.contains('open');
