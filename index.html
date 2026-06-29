@@ -1291,6 +1291,7 @@ document.addEventListener('touchend',()=>{
 // ══════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════
+let uWarningDismissed = false;
 window.addEventListener('resize',()=>{resize();gCache=null;invalidateStarCache();updateEarthMarker();});
 gStars=generateGalaxy();
 readP();
@@ -1454,7 +1455,6 @@ document.addEventListener('click', function(e){
 })();
 
 // ── Fermer manuellement le warning U ──
-let uWarningDismissed = false;
 function dismissUWarning(e){
   if(e) e.stopPropagation();
   uWarningDismissed = true;
