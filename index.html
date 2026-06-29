@@ -253,6 +253,204 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 @media (max-width:768px) and (orientation:portrait){
   #rotate-overlay{display:flex;}
 }
+
+/* ── Handle barre Terre : cercle ── */
+#tl-earth-handle{
+  width:14px;height:14px;border-radius:50%;
+  background:var(--gold);
+}
+
+/* ── Barre Terre warning couleur ── */
+#tl-earth.warning{
+  background:linear-gradient(90deg,var(--gold) 30%,#ff6b35);
+}
+
+/* ── Icône warning ── */
+#tl-warning-icon{
+  position:absolute;top:50%;z-index:6;
+  transform:translate(6px,-50%);
+  font-size:.65rem;pointer-events:none;display:none;
+  filter:drop-shadow(0 0 3px #ff6b35);
+}
+#tl-warning-icon.show{display:block;}
+
+/* ── Label drag (visible seulement pendant le drag) ── */
+#tl-handle-label{
+  position:absolute;top:calc(100% + 6px);left:50%;
+  transform:translateX(-50%);
+  background:rgba(3,7,24,0.95);border:1px solid rgba(244,196,48,.5);
+  border-radius:5px;padding:4px 8px;
+  font-family:'Space Mono',monospace;font-size:.52rem;
+  color:var(--gold);
+  width:max-content;max-width:min(180px,40vw);
+  white-space:normal;text-align:center;
+  pointer-events:none;display:none;z-index:10;
+}
+#tl-earth-handle.dragging #tl-handle-label{display:flex;flex-direction:column;gap:4px;}
+#tl-earth-handle.warning #tl-handle-label{border-color:#ff6b35;color:#ff9966;}
+#tl-handle-val{white-space:nowrap;}
+#tl-handle-warn-text{
+  font-size:.46rem;color:#ff9966;
+  white-space:normal;line-height:1.45;display:none;
+}
+#tl-earth-handle.warning #tl-handle-warn-text{display:block;}
+
+/* ── Modale warning (jamais auto, ouverte par JS) ── */
+#u-warning-tip{
+  position:fixed;z-index:9999;
+  background:rgba(20,5,0,0.97);border:1px solid #ff6b35;
+  border-radius:7px;padding:8px 28px 8px 10px;
+  font-family:'Space Mono',monospace;font-size:.56rem;
+  color:#ff9966;line-height:1.6;width:210px;
+  pointer-events:all;display:none;
+  box-shadow:0 4px 16px rgba(255,107,53,.3);
+}
+#u-warning-tip.show{display:block;}
+#u-warning-tip::before{
+  content:'';position:absolute;top:-6px;
+  left:var(--arrow-left,50%);transform:translateX(-50%);
+  border:5px solid transparent;border-bottom-color:#ff6b35;
+}
+#u-warning-close{
+  position:absolute;top:5px;right:7px;
+  background:transparent;border:none;
+  color:rgba(255,107,53,.6);font-size:.65rem;cursor:pointer;
+  padding:0;transition:color .15s;
+}
+#u-warning-close:hover{color:#ff6b35;}
+
+/* ── tdisp largeur fixe anti-glitch ── */
+#tdisp{min-width:7.5ch;text-align:right;display:inline-block;}
+
+/* ── KPI bar portrait mobile ── */
+#kpi-bar{
+  display:none;
+  flex-direction:row;align-items:stretch;
+  border-top:1px solid var(--border);
+  overflow:hidden;
+  justify-content:flex-start;
+}
+#kpi-bar .hstat{flex:0 0 auto;border-right:1px solid var(--border);padding:4px 10px;}
+#kpi-bar .hstat:last-child{border-right:none;}
+@media (max-width:1024px) and (orientation:portrait){
+  #topbar-inner .hstat,
+  #topbar-inner #hdet{display:none !important;}
+  #kpi-bar{display:flex !important;}
+}
+
+/* ── Bouton ↺ regen (même style que ? et ⚙) ── */
+#bregen{
+  width:20px;height:20px;border-radius:50%;
+  background:var(--cyan);color:#000;
+  font-family:'Space Mono',monospace;font-size:.70rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;cursor:pointer;transition:opacity .2s;
+  user-select:none;pointer-events:all;border:none;
+}
+#bregen:hover{opacity:.80;}
+
+/* ── Hint popup 🤔 ── */
+#hint-popup{
+  position:fixed;z-index:200;
+  top:54px;left:12px;
+  background:rgba(3,7,24,0.96);border:1px solid rgba(74,174,255,.35);
+  border-radius:10px;padding:10px 14px;
+  font-family:'Space Mono',monospace;font-size:.65rem;color:var(--cyan);
+  display:none;align-items:center;gap:8px;
+  pointer-events:all;cursor:pointer;
+  box-shadow:0 0 18px rgba(74,174,255,.15);
+}
+#hint-popup.show{display:flex;}
+#hint-arrow{
+  position:absolute;top:-7px;left:50%;
+  transform:translateX(-50%);
+  width:0;height:0;
+  border-left:6px solid transparent;
+  border-right:6px solid transparent;
+  border-bottom:7px solid rgba(74,174,255,.35);
+}
+#hint-close{
+  margin-left:4px;font-size:.65rem;color:var(--lbl);
+  cursor:pointer;transition:color .15s;flex-shrink:0;
+}
+#hint-close:hover{color:var(--txt);}
+@keyframes fadeInHint{
+  from{opacity:0;transform:translateY(-6px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+/* ── Hint timeline doré ── */
+#hint-timeline{
+  position:fixed;z-index:201;
+  background:rgba(3,7,24,0.96);border:1px solid rgba(244,196,48,.45);
+  border-radius:10px;padding:10px 13px 10px 10px;
+  font-family:'Space Mono',monospace;font-size:.60rem;color:var(--gold);
+  display:none;flex-direction:column;gap:5px;
+  pointer-events:all;
+  box-shadow:0 0 18px rgba(244,196,48,.12);
+  max-width:220px;line-height:1.55;
+}
+#hint-timeline.show{display:flex;}
+#hint-timeline-arrow{
+  position:absolute;top:-7px;left:50%;transform:translateX(-50%);
+  width:0;height:0;
+  border-left:6px solid transparent;
+  border-right:6px solid transparent;
+  border-bottom:7px solid rgba(244,196,48,.45);
+}
+#hint-timeline-close{
+  position:absolute;top:6px;right:8px;
+  background:transparent;border:none;
+  color:rgba(244,196,48,.5);font-size:.65rem;cursor:pointer;
+  padding:0;transition:color .15s;
+}
+#hint-timeline-close:hover{color:var(--gold);}
+
+/* ── Infobulles i sur paramètres ── */
+.pi-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:13px;height:13px;border-radius:50%;
+  border:1px solid rgba(74,174,255,.50);
+  color:rgba(74,174,255,.70);font-size:.52rem;
+  font-family:'Space Mono',monospace;
+  cursor:pointer;flex-shrink:0;position:relative;
+  transition:border-color .15s,color .15s;
+  user-select:none;vertical-align:middle;
+}
+.pi-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+.pi-tip{
+  position:fixed;z-index:9999;
+  background:rgba(3,7,30,0.97);border:1px solid rgba(74,174,255,.30);
+  border-radius:8px;padding:10px 13px;
+  width:260px;max-width:calc(100vw - 24px);
+  font-size:.62rem;color:var(--txt);line-height:1.65;
+  font-family:'Space Mono',monospace;font-weight:400;
+  text-transform:none;letter-spacing:0;z-index:9999;
+  pointer-events:none;display:none;
+  box-shadow:0 4px 24px rgba(0,0,0,.7);
+  white-space:normal;word-break:normal;
+}
+.pi-btn:hover .pi-tip,.pi-btn:focus .pi-tip{display:block;}
+
+/* ── Zoom curseur vertical ── */
+#zoom-panel{
+  position:fixed;bottom:52px;right:10px;
+  width:34px;
+  background:rgba(3,7,24,0.88);
+  border:1px solid rgba(74,174,255,.28);
+  border-radius:17px;padding:8px 0 6px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  z-index:50;pointer-events:all;
+}
+#zoom-label-max{font-size:.42rem;color:var(--cyan);font-family:'Space Mono',monospace;text-align:center;line-height:1.2;opacity:.85;}
+#zoom-label-min{font-size:.42rem;color:var(--lbl);font-family:'Space Mono',monospace;text-align:center;line-height:1.2;}
+#szoom{
+  -webkit-appearance:slider-vertical;
+  appearance:slider-vertical;
+  writing-mode:vertical-lr;direction:rtl;
+  width:6px;height:110px;
+  cursor:pointer;accent-color:var(--cyan);background:transparent;
+}
 </style>
 </head>
 <body>
