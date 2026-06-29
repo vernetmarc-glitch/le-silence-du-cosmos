@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Le silence du cosmos</title>
-
-<!-- PWA : plein écran sans barre navigateur -->
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-immersive">
@@ -20,8 +18,25 @@
   --cyan:#4aaeff;--gold:#f4c430;--green:#50fa7b;
   --txt:#e8edf8;--lbl:#7a8fac;
 }
-body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column;}
-#wrap{flex:1;position:relative;overflow:hidden;}
+
+/* ── LAYOUT PRINCIPAL ── */
+html,body{width:100%;height:100%;}
+body{
+  background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;
+  /* Hauteur = fenêtre visible (exclut barre nav mobile) */
+  height:100svh;
+  overflow:hidden;display:flex;flex-direction:column;
+}
+/* Fallback pour navigateurs sans svh */
+@supports not (height: 100svh){
+  body{height:100dvh;}
+}
+@supports not (height: 100dvh){
+  body{height:100vh;}
+}
+
+/* Zone galaxie : prend tout l'espace entre topbar et ctrl */
+#wrap{flex:1;position:relative;overflow:hidden;min-height:0;}
 canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 #cg{z-index:1;}#cs{z-index:2;}
 
@@ -31,176 +46,158 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   pointer-events:none;
 }
 #topbar-inner{
-  display:flex;align-items:stretch;min-height:52px;
+  display:flex;align-items:stretch;min-height:50px;
   background:rgba(2,4,16,0.93);
   border-bottom:1px solid var(--border);
   backdrop-filter:blur(18px);
 }
-
-/* Title block */
 #title-block{
-  display:flex;align-items:center;gap:12px;
-  padding:0 22px;border-right:1px solid var(--border);
-  cursor:pointer;pointer-events:all;
-  transition:background .15s;
-  flex-shrink:0;
+  display:flex;align-items:center;gap:10px;
+  padding:0 16px;border-right:1px solid var(--border);
+  cursor:pointer;pointer-events:all;transition:background .15s;flex-shrink:0;
 }
 #title-block:hover{background:rgba(255,255,255,0.03);}
 #title-text{
-  font-family:'Space Mono',monospace;
-  font-size:1.05rem;font-weight:700;
-  letter-spacing:.08em;
-  color:#ffffff;
-  text-transform:uppercase;
-  white-space:nowrap;
+  font-family:'Space Mono',monospace;font-size:.95rem;font-weight:700;
+  letter-spacing:.08em;color:#fff;text-transform:uppercase;white-space:nowrap;
   text-shadow:0 0 20px rgba(74,174,255,0.5);
 }
 #title-chevron{
-  width:22px;height:22px;
-  border-radius:50%;
-  background:var(--cyan);
-  color:#000;
-  font-family:'Space Mono',monospace;
-  font-size:.75rem;font-weight:700;
+  width:22px;height:22px;border-radius:50%;
+  background:var(--cyan);color:#000;
+  font-family:'Space Mono',monospace;font-size:.75rem;font-weight:700;
   display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;
-  cursor:pointer;
-  transition:opacity .2s, transform .15s;
-  user-select:none;
+  flex-shrink:0;cursor:pointer;transition:opacity .2s;user-select:none;
 }
-#title-chevron:hover{opacity:.80;transform:scale(1.1);}
-#title-block:hover #title-chevron{transform:scale(1.08);}
-#title-chevron.open{
-  background:transparent;
-  color:var(--cyan);
-  border:1.5px solid var(--cyan);
-}
-
-/* Stats */
+#title-chevron:hover{opacity:.80;}
+#title-chevron.open{background:transparent;color:var(--cyan);border:1.5px solid var(--cyan);}
 .hstat{
   display:flex;flex-direction:column;justify-content:center;
-  padding:8px 18px;border-right:1px solid var(--border);
+  padding:6px 14px;border-right:1px solid var(--border);
 }
-.hv{font-family:'Space Mono',monospace;font-size:.88rem;color:var(--txt);line-height:1;font-weight:700;}
-.hl{font-size:.56rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.07em;margin-top:3px;}
-#hdet{display:flex;flex-direction:column;justify-content:center;padding:8px 18px;}
-.dc{font-family:'Space Mono',monospace;font-size:.88rem;color:var(--lbl);line-height:1;font-weight:700;transition:color .25s;}
+.hv{font-family:'Space Mono',monospace;font-size:.85rem;color:var(--txt);line-height:1;font-weight:700;}
+.hl{font-size:.52rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.07em;margin-top:2px;}
+#hdet{display:flex;flex-direction:column;justify-content:center;padding:6px 14px;}
+.dc{font-family:'Space Mono',monospace;font-size:.85rem;color:var(--lbl);line-height:1;font-weight:700;transition:color .25s;}
 .dc.on{color:var(--green);}
-.dlog{font-size:.54rem;color:var(--lbl);margin-top:3px;line-height:1.5;max-width:340px;}
+.dlog{font-size:.52rem;color:var(--lbl);margin-top:2px;line-height:1.4;max-width:300px;}
 
-/* ── INFO MODAL ── */
-#info-overlay{
-  display:none;
-  position:fixed;inset:0;z-index:50;
-  background:rgba(0,0,10,0.75);
-  backdrop-filter:blur(4px);
-  pointer-events:all;
-  align-items:center;justify-content:center;
-  padding:20px;
-}
-#info-overlay.open{display:flex;}
-#info-panel{
-  position:relative;
-  background:rgba(3,7,24,0.98);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:24px 28px 28px;
-  max-width:780px;width:100%;
-  max-height:80vh;
-  overflow-y:auto;
-  pointer-events:all;
-}
-#info-close{
-  position:absolute;top:14px;right:16px;
-  background:transparent;border:none;
-  color:var(--lbl);font-size:1.1rem;cursor:pointer;
-  line-height:1;padding:4px;transition:color .15s;
-}
-#info-close:hover{color:var(--txt);}
-#info-cols{display:flex;gap:32px;}
-@media(max-width:600px){#info-cols{flex-direction:column;gap:20px;}}
-.info-col{flex:1;}
-#info-panel h2{
-  font-family:'Space Mono',monospace;font-size:.8rem;font-weight:700;
-  color:var(--cyan);letter-spacing:.10em;text-transform:uppercase;
-  margin-bottom:10px;
-}
-#info-panel p{font-size:.73rem;color:var(--txt);line-height:1.68;margin-bottom:9px;}
-.param-list{font-size:.70rem;color:var(--lbl);line-height:1.9;}
-.param-list strong{color:var(--txt);}
-
-/* ── CONTROLS ── */
+/* ── BARRE DE CONTRÔLE DU BAS ── */
 #ctrl{
-  flex-shrink:0;background:var(--panel);border-top:1px solid var(--border);
-  padding:7px 14px 8px;display:flex;gap:10px;align-items:center;z-index:10;
+  flex-shrink:0;
+  background:var(--panel);border-top:1px solid var(--border);
+  padding:8px 14px 10px;
+  display:flex;gap:10px;align-items:center;
+  /* Ne wrap jamais — tout reste sur une ligne */
+  flex-wrap:nowrap;
+  z-index:10;
+  width:100%;
 }
 #tblock{display:flex;flex-direction:column;gap:5px;flex:1;min-width:0;}
-#trow{display:flex;align-items:center;gap:8px;}
+#trow{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;}
 #bplay{
-  width:30px;height:30px;border-radius:50%;
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
   border:1px solid rgba(74,174,255,.45);background:rgba(74,174,255,.10);
-  color:var(--cyan);font-size:.85rem;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0;
+  color:var(--cyan);font-size:.80rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:background .15s;
 }
 #bplay:hover{background:rgba(74,174,255,.22);}
-#tdisp{font-family:'Space Mono',monospace;font-size:.78rem;color:var(--gold);min-width:100px;font-weight:700;}
-.spds{display:flex;gap:3px;margin-left:auto;}
+#tdisp{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--gold);font-weight:700;white-space:nowrap;flex-shrink:0;}
+.spds{display:flex;gap:2px;margin-left:auto;flex-shrink:0;}
 .spd{
-  padding:3px 7px;font-family:'Space Mono',monospace;font-size:.60rem;
+  padding:2px 5px;font-family:'Space Mono',monospace;font-size:.55rem;
   border:1px solid var(--border);background:transparent;color:var(--lbl);
-  border-radius:3px;cursor:pointer;transition:all .12s;
+  border-radius:3px;cursor:pointer;transition:all .12s;white-space:nowrap;
 }
 .spd.on{border-color:rgba(74,174,255,.55);color:var(--cyan);background:rgba(74,174,255,.10);}
-
-/* Timeline */
-#timeline-wrap{position:relative;width:100%;height:20px;}
+#timeline-wrap{position:relative;width:100%;height:18px;}
 #tl-bg{position:absolute;top:50%;left:0;right:0;height:4px;border-radius:2px;background:rgba(255,255,255,.11);transform:translateY(-50%);pointer-events:none;z-index:1;}
 #tl-earth{position:absolute;top:50%;height:6px;border-radius:3px;background:var(--gold);opacity:.80;transform:translateY(-50%);pointer-events:none;z-index:2;}
 #tscrub{
-  position:absolute;top:50%;left:0;width:100%;height:4px;
-  transform:translateY(-50%);
-  -webkit-appearance:none;appearance:none;
-  background:transparent;outline:none;cursor:pointer;z-index:3;
+  position:absolute;top:50%;left:0;width:100%;height:4px;transform:translateY(-50%);
+  -webkit-appearance:none;appearance:none;background:transparent;outline:none;cursor:pointer;z-index:3;
 }
-#tscrub::-webkit-slider-thumb{
-  -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
-  background:var(--cyan);cursor:pointer;box-shadow:0 0 7px var(--cyan);
-}
+#tscrub::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 7px var(--cyan);}
 #tscrub::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;}
 
-/* Bouton paramètres (desktop: masqué; mobile: visible) */
+/* Bouton ⚙ — visible sur mobile, caché sur desktop */
 #bparams{
-  display:none;
-  width:32px;height:32px;border-radius:50%;
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
   border:1px solid rgba(74,174,255,.45);background:rgba(74,174,255,.10);
-  color:var(--cyan);font-size:1rem;cursor:pointer;flex-shrink:0;
-  align-items:center;justify-content:center;transition:background .15s;
+  color:var(--cyan);font-size:.90rem;cursor:pointer;
+  display:none;align-items:center;justify-content:center;transition:background .15s;
 }
 #bparams:hover{background:rgba(74,174,255,.22);}
 
-/* Params (desktop inline) */
-.pgrid{display:flex;gap:10px;flex-wrap:wrap;flex:1;align-items:center;}
-.pm{display:flex;flex-direction:column;gap:3px;min-width:100px;}
+/* Params inline — desktop uniquement */
+.pgrid{display:flex;gap:10px;flex-wrap:nowrap;align-items:center;flex-shrink:0;}
+.pm{display:flex;flex-direction:column;gap:3px;width:110px;}
 .ph{display:flex;justify-content:space-between;align-items:baseline;gap:4px;}
-.pn{font-size:.54rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
-.pv{font-family:'Space Mono',monospace;font-size:.66rem;color:var(--gold);font-weight:700;white-space:nowrap;}
-input[type=range]{width:100%;height:2px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,.12);border-radius:1px;outline:none;cursor:pointer;}
+.pn{font-size:.52rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
+.pv{font-family:'Space Mono',monospace;font-size:.64rem;color:var(--gold);font-weight:700;}
+input[type=range]{width:100%;height:2px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,.15);border-radius:1px;outline:none;cursor:pointer;}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:var(--cyan);cursor:pointer;}
 input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;}
 
-#rblock{display:flex;flex-direction:column;gap:7px;align-items:flex-end;flex-shrink:0;}
+/* Bloc droite (légende + regen) — desktop */
+#rblock{display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0;}
 #bregen{
-  padding:6px 14px;font-family:'Space Mono',monospace;font-size:.60rem;
+  padding:5px 12px;font-family:'Space Mono',monospace;font-size:.56rem;
   letter-spacing:.08em;text-transform:uppercase;
   border:1px solid rgba(74,174,255,.35);background:rgba(74,174,255,.07);
-  color:var(--cyan);border-radius:4px;cursor:pointer;transition:background .15s;
+  color:var(--cyan);border-radius:4px;cursor:pointer;transition:background .15s;white-space:nowrap;
 }
 #bregen:hover{background:rgba(74,174,255,.16);}
-.leg{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
-.li{display:flex;align-items:center;gap:5px;font-size:.56rem;color:var(--lbl);}
-.ld{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.leg{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+.li{display:flex;align-items:center;gap:4px;font-size:.52rem;color:var(--lbl);white-space:nowrap;}
+.ld{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 
-/* ── MODALE PARAMÈTRES ── */
+/* ── MOBILE : bascule layout ── */
+@media (max-width: 768px){
+  #title-text{font-size:.75rem;}
+  .hstat{padding:5px 8px;}
+  .hv{font-size:.75rem;}
+  .hl{font-size:.40rem;}
+  #hdet{padding:5px 8px;}
+  .dc{font-size:.75rem;}
+  /* Cacher params inline + légende sur mobile */
+  .pgrid{display:none;}
+  #rblock{display:none;}
+  /* Montrer bouton ⚙ */
+  #bparams{display:flex;}
+}
+
+/* ── MODALE INFO ── */
+#info-overlay{
+  display:none;position:fixed;inset:0;z-index:50;
+  background:rgba(0,0,10,.75);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;padding:16px;
+}
+#info-overlay.open{display:flex;}
+#info-panel{
+  position:relative;background:rgba(3,7,24,0.98);
+  border:1px solid var(--border);border-radius:12px;
+  padding:22px 24px 24px;width:100%;max-width:780px;
+  max-height:85svh;overflow-y:auto;
+}
+#info-close{
+  position:absolute;top:12px;right:14px;
+  background:transparent;border:none;color:var(--lbl);
+  font-size:1.1rem;cursor:pointer;padding:4px;transition:color .15s;
+}
+#info-close:hover{color:var(--txt);}
+#info-cols{display:flex;gap:28px;}
+@media(max-width:600px){#info-cols{flex-direction:column;gap:18px;}}
+.info-col{flex:1;}
+#info-panel h2{
+  font-family:'Space Mono',monospace;font-size:.78rem;font-weight:700;
+  color:var(--cyan);letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px;
+}
+#info-panel p{font-size:.72rem;color:var(--txt);line-height:1.68;margin-bottom:8px;}
+.param-list{font-size:.68rem;color:var(--lbl);line-height:1.9;}
+.param-list strong{color:var(--txt);}
+
+/* ── MODALE PARAMÈTRES (mobile) ── */
 #params-overlay{
   display:none;position:fixed;inset:0;z-index:60;
   background:rgba(0,0,10,.80);backdrop-filter:blur(4px);
@@ -209,88 +206,41 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 #params-overlay.open{display:flex;}
 #params-panel{
   background:rgba(3,7,24,0.98);border:1px solid var(--border);
-  border-radius:14px 14px 0 0;
-  padding:20px 22px 28px;width:100%;max-width:520px;
+  border-radius:14px 14px 0 0;padding:16px 20px 32px;
+  width:100%;max-height:80svh;overflow-y:auto;
 }
-#params-handle{
-  width:36px;height:4px;border-radius:2px;
-  background:rgba(255,255,255,.2);margin:0 auto 18px;
-}
+#params-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.2);margin:0 auto 16px;}
 #params-panel h3{
-  font-family:'Space Mono',monospace;font-size:.72rem;font-weight:700;
-  color:var(--cyan);letter-spacing:.10em;text-transform:uppercase;
-  margin-bottom:16px;
+  font-family:'Space Mono',monospace;font-size:.70rem;font-weight:700;
+  color:var(--cyan);letter-spacing:.10em;text-transform:uppercase;margin-bottom:14px;
 }
-.pgrid-modal{display:flex;flex-direction:column;gap:16px;}
+.pgrid-modal{display:flex;flex-direction:column;gap:14px;}
 .pm-modal{display:flex;flex-direction:column;gap:6px;}
 .ph-modal{display:flex;justify-content:space-between;align-items:baseline;}
-.pn-modal{font-size:.70rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.05em;}
+.pn-modal{font-size:.68rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.04em;}
 .pv-modal{font-family:'Space Mono',monospace;font-size:.80rem;color:var(--gold);font-weight:700;}
-#params-panel .leg{justify-content:flex-start;margin-top:18px;}
-#params-panel .li{font-size:.62rem;}
+.leg-modal{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+.leg-modal .li{font-size:.60rem;}
 #bregen-modal{
-  margin-top:18px;width:100%;padding:10px;
-  font-family:'Space Mono',monospace;font-size:.62rem;
+  margin-top:16px;width:100%;padding:10px;
+  font-family:'Space Mono',monospace;font-size:.60rem;
   letter-spacing:.08em;text-transform:uppercase;
   border:1px solid rgba(74,174,255,.35);background:rgba(74,174,255,.07);
   color:var(--cyan);border-radius:6px;cursor:pointer;transition:background .15s;
 }
 #bregen-modal:hover{background:rgba(74,174,255,.16);}
 
-/* ── MOBILE : cacher params inline, montrer bouton ⚙ ── */
-/* ── MOBILE (phones en paysage) ── */
-@media (max-width: 900px) and (orientation: landscape){
-  /* Topbar compacte */
-  #topbar-inner{min-height:40px;}
-  #title-text{font-size:.80rem;}
-  #title-chevron{width:20px;height:20px;font-size:.70rem;}
-  .hstat{padding:4px 8px;}
-  .hv{font-size:.78rem;}
-  .hl{font-size:.40rem;margin-top:1px;}
-  #hdet{padding:4px 8px;}
-  .dc{font-size:.78rem;}
-  .dlog{font-size:.46rem;}
-
-  /* Barre temps uniquement */
-  #ctrl{padding:5px 10px 6px;gap:8px;}
-  #bplay{width:26px;height:26px;font-size:.75rem;}
-  #tdisp{font-size:.68rem;min-width:86px;}
-  .spds{gap:2px;}
-  .spd{padding:2px 5px;font-size:.52rem;}
-  #timeline-wrap{height:16px;}
-
-  /* Cacher params inline + légende, montrer bouton ⚙ */
-  .pgrid{display:none !important;}
-  #rblock{display:none !important;}
-  #bparams{display:flex !important;}
-
-  /* Bottom sheet */
-  #params-panel{border-radius:12px 12px 0 0;margin:0;width:100%;}
-}
-/* ── ROTATE SCREEN OVERLAY (portrait mobile only) ── */
+/* ── OVERLAY ROTATION PORTRAIT ── */
 #rotate-overlay{
-  display:none;
-  position:fixed;inset:0;z-index:9999;
-  background:#000005;
-  flex-direction:column;align-items:center;justify-content:center;gap:24px;
+  display:none;position:fixed;inset:0;z-index:9999;
+  background:#000005;flex-direction:column;
+  align-items:center;justify-content:center;gap:24px;
   text-align:center;padding:32px;
 }
-#rotate-overlay .rotate-icon{
-  font-size:4rem;
-  animation:rotateHint 2s ease-in-out infinite;
-}
-@keyframes rotateHint{
-  0%,100%{transform:rotate(0deg);}
-  40%{transform:rotate(90deg);}
-  60%{transform:rotate(90deg);}
-}
-#rotate-overlay h2{
-  font-family:'Space Mono',monospace;
-  color:var(--cyan);font-size:1.1rem;letter-spacing:.08em;
-}
-#rotate-overlay p{
-  color:var(--lbl);font-size:.85rem;line-height:1.6;max-width:260px;
-}
+#rotate-overlay .rotate-icon{font-size:4rem;animation:rotateHint 2s ease-in-out infinite;}
+@keyframes rotateHint{0%,100%{transform:rotate(0deg);}40%{transform:rotate(90deg);}60%{transform:rotate(90deg);}}
+#rotate-overlay h2{font-family:'Space Mono',monospace;color:var(--cyan);font-size:1.1rem;letter-spacing:.08em;}
+#rotate-overlay p{color:var(--lbl);font-size:.85rem;line-height:1.6;max-width:260px;}
 @media (max-width:768px) and (orientation:portrait){
   #rotate-overlay{display:flex;}
 }
@@ -298,7 +248,6 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 </head>
 <body>
 
-<!-- Rotate screen overlay — portrait mobile only -->
 <div id="rotate-overlay">
   <div class="rotate-icon">📱</div>
   <h2>Tournez votre écran</h2>
@@ -311,15 +260,13 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 
   <div id="topbar">
     <div id="topbar-inner">
-      <!-- Title + ? button -->
       <div id="title-block" onclick="toggleInfo()">
         <span id="title-text">Le silence du cosmos</span>
         <span id="title-chevron" aria-label="En savoir plus">?</span>
       </div>
-      <!-- Stats -->
       <div class="hstat"><span class="hv" id="hactive">0</span><span class="hl">Civs actives</span></div>
       <div class="hstat"><span class="hv" id="hwaves">0</span><span class="hl">Ondes visibles</span></div>
-      <div class="hstat"><span class="hv" id="hsimul">—</span><span class="hl">Simult. moy. théorique</span></div>
+      <div class="hstat"><span class="hv" id="hsimul">—</span><span class="hl">Simult. moy.</span></div>
       <div id="hdet">
         <span class="dc" id="hdc">0 détection</span>
         <span class="dlog" id="hdlog">Aucune détection pendant la vie de la Terre</span>
@@ -328,11 +275,61 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   </div>
 </div>
 
-<!-- Info modal -->
+<!-- Barre de contrôle -->
+<div id="ctrl">
+  <div id="tblock">
+    <div id="trow">
+      <button id="bplay">⏸</button>
+      <span id="tdisp">An +0</span>
+      <div class="spds">
+        <button class="spd" data-s="50">×50</button>
+        <button class="spd" data-s="200">×200</button>
+        <button class="spd" data-s="1000">×1k</button>
+        <button class="spd on" data-s="5000">×5k</button>
+        <button class="spd" data-s="20000">×20k</button>
+      </div>
+    </div>
+    <div id="timeline-wrap">
+      <div id="tl-bg"></div>
+      <div id="tl-earth"></div>
+      <input type="range" id="tscrub" min="-100000" max="100000" step="100" value="0">
+    </div>
+  </div>
+  <button id="bparams" onclick="toggleParams()">⚙</button>
+  <div class="pgrid">
+    <div class="pm">
+      <div class="ph"><span class="pn">N / 200k ans</span><span class="pv" id="vN">200</span></div>
+      <input type="range" id="slN" min="1" max="1000" step="1" value="200">
+    </div>
+    <div class="pm">
+      <div class="ph"><span class="pn">L émission (an)</span><span class="pv" id="vL">2 000</span></div>
+      <input type="range" id="slL" min="100" max="50000" step="100" value="2000">
+    </div>
+    <div class="pm">
+      <div class="ph"><span class="pn">Portée S (al)</span><span class="pv" id="vS">10 000</span></div>
+      <input type="range" id="slS" min="100" max="52000" step="100" value="10000">
+    </div>
+    <div class="pm">
+      <div class="ph"><span class="pn">Vie civ. (an)</span><span class="pv" id="vU">2 000</span></div>
+      <input type="range" id="slU" min="100" max="100000" step="100" value="2000">
+    </div>
+  </div>
+  <div id="rblock">
+    <button id="bregen">↺ Régénérer</button>
+    <div class="leg">
+      <div class="li"><div class="ld" style="background:#4aaeff;box-shadow:0 0 4px #4aaeff"></div>Active</div>
+      <div class="li"><div class="ld" style="background:#7ab0d8"></div>Fossile</div>
+      <div class="li"><div class="ld" style="background:#f4c430;box-shadow:0 0 5px #f4c430"></div>Terre</div>
+      <div class="li"><div class="ld" style="background:#50fa7b;box-shadow:0 0 4px #50fa7b"></div>Contact</div>
+    </div>
+  </div>
+</div>
+
+<!-- Modale info -->
 <div id="info-overlay" onclick="handleOverlayClick(event)">
   <div id="info-panel">
     <button id="info-close" onclick="toggleInfo()">✕</button>
-    <div id="info-cols">
+<div id="info-cols">
       <div class="info-col">
         <h2>Le silence</h2>
         <p>Nous avons scruté le ciel pendant des siècles. Rien. Pas un signal, pas un écho, pas la moindre trace d'une autre voix dans l'immensité. Et pourtant les étoiles sont légion, les planètes innombrables, le temps vertigineux. La vie aurait dû surgir ailleurs. L'intelligence aurait dû fleurir. Quelqu'un, quelque part, aurait dû parler.</p>
@@ -351,60 +348,6 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
         </div>
         <p style="margin-top:12px;">Le paradoxe de Fermi s'observe directement : même avec des centaines de civilisations, les fenêtres de contact simultané sont rares. Augmentez N, L et S pour voir les premières détections apparaître.</p>
       </div>
-    </div>
-  </div>
-</div>
-
-<div id="ctrl">
-  <div id="tblock">
-    <div id="trow">
-      <button id="bplay">⏸</button>
-      <span id="tdisp">An 0</span>
-      <div class="spds">
-        <button class="spd" data-s="50">×50</button>
-        <button class="spd" data-s="200">×200</button>
-        <button class="spd" data-s="1000">×1k</button>
-        <button class="spd on" data-s="5000">×5k</button>
-        <button class="spd" data-s="20000">×20k</button>
-      </div>
-    </div>
-    <div id="timeline-wrap">
-      <div id="tl-bg"></div>
-      <div id="tl-earth"></div>
-      <input type="range" id="tscrub" min="-100000" max="100000" step="100" value="0">
-    </div>
-  </div>
-
-  <!-- Bouton ⚙ visible uniquement sur mobile -->
-  <button id="bparams" onclick="toggleParams()" title="Paramètres">⚙</button>
-
-  <!-- Params inline (desktop) -->
-  <div class="pgrid">
-    <div class="pm">
-      <div class="ph"><span class="pn">N total / 200k ans</span><span class="pv" id="vN">200</span></div>
-      <input type="range" id="slN" min="1" max="1000" step="1" value="200">
-    </div>
-    <div class="pm">
-      <div class="ph"><span class="pn">Durée émission L (an)</span><span class="pv" id="vL">2 000</span></div>
-      <input type="range" id="slL" min="100" max="50000" step="100" value="2000">
-    </div>
-    <div class="pm">
-      <div class="ph"><span class="pn">Portée S (al)</span><span class="pv" id="vS">10 000</span></div>
-      <input type="range" id="slS" min="100" max="52000" step="100" value="10000">
-    </div>
-    <div class="pm">
-      <div class="ph"><span class="pn">Vie civ. Terre (an)</span><span class="pv" id="vU">2 000</span></div>
-      <input type="range" id="slU" min="100" max="100000" step="100" value="2000">
-    </div>
-  </div>
-
-  <div id="rblock">
-    <button id="bregen">↺ Régénérer</button>
-    <div class="leg">
-      <div class="li"><div class="ld" style="background:#4aaeff;box-shadow:0 0 4px #4aaeff"></div>Onde active</div>
-      <div class="li"><div class="ld" style="background:#7ab0d8"></div>Fossile</div>
-      <div class="li"><div class="ld" style="background:#f4c430;box-shadow:0 0 5px #f4c430"></div>Onde Terre</div>
-      <div class="li"><div class="ld" style="background:#50fa7b;box-shadow:0 0 4px #50fa7b"></div>Contact !</div>
     </div>
   </div>
 </div>
@@ -432,7 +375,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
         <input type="range" id="slUm" min="100" max="100000" step="100" value="2000">
       </div>
     </div>
-    <div class="leg">
+    <div class="leg-modal">
       <div class="li"><div class="ld" style="background:#4aaeff;box-shadow:0 0 4px #4aaeff"></div>Onde active</div>
       <div class="li"><div class="ld" style="background:#7ab0d8"></div>Fossile</div>
       <div class="li"><div class="ld" style="background:#f4c430;box-shadow:0 0 5px #f4c430"></div>Onde Terre</div>
@@ -443,6 +386,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 </div>
 
 <script>
+
 // ══════════════════════════════════════════════════
 // CONSTANTS
 // ══════════════════════════════════════════════════
@@ -966,6 +910,7 @@ resize();
 updateEarthMarker();
 spawnCivs();
 startLoop();
+
 </script>
 </body>
 </html>
