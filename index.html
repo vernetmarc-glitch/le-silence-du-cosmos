@@ -144,6 +144,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   cursor:ew-resize;touch-action:none;
   transition:background .3s;
   user-select:none;
+  pointer-events:all;
 }
 #tl-earth-handle.warning{background:#ff6b35;}
 /* Label durée : visible seulement pendant le drag */
@@ -223,7 +224,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 #u-warning.show{display:block;}
 #tscrub{
   position:absolute;top:0;left:0;width:100%;height:100%;
-  -webkit-appearance:none;appearance:none;background:transparent;outline:none;cursor:pointer;z-index:3;margin:0;
+  -webkit-appearance:none;appearance:none;background:transparent;outline:none;cursor:pointer;z-index:3;margin:0;pointer-events:all;
 }
 #tscrub::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 8px var(--cyan);margin-top:-9px;}
 #tscrub::-webkit-slider-runnable-track{height:3px;background:transparent;}
@@ -673,6 +674,7 @@ function resize(){
   cg.width=cs.width=wr.clientWidth;
   cg.height=cs.height=wr.clientHeight;
   gCache=null;
+  invalidateStarCache();
 }
 
 // ══════════════════════════════════════════════════
@@ -1194,6 +1196,7 @@ function loop(ts){
 }
 function startLoop(){
   if(animId) cancelAnimationFrame(animId);
+  resize();
   lastTS=null;animId=requestAnimationFrame(loop);
 }
 
@@ -1432,11 +1435,12 @@ document.addEventListener('click', function(e){
   handle.addEventListener('mousedown', function(e){
     dragging = true;
     handle.classList.add('dragging');
+    e.stopPropagation();
     e.preventDefault();
   });
   document.addEventListener('mousemove', function(e){
-    if(dragging) onMove(e.clientX);
-  });
+    if(dragging){ e.preventDefault(); onMove(e.clientX); }
+  },{passive:false});
   document.addEventListener('mouseup', function(){
     if(dragging){ dragging = false; handle.classList.remove('dragging'); }
   });
@@ -1445,10 +1449,11 @@ document.addEventListener('click', function(e){
   handle.addEventListener('touchstart', function(e){
     dragging = true;
     handle.classList.add('dragging');
+    e.stopPropagation();
     e.preventDefault();
   },{passive:false});
   document.addEventListener('touchmove', function(e){
-    if(dragging) onMove(e.touches[0].clientX);
+    if(dragging){ onMove(e.touches[0].clientX); }
   },{passive:true});
   document.addEventListener('touchend', function(){
     if(dragging){ dragging = false; handle.classList.remove('dragging'); }
