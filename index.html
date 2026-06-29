@@ -138,7 +138,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 /* Poignée drag droite de la barre Terre */
 #tl-earth-handle{
   position:absolute;top:50%;z-index:6;
-  width:10px;height:18px;border-radius:3px;
+  width:14px;height:14px;border-radius:50%;
   background:var(--gold);border:1.5px solid rgba(255,255,255,.35);
   transform:translate(-50%,-50%);
   cursor:ew-resize;touch-action:none;
@@ -501,7 +501,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
         <button id="u-warning-close" onclick="dismissUWarning(event)">✕</button>
         Guerre nucléaire, pandémie, IA… pensez-vous vraiment que notre civilisation saurait rester à l'écoute plus de 500 ans&nbsp;?
       </div>
-      <input type="range" id="tscrub" min="-10000" max="10000" step="10" value="0">
+      <input type="range" id="tscrub" min="-3000" max="3000" step="10" value="0">
     </div>
     <select id="spd-select">
       <option value="50">×50</option>
@@ -613,7 +613,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
           </span>
           <span class="pv-modal" id="vUm">500</span>
         </div>
-        <input type="range" id="slUm" min="100" max="10000" step="100" value="1000">
+        <input type="range" id="slUm" min="100" max="10000" step="100" value="500">
         <div id="u-warning">⚠ Au-delà de 500 ans, il est très peu probable qu'une civilisation évite une catastrophe existentielle — guerre nucléaire, effondrement climatique, pandémie, IA incontrôlable.</div>
       </div>
     </div>
@@ -650,11 +650,11 @@ const R0_SP     = 2500;
 // ══════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════
-let P = {N:50, L:1000, S:10000, U:1000, B:1.0};
+let P = {N:50, L:1000, S:10000, U:500, B:1.0};
 let zoomLevel = 3.2; // 1 = vue galactique complète, >1 = zoom sur Terre
 let zoomTarget = 3.2;
 let civs=[], gStars=[];
-let simTime=-10000, playing=true, speed=500;
+let simTime=-3000, playing=true, speed=500;
 let lastTS=null, animId=null, scrubbing=false;
 let gCache=null, cacheW=0, cacheH=0;
 
@@ -1124,7 +1124,7 @@ function updateEarthMarker(){
   const info   = document.getElementById('tl-earth-info');
   const wrap   = document.getElementById('timeline-wrap');
   const W      = wrap.offsetWidth;
-  const CURSOR_START = -10000, CURSOR_DUR = 20000;
+  const CURSOR_START = -3000, CURSOR_DUR = 6000;
   const t0pct = (EARTH_BIRTH - CURSOR_START) / CURSOR_DUR;
   const t1pct = Math.min(1, (EARTH_BIRTH + P.U - CURSOR_START) / CURSOR_DUR);
   const x0px  = Math.max(0, t0pct * W);
@@ -1179,8 +1179,8 @@ function loop(ts){
   lastTS=ts;
   if(playing&&!scrubbing){
     simTime+=dt*speed;
-    if(simTime>SIM_END){simTime=-10000;}
-    document.getElementById('tscrub').value=simTime;
+    if(simTime>SIM_END){simTime=-3000;}
+    document.getElementById('tscrub').value=Math.max(-3000,Math.min(3000,simTime));
   }
   const yr=Math.round(simTime);
   document.getElementById('tdisp').textContent=
@@ -1249,7 +1249,7 @@ document.addEventListener('touchend',()=>{
 // Desktop sliders → trigger sim + sync mobile
 ['slNm','slLm'].forEach(id=>{
   document.getElementById(id).addEventListener('input',()=>{
-    readP();spawnCivs();simTime=-10000;
+    readP();spawnCivs();simTime=-3000;
   });
 });
 ['slSm','slUm'].forEach(id=>{
@@ -1408,7 +1408,7 @@ document.addEventListener('click', function(e){
   const wrap   = document.getElementById('timeline-wrap');
   if(!handle || !wrap) return;
 
-  const CURSOR_START = -10000, CURSOR_DUR = 20000;
+  const CURSOR_START = -3000, CURSOR_DUR = 6000;
   const U_MIN = 100, U_MAX = 10000, U_STEP = 100;
   let dragging = false;
 
