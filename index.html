@@ -138,13 +138,35 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 /* Poignée drag droite de la barre Terre */
 #tl-earth-handle{
   position:absolute;top:50%;z-index:4;
-  width:10px;height:16px;border-radius:3px;
-  background:var(--gold);border:1.5px solid rgba(255,255,255,.4);
+  min-width:36px;height:18px;border-radius:4px;
+  background:var(--gold);border:1.5px solid rgba(255,255,255,.35);
   transform:translate(-50%,-50%);
   cursor:ew-resize;touch-action:none;
   transition:background .3s;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 4px;
+  font-family:'Space Mono',monospace;font-size:.44rem;
+  font-weight:700;color:#000;white-space:nowrap;
+  user-select:none;
 }
-#tl-earth-handle.warning{background:#ff6b35;}
+#tl-earth-handle.warning{background:#ff6b35;color:#fff;}
+/* Warning flottant au-dessus de la poignée */
+#u-warning-tip{
+  position:absolute;z-index:10;
+  bottom:calc(100% + 8px);
+  left:50%;transform:translateX(-50%);
+  background:rgba(20,5,0,0.97);border:1px solid #ff6b35;
+  border-radius:7px;padding:7px 10px;
+  font-family:'Space Mono',monospace;font-size:.56rem;
+  color:#ff9966;line-height:1.5;width:200px;
+  pointer-events:none;display:none;
+  box-shadow:0 4px 16px rgba(255,107,53,.3);
+}
+#u-warning-tip::after{
+  content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:#ff6b35;
+}
+#tl-earth-handle.warning #u-warning-tip{display:block;}
 /* Bouton i sur le début de la barre Terre */
 #tl-earth-info{
   position:absolute;top:50%;z-index:5;
@@ -435,7 +457,10 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div id="tl-bg"></div>
       <div id="tl-earth"></div>
       <button id="tl-earth-info" title="Fenêtre terrestre">i</button>
-      <div id="tl-earth-handle" title="Glisser pour modifier la durée de réception"></div>
+      <div id="tl-earth-handle">
+  <span id="tl-handle-val">1 000</span>
+  <div id="u-warning-tip">⚠ Au-delà de 500 ans, une catastrophe existentielle devient très probable — guerre nucléaire, effondrement climatique, pandémie, IA.</div>
+</div>
       <input type="range" id="tscrub" min="-10000" max="10000" step="10" value="0">
     </div>
     <select id="spd-select">
@@ -1069,7 +1094,11 @@ function updateEarthMarker(){
   el.style.width = (x1px - x0px) + 'px';
 
   // Poignée à l'extrémité droite
-  if(handle) handle.style.left = x1px + 'px';
+  if(handle){
+    handle.style.left = x1px + 'px';
+    const valEl = document.getElementById('tl-handle-val');
+    if(valEl) valEl.textContent = P.U.toLocaleString('fr-FR');
+  }
 
   // Bouton i au début de la barre
   if(info) info.style.left = x0px + 'px';
