@@ -130,7 +130,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   accent-color:var(--cyan);
   background:transparent;
 }
-#tdisp{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--gold);font-weight:700;white-space:nowrap;flex-shrink:0;min-width:7.5ch;text-align:right;display:inline-block;}
+#tdisp{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--gold);font-weight:700;white-space:nowrap;flex-shrink:0;}
 #timeline-wrap{position:relative;flex:1;height:26px;min-width:0;overflow:visible;}
 #tl-bg{position:absolute;top:50%;left:0;right:0;height:3px;border-radius:2px;background:rgba(255,255,255,.12);transform:translateY(-50%);pointer-events:none;z-index:1;}
 #tl-earth{position:absolute;top:50%;height:5px;border-radius:2px;background:var(--gold);opacity:.85;transform:translateY(-50%);pointer-events:none;z-index:2;transition:background .3s;}
@@ -144,31 +144,19 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   cursor:ew-resize;touch-action:none;
   transition:background .3s;
   user-select:none;
-  pointer-events:all;
 }
 #tl-earth-handle.warning{background:#ff6b35;}
 /* Label durée : visible seulement pendant le drag */
 #tl-handle-label{
   position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);
   background:rgba(3,7,24,0.95);border:1px solid rgba(244,196,48,.5);
-  border-radius:5px;padding:4px 8px;
+  border-radius:5px;padding:3px 7px;
   font-family:'Space Mono',monospace;font-size:.52rem;
-  color:var(--gold);
-  white-space:normal;      /* permet le retour à la ligne */
-  width:max-content;       /* s'adapte au contenu par défaut (ligne valeur seule) */
-  max-width:min(180px, 40vw); /* plafond pour le texte warning multi-lignes */
+  color:var(--gold);white-space:nowrap;
   pointer-events:none;display:none;z-index:10;
-  text-align:center;
 }
-#tl-earth-handle.dragging #tl-handle-label{display:flex;flex-direction:column;gap:4px;}
+#tl-earth-handle.dragging #tl-handle-label{display:block;}
 #tl-earth-handle.warning #tl-handle-label{border-color:#ff6b35;color:#ff9966;}
-#tl-handle-val{white-space:nowrap;} /* valeur numérique toujours sur une ligne */
-#tl-handle-warn-text{
-  font-size:.46rem;color:#ff9966;
-  white-space:normal;line-height:1.45;
-  display:none;
-}
-#tl-earth-handle.warning #tl-handle-warn-text{display:block;}
 /* Icône warning : visible quand > 500, pas de bloc qui bloque */
 #tl-warning-icon{
   position:absolute;top:50%;z-index:6;
@@ -224,7 +212,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 #u-warning.show{display:block;}
 #tscrub{
   position:absolute;top:0;left:0;width:100%;height:100%;
-  -webkit-appearance:none;appearance:none;background:transparent;outline:none;cursor:pointer;z-index:3;margin:0;pointer-events:all;
+  -webkit-appearance:none;appearance:none;background:transparent;outline:none;cursor:pointer;z-index:3;margin:0;
 }
 #tscrub::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 8px var(--cyan);margin-top:-9px;}
 #tscrub::-webkit-slider-runnable-track{height:3px;background:transparent;}
@@ -492,17 +480,14 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div id="tl-earth"></div>
       <button id="tl-earth-info" title="Fenêtre terrestre">i</button>
       <div id="tl-earth-handle">
-        <div id="tl-handle-label">
-          <span id="tl-handle-val">1 000 ans</span>
-          <span id="tl-handle-warn-text">Guerre nucléaire, pandémie, IA… vraiment plus de 500 ans&nbsp;?</span>
-        </div>
+        <div id="tl-handle-label">1 000 ans</div>
       </div>
       <span id="tl-warning-icon">⚠</span>
       <div id="u-warning-tip">
         <button id="u-warning-close" onclick="dismissUWarning(event)">✕</button>
         Guerre nucléaire, pandémie, IA… pensez-vous vraiment que notre civilisation saurait rester à l'écoute plus de 500 ans&nbsp;?
       </div>
-      <input type="range" id="tscrub" min="-3000" max="3000" step="10" value="0">
+      <input type="range" id="tscrub" min="-3000" max="3000" step="10" value="-3000">
     </div>
     <select id="spd-select">
       <option value="50">×50</option>
@@ -674,7 +659,6 @@ function resize(){
   cg.width=cs.width=wr.clientWidth;
   cg.height=cs.height=wr.clientHeight;
   gCache=null;
-  invalidateStarCache();
 }
 
 // ══════════════════════════════════════════════════
@@ -1138,8 +1122,8 @@ function updateEarthMarker(){
   // Poignée à l'extrémité droite
   if(handle){
     handle.style.left = x1px + 'px';
-    const valEl = document.getElementById('tl-handle-val');
-    if(valEl) valEl.textContent = P.U.toLocaleString('fr-FR') + ' ans';
+    const labelEl = document.getElementById('tl-handle-label');
+    if(labelEl) labelEl.textContent = P.U.toLocaleString('fr-FR') + ' ans';
   }
 
   // Bouton i au début de la barre
@@ -1196,7 +1180,6 @@ function loop(ts){
 }
 function startLoop(){
   if(animId) cancelAnimationFrame(animId);
-  resize();
   lastTS=null;animId=requestAnimationFrame(loop);
 }
 
@@ -1435,12 +1418,11 @@ document.addEventListener('click', function(e){
   handle.addEventListener('mousedown', function(e){
     dragging = true;
     handle.classList.add('dragging');
-    e.stopPropagation();
     e.preventDefault();
   });
   document.addEventListener('mousemove', function(e){
-    if(dragging){ e.preventDefault(); onMove(e.clientX); }
-  },{passive:false});
+    if(dragging) onMove(e.clientX);
+  });
   document.addEventListener('mouseup', function(){
     if(dragging){ dragging = false; handle.classList.remove('dragging'); }
   });
@@ -1449,11 +1431,10 @@ document.addEventListener('click', function(e){
   handle.addEventListener('touchstart', function(e){
     dragging = true;
     handle.classList.add('dragging');
-    e.stopPropagation();
     e.preventDefault();
   },{passive:false});
   document.addEventListener('touchmove', function(e){
-    if(dragging){ onMove(e.touches[0].clientX); }
+    if(dragging) onMove(e.touches[0].clientX);
   },{passive:true});
   document.addEventListener('touchend', function(){
     if(dragging){ dragging = false; handle.classList.remove('dragging'); }
