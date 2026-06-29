@@ -56,25 +56,24 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   text-shadow:0 0 20px rgba(74,174,255,0.5);
 }
 #title-chevron{
-  font-size:.72rem;
-  font-family:'Inter',sans-serif;
-  font-weight:500;
-  color:#000;
+  width:22px;height:22px;
+  border-radius:50%;
   background:var(--cyan);
-  border-radius:20px;
-  padding:3px 10px;
-  letter-spacing:.04em;
-  white-space:nowrap;
+  color:#000;
+  font-family:'Space Mono',monospace;
+  font-size:.75rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
   flex-shrink:0;
+  cursor:pointer;
   transition:opacity .2s, transform .15s;
-  opacity:1;
+  user-select:none;
 }
-#title-chevron:hover{opacity:.85;}
-#title-block:hover #title-chevron{transform:scale(1.04);}
+#title-chevron:hover{opacity:.80;transform:scale(1.1);}
+#title-block:hover #title-chevron{transform:scale(1.08);}
 #title-chevron.open{
-  background:rgba(74,174,255,0.15);
+  background:transparent;
   color:var(--cyan);
-  border:1px solid var(--cyan);
+  border:1.5px solid var(--cyan);
 }
 
 /* Stats */
@@ -89,18 +88,37 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 .dc.on{color:var(--green);}
 .dlog{font-size:.54rem;color:var(--lbl);margin-top:3px;line-height:1.5;max-width:340px;}
 
-/* ── INFO PANEL (dropdown) ── */
-#info-panel{
+/* ── INFO MODAL ── */
+#info-overlay{
   display:none;
-  position:absolute;top:52px;left:0;right:0;z-index:19;
-  background:rgba(3,7,24,0.97);
-  border-bottom:1px solid var(--border);
-  backdrop-filter:blur(24px);
-  padding:22px 28px 26px;
+  position:fixed;inset:0;z-index:50;
+  background:rgba(0,0,10,0.75);
+  backdrop-filter:blur(4px);
+  pointer-events:all;
+  align-items:center;justify-content:center;
+  padding:20px;
+}
+#info-overlay.open{display:flex;}
+#info-panel{
+  position:relative;
+  background:rgba(3,7,24,0.98);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:24px 28px 28px;
+  max-width:780px;width:100%;
+  max-height:80vh;
+  overflow-y:auto;
   pointer-events:all;
 }
-#info-panel.open{display:block;}
+#info-close{
+  position:absolute;top:14px;right:16px;
+  background:transparent;border:none;
+  color:var(--lbl);font-size:1.1rem;cursor:pointer;
+  line-height:1;padding:4px;transition:color .15s;
+}
+#info-close:hover{color:var(--txt);}
 #info-cols{display:flex;gap:32px;}
+@media(max-width:600px){#info-cols{flex-direction:column;gap:20px;}}
 .info-col{flex:1;}
 #info-panel h2{
   font-family:'Space Mono',monospace;font-size:.8rem;font-weight:700;
@@ -252,10 +270,10 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 
   <div id="topbar">
     <div id="topbar-inner">
-      <!-- Title + chevron -->
+      <!-- Title + ? button -->
       <div id="title-block" onclick="toggleInfo()">
         <span id="title-text">Le silence du cosmos</span>
-        <span id="title-chevron" aria-label="En savoir plus">Qu'est-ce que c'est&nbsp;?</span>
+        <span id="title-chevron" aria-label="En savoir plus">?</span>
       </div>
       <!-- Stats -->
       <div class="hstat"><span class="hv" id="hactive">0</span><span class="hl">Civs actives</span></div>
@@ -266,28 +284,31 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
         <span class="dlog" id="hdlog">Aucune détection pendant la vie de la Terre</span>
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- Dropdown info panel -->
-    <div id="info-panel">
-      <div id="info-cols">
-        <div class="info-col">
-          <h2>Le silence</h2>
-          <p>Nous avons scruté le ciel pendant des siècles. Rien. Pas un signal, pas un écho, pas la moindre trace d'une autre voix dans l'immensité. Et pourtant les étoiles sont légion, les planètes innombrables, le temps vertigineux. La vie aurait dû surgir ailleurs. L'intelligence aurait dû fleurir. Quelqu'un, quelque part, aurait dû parler.</p>
-          <p>Ce silence est la question la plus troublante que l'humanité ait jamais posée.</p>
-          <p>Cette simulation explore une réponse possible. Chaque <strong style="color:#4aaeff">anneau bleu</strong> est une civilisation technologique — une brève flamme dans le noir qui émet ses signaux radio dans toutes les directions, à la vitesse de la lumière. Ces ondes se propagent pendant des millénaires après l'extinction de leur source, fantômes d'une présence révolue. L'anneau devient <strong style="color:#8ab4d4">bleu clair</strong> quand la civilisation s'est éteinte (signal fossile). Il passe au <strong style="color:#50fa7b">vert</strong> quand il touche la Terre pendant son existence.</p>
-          <p>La <strong style="color:#f4c430">Terre</strong> est ce point doré. Sa fenêtre d'existence — quelques milliers d'années sur deux cent mille — est infiniment étroite. Pour qu'un contact ait lieu, il faut que deux miracles se produisent au même moment : que quelqu'un émette, et que nous soyons là pour recevoir.</p>
-          <p>Jouez avec les paramètres. Regardez les anneaux se multiplier, se croiser, parfois frôler la Terre. Et demandez-vous pourquoi, dans notre univers réel, nous n'en avons capté aucun. Peut-être sommes-nous trop tôt. Peut-être trop tard. Peut-être seuls.</p>
+<!-- Info modal -->
+<div id="info-overlay" onclick="handleOverlayClick(event)">
+  <div id="info-panel">
+    <button id="info-close" onclick="toggleInfo()">✕</button>
+    <div id="info-cols">
+      <div class="info-col">
+        <h2>Le silence</h2>
+        <p>Nous avons scruté le ciel pendant des siècles. Rien. Pas un signal, pas un écho, pas la moindre trace d'une autre voix dans l'immensité. Et pourtant les étoiles sont légion, les planètes innombrables, le temps vertigineux. La vie aurait dû surgir ailleurs. L'intelligence aurait dû fleurir. Quelqu'un, quelque part, aurait dû parler.</p>
+        <p>Ce silence est la question la plus troublante que l'humanité ait jamais posée.</p>
+        <p>Cette simulation explore une réponse possible. Chaque <strong style="color:#4aaeff">anneau bleu</strong> est une civilisation technologique — une brève flamme dans le noir qui émet ses signaux radio dans toutes les directions, à la vitesse de la lumière. Ces ondes se propagent pendant des millénaires après l'extinction de leur source, fantômes d'une présence révolue. L'anneau devient <strong style="color:#8ab4d4">bleu clair</strong> quand la civilisation s'est éteinte (signal fossile). Il passe au <strong style="color:#50fa7b">vert</strong> quand il touche la Terre pendant son existence.</p>
+        <p>La <strong style="color:#f4c430">Terre</strong> est ce point doré. Sa fenêtre d'existence — quelques milliers d'années sur deux cent mille — est infiniment étroite. Pour qu'un contact ait lieu, il faut que deux miracles se produisent au même moment : que quelqu'un émette, et que nous soyons là pour recevoir.</p>
+        <p>Jouez avec les paramètres. Regardez les anneaux se multiplier, se croiser, parfois frôler la Terre. Et demandez-vous pourquoi, dans notre univers réel, nous n'en avons capté aucun. Peut-être sommes-nous trop tôt. Peut-être trop tard. Peut-être seuls.</p>
+      </div>
+      <div class="info-col">
+        <h2>Les paramètres</h2>
+        <div class="param-list">
+          <strong>N</strong> — nombre total de civilisations émettrices sur les 200 000 ans de simulation<br>
+          <strong>L</strong> — durée d'émission moyenne (années) → épaisseur des anneaux<br>
+          <strong>Portée S</strong> — distance maximale de détection (al) → rayon max des anneaux<br>
+          <strong>Vie Terre</strong> — durée pendant laquelle nous existons et pouvons recevoir
         </div>
-        <div class="info-col">
-          <h2>Les paramètres</h2>
-          <div class="param-list">
-            <strong>N</strong> — nombre total de civilisations émettrices sur les 200 000 ans de simulation<br>
-            <strong>L</strong> — durée d'émission moyenne (années) → épaisseur des anneaux<br>
-            <strong>Portée S</strong> — distance maximale de détection (al) → rayon max des anneaux<br>
-            <strong>Vie Terre</strong> — durée pendant laquelle nous existons et pouvons recevoir
-          </div>
-          <p style="margin-top:12px;">Le paradoxe de Fermi s'observe directement : même avec des centaines de civilisations, les fenêtres de contact simultané sont rares. Augmentez N, L et S pour voir les premières détections apparaître.</p>
-        </div>
+        <p style="margin-top:12px;">Le paradoxe de Fermi s'observe directement : même avec des centaines de civilisations, les fenêtres de contact simultané sont rares. Augmentez N, L et S pour voir les premières détections apparaître.</p>
       </div>
     </div>
   </div>
@@ -394,10 +415,15 @@ function resize(){
 // INFO PANEL
 // ══════════════════════════════════════════════════
 function toggleInfo(){
-  document.getElementById('info-panel').classList.toggle('open');
+  const overlay = document.getElementById('info-overlay');
   const btn = document.getElementById('title-chevron');
+  const isOpen = overlay.classList.contains('open');
+  overlay.classList.toggle('open');
   btn.classList.toggle('open');
-  btn.innerHTML = btn.classList.contains('open') ? 'Fermer&nbsp;✕' : 'Qu\'est-ce que c\'est&nbsp;?';
+  btn.textContent = isOpen ? '?' : '✕';
+}
+function handleOverlayClick(e){
+  if(e.target === document.getElementById('info-overlay')) toggleInfo();
 }
 
 // ══════════════════════════════════════════════════
