@@ -292,6 +292,42 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 .leg-modal .ld{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
 
 
+/* ── POPUP HINT TIMELINE ── */
+#hint-timeline{
+  position:fixed;z-index:201;
+  background:rgba(3,7,24,0.96);border:1px solid rgba(244,196,48,.45);
+  border-radius:10px;padding:10px 13px;
+  font-family:'Space Mono',monospace;font-size:.60rem;color:var(--gold);
+  display:none;flex-direction:column;gap:5px;
+  pointer-events:all;cursor:default;
+  animation:fadeInHint .4s ease;
+  box-shadow:0 0 18px rgba(244,196,48,.12);
+  max-width:220px;line-height:1.55;
+}
+#hint-timeline.show{display:flex;}
+#hint-timeline-arrow{
+  position:absolute;bottom:-7px;left:50%;
+  transform:translateX(-50%);
+  width:0;height:0;
+  border-left:6px solid transparent;
+  border-right:6px solid transparent;
+  border-top:7px solid rgba(244,196,48,.45);
+}
+#hint-timeline-arrow::after{
+  content:'';position:absolute;bottom:2px;left:-5px;
+  width:0;height:0;
+  border-left:5px solid transparent;
+  border-right:5px solid transparent;
+  border-top:6px solid rgba(3,7,24,0.96);
+}
+#hint-timeline-close{
+  position:absolute;top:6px;right:8px;
+  background:transparent;border:none;
+  color:rgba(244,196,48,.5);font-size:.65rem;cursor:pointer;
+  transition:color .15s;padding:0;
+}
+#hint-timeline-close:hover{color:var(--gold);}
+
 /* ── POPUP HINT ? ── */
 #hint-popup{
   position:fixed;z-index:200;
@@ -386,6 +422,14 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 </div>
 
 <div id="wrap">
+  <div id="hint-timeline">
+    <div id="hint-timeline-arrow"></div>
+    <button id="hint-timeline-close" onclick="dismissHintTimeline()">✕</button>
+    <span style="font-size:.95rem;">📡</span>
+    <span>Début de la fenêtre terrestre</span>
+    <span style="color:var(--txt);font-size:.57rem;">En 1960, Frank Drake réalise <em>Project Ozma</em> — la première écoute systématique de signaux radio extraterrestres. C'est à partir de cette époque que la Terre devient capable de détecter un signal venu d'ailleurs.</span>
+  </div>
+
   <div id="hint-popup" onclick="onHintClick();">
   <div id="hint-arrow"></div>
   <span style="font-size:1.3rem;">🤔</span>
@@ -1117,6 +1161,64 @@ function updateZoom(){
     zoomLevel = zoomTarget;
   }
 }
+
+// ── Hint timeline : pointe sur le début de la barre jaune ──
+function positionHintTimeline(){
+  const ht = document.getElementById('hint-timeline');
+  const earth = document.getElementById('tl-earth');
+  if(!ht || !earth) return;
+
+  const er = earth.getBoundingClientRect();
+  const htW = ht.offsetWidth || 220;
+  const htH = ht.offsetHeight || 100;
+
+  // Positionner au-dessus du début (bord gauche) de la barre jaune
+  let left = er.left - htW/2 + 4; // centré sur le début de la barre
+  const margin = 8;
+  if(left < margin) left = margin;
+  if(left + htW > window.innerWidth - margin) left = window.innerWidth - htW - margin;
+
+  const top = er.top - htH - 12;
+
+  ht.style.left = left + 'px';
+  ht.style.top  = top  + 'px';
+
+  // Positionner la flèche sur le début de la barre
+  const arrowLeft = (er.left + 4) - left;
+  const arrow = document.getElementById('hint-timeline-arrow');
+  if(arrow) arrow.style.left = Math.max(10, Math.min(htW-10, arrowLeft)) + 'px';
+}
+
+function dismissHintTimeline(){
+  const ht = document.getElementById('hint-timeline');
+  if(ht) ht.classList.remove('show');
+  sessionStorage.setItem('lsdc_tl_hint','1');
+}
+
+// Afficher après 3s si pas déjà vu
+(function(){
+  if(!sessionStorage.getItem('lsdc_tl_hint')){
+    setTimeout(function(){
+      const ht = document.getElementById('hint-timeline');
+      const overlay = document.getElementById('info-overlay');
+      if(ht && !overlay.classList.contains('open')){
+        ht.classList.add('show');
+        // Attendre que le DOM soit peint avant de positionner
+        requestAnimationFrame(function(){
+          requestAnimationFrame(positionHintTimeline);
+        });
+      }
+    }, 3000);
+  }
+})();
+
+// Fermer si clic en dehors
+document.addEventListener('click', function(e){
+  const ht = document.getElementById('hint-timeline');
+  if(ht && ht.classList.contains('show') && !ht.contains(e.target)){
+    dismissHintTimeline();
+  }
+});
 
 // ── Hint popup après 10s ──
 (function(){
