@@ -130,7 +130,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   accent-color:var(--cyan);
   background:transparent;
 }
-#tdisp{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--gold);font-weight:700;white-space:nowrap;flex-shrink:0;}
+#tdisp{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--gold);font-weight:700;white-space:nowrap;flex-shrink:0;min-width:7.5ch;text-align:right;display:inline-block;}
 #timeline-wrap{position:relative;flex:1;height:26px;min-width:0;overflow:visible;}
 #tl-bg{position:absolute;top:50%;left:0;right:0;height:3px;border-radius:2px;background:rgba(255,255,255,.12);transform:translateY(-50%);pointer-events:none;z-index:1;}
 #tl-earth{position:absolute;top:50%;height:5px;border-radius:2px;background:var(--gold);opacity:.85;transform:translateY(-50%);pointer-events:none;z-index:2;transition:background .3s;}
@@ -150,13 +150,24 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 #tl-handle-label{
   position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);
   background:rgba(3,7,24,0.95);border:1px solid rgba(244,196,48,.5);
-  border-radius:5px;padding:3px 7px;
+  border-radius:5px;padding:4px 8px;
   font-family:'Space Mono',monospace;font-size:.52rem;
-  color:var(--gold);white-space:nowrap;
+  color:var(--gold);
+  white-space:normal;      /* permet le retour à la ligne */
+  width:max-content;       /* s'adapte au contenu par défaut (ligne valeur seule) */
+  max-width:min(180px, 40vw); /* plafond pour le texte warning multi-lignes */
   pointer-events:none;display:none;z-index:10;
+  text-align:center;
 }
-#tl-earth-handle.dragging #tl-handle-label{display:block;}
+#tl-earth-handle.dragging #tl-handle-label{display:flex;flex-direction:column;gap:4px;}
 #tl-earth-handle.warning #tl-handle-label{border-color:#ff6b35;color:#ff9966;}
+#tl-handle-val{white-space:nowrap;} /* valeur numérique toujours sur une ligne */
+#tl-handle-warn-text{
+  font-size:.46rem;color:#ff9966;
+  white-space:normal;line-height:1.45;
+  display:none;
+}
+#tl-earth-handle.warning #tl-handle-warn-text{display:block;}
 /* Icône warning : visible quand > 500, pas de bloc qui bloque */
 #tl-warning-icon{
   position:absolute;top:50%;z-index:6;
@@ -480,14 +491,17 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div id="tl-earth"></div>
       <button id="tl-earth-info" title="Fenêtre terrestre">i</button>
       <div id="tl-earth-handle">
-        <div id="tl-handle-label">1 000 ans</div>
+        <div id="tl-handle-label">
+          <span id="tl-handle-val">1 000 ans</span>
+          <span id="tl-handle-warn-text">Guerre nucléaire, pandémie, IA… vraiment plus de 500 ans&nbsp;?</span>
+        </div>
       </div>
       <span id="tl-warning-icon">⚠</span>
       <div id="u-warning-tip">
         <button id="u-warning-close" onclick="dismissUWarning(event)">✕</button>
         Guerre nucléaire, pandémie, IA… pensez-vous vraiment que notre civilisation saurait rester à l'écoute plus de 500 ans&nbsp;?
       </div>
-      <input type="range" id="tscrub" min="-3000" max="3000" step="10" value="-3000">
+      <input type="range" id="tscrub" min="-10000" max="10000" step="10" value="0">
     </div>
     <select id="spd-select">
       <option value="50">×50</option>
@@ -640,7 +654,7 @@ let P = {N:50, L:1000, S:10000, U:500, B:1.0};
 let zoomLevel = 1.0; // 1 = vue galactique complète, >1 = zoom sur Terre
 let zoomTarget = 1.0;
 let civs=[], gStars=[];
-let simTime=-3000, playing=true, speed=500;
+let simTime=-10000, playing=true, speed=500;
 let lastTS=null, animId=null, scrubbing=false;
 let gCache=null, cacheW=0, cacheH=0;
 
@@ -1110,7 +1124,7 @@ function updateEarthMarker(){
   const info   = document.getElementById('tl-earth-info');
   const wrap   = document.getElementById('timeline-wrap');
   const W      = wrap.offsetWidth;
-  const CURSOR_START = -3000, CURSOR_DUR = 6000;
+  const CURSOR_START = -10000, CURSOR_DUR = 20000;
   const t0pct = (EARTH_BIRTH - CURSOR_START) / CURSOR_DUR;
   const t1pct = Math.min(1, (EARTH_BIRTH + P.U - CURSOR_START) / CURSOR_DUR);
   const x0px  = Math.max(0, t0pct * W);
@@ -1122,8 +1136,8 @@ function updateEarthMarker(){
   // Poignée à l'extrémité droite
   if(handle){
     handle.style.left = x1px + 'px';
-    const labelEl = document.getElementById('tl-handle-label');
-    if(labelEl) labelEl.textContent = P.U.toLocaleString('fr-FR') + ' ans';
+    const valEl = document.getElementById('tl-handle-val');
+    if(valEl) valEl.textContent = P.U.toLocaleString('fr-FR') + ' ans';
   }
 
   // Bouton i au début de la barre
@@ -1165,8 +1179,8 @@ function loop(ts){
   lastTS=ts;
   if(playing&&!scrubbing){
     simTime+=dt*speed;
-    if(simTime>3000){simTime=-3000;}
-    document.getElementById('tscrub').value=Math.max(-3000,Math.min(3000,simTime));
+    if(simTime>SIM_END){simTime=-10000;}
+    document.getElementById('tscrub').value=simTime;
   }
   const yr=Math.round(simTime);
   document.getElementById('tdisp').textContent=
@@ -1235,7 +1249,7 @@ document.addEventListener('touchend',()=>{
 // Desktop sliders → trigger sim + sync mobile
 ['slNm','slLm'].forEach(id=>{
   document.getElementById(id).addEventListener('input',()=>{
-    readP();spawnCivs();simTime=-3000;
+    readP();spawnCivs();simTime=-10000;
   });
 });
 ['slSm','slUm'].forEach(id=>{
@@ -1394,7 +1408,7 @@ document.addEventListener('click', function(e){
   const wrap   = document.getElementById('timeline-wrap');
   if(!handle || !wrap) return;
 
-  const CURSOR_START = -3000, CURSOR_DUR = 6000;
+  const CURSOR_START = -10000, CURSOR_DUR = 20000;
   const U_MIN = 100, U_MAX = 10000, U_STEP = 100;
   let dragging = false;
 
