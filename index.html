@@ -39,127 +39,101 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   flex-shrink:0;
   z-index:20;
   pointer-events:none;
-}
-#topbar-inner{
-  display:flex;align-items:stretch;min-height:50px;
-  background:rgba(2,4,16,0.93);
+  background:rgba(2,4,16,0.97);
   border-bottom:1px solid var(--border);
+}
+/* Ligne 1 : stats */
+#topbar-inner{
+  display:flex;align-items:stretch;min-height:40px;
   backdrop-filter:blur(18px);
 }
 #title-block{
-  display:flex;align-items:center;gap:10px;
-  padding:0 16px;border-right:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+  padding:0 12px;border-right:1px solid var(--border);
   cursor:pointer;pointer-events:all;transition:background .15s;flex-shrink:0;
 }
 #title-block:hover{background:rgba(255,255,255,0.03);}
 #title-text{
-  font-family:'Space Mono',monospace;font-size:.95rem;font-weight:700;
-  letter-spacing:.08em;color:#fff;text-transform:uppercase;white-space:nowrap;
+  font-family:'Space Mono',monospace;font-size:.85rem;font-weight:700;
+  letter-spacing:.06em;color:#fff;text-transform:uppercase;white-space:nowrap;
   text-shadow:0 0 20px rgba(74,174,255,0.5);
 }
 #title-chevron{
-  width:22px;height:22px;border-radius:50%;
+  width:20px;height:20px;border-radius:50%;
   background:var(--cyan);color:#000;
-  font-family:'Space Mono',monospace;font-size:.75rem;font-weight:700;
+  font-family:'Space Mono',monospace;font-size:.70rem;font-weight:700;
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;cursor:pointer;transition:opacity .2s;user-select:none;
+  pointer-events:all;
 }
-#title-chevron:hover{opacity:.80;}
 #title-chevron.open{background:transparent;color:var(--cyan);border:1.5px solid var(--cyan);}
 .hstat{
   display:flex;flex-direction:column;justify-content:center;
-  padding:6px 14px;border-right:1px solid var(--border);
+  padding:4px 10px;border-right:1px solid var(--border);
 }
-.hv{font-family:'Space Mono',monospace;font-size:.85rem;color:var(--txt);line-height:1;font-weight:700;}
-.hl{font-size:.52rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.07em;margin-top:2px;}
-#hdet{display:flex;flex-direction:column;justify-content:center;padding:6px 14px;}
-.dc{font-family:'Space Mono',monospace;font-size:.85rem;color:var(--lbl);line-height:1;font-weight:700;transition:color .25s;}
+.hv{font-family:'Space Mono',monospace;font-size:.82rem;color:var(--txt);line-height:1;font-weight:700;}
+.hl{font-size:.46rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.07em;margin-top:2px;}
+#hdet{display:flex;flex-direction:column;justify-content:center;padding:4px 10px;flex:1;}
+.dc{font-family:'Space Mono',monospace;font-size:.82rem;color:var(--lbl);line-height:1;font-weight:700;transition:color .25s;}
 .dc.on{color:var(--green);}
-.dlog{font-size:.52rem;color:var(--lbl);margin-top:2px;line-height:1.4;max-width:300px;}
-
-/* ── BARRE DE CONTRÔLE DU BAS ── */
-#ctrl{
-  flex-shrink:0;
-  background:var(--panel);border-top:1px solid var(--border);
-  padding:8px 14px 10px;
-  display:flex;gap:10px;align-items:center;
-  /* Ne wrap jamais — tout reste sur une ligne */
-  flex-wrap:nowrap;
-  z-index:10;
-  width:100%;
+.dlog{font-size:.46rem;color:var(--lbl);margin-top:2px;line-height:1.3;}
+/* Bouton ⚙ dans la topbar */
+#bparams{
+  width:36px;flex-shrink:0;
+  border:none;border-left:1px solid var(--border);background:transparent;
+  color:var(--cyan);font-size:1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:all;transition:background .15s;
 }
-#tblock{display:flex;flex-direction:row;align-items:center;gap:8px;flex:1;min-width:0;}
-#trow{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;}
+#bparams:hover{background:rgba(74,174,255,.10);}
+
+/* Ligne 2 : contrôles temporels */
+#ctrlbar{
+  display:flex;align-items:center;gap:8px;
+  padding:5px 10px;
+  border-top:1px solid var(--border);
+  pointer-events:all;
+}
 #bplay{
-  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  width:26px;height:26px;border-radius:50%;flex-shrink:0;
   border:1px solid rgba(74,174,255,.45);background:rgba(74,174,255,.10);
-  color:var(--cyan);font-size:.80rem;cursor:pointer;
+  color:var(--cyan);font-size:.75rem;cursor:pointer;
   display:flex;align-items:center;justify-content:center;transition:background .15s;
 }
 #bplay:hover{background:rgba(74,174,255,.22);}
-#tdisp{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--gold);font-weight:700;white-space:nowrap;flex-shrink:0;}
-/* Curseur dans la topbar */
-#timeline-wrap{
-  position:relative;width:100%;height:28px;
-  background:rgba(2,4,16,0.93);
-  border-bottom:1px solid var(--border);
-  flex-shrink:0;
-}
-#tl-bg{position:absolute;top:50%;left:0;right:0;height:3px;border-radius:2px;background:rgba(255,255,255,.11);transform:translateY(-50%);pointer-events:none;z-index:1;}
-#tl-earth{position:absolute;top:50%;height:5px;border-radius:3px;background:var(--gold);opacity:.80;transform:translateY(-50%);pointer-events:none;z-index:2;}
+#tdisp{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--gold);font-weight:700;white-space:nowrap;flex-shrink:0;}
+#timeline-wrap{position:relative;flex:1;height:26px;min-width:0;}
+#tl-bg{position:absolute;top:50%;left:0;right:0;height:3px;border-radius:2px;background:rgba(255,255,255,.12);transform:translateY(-50%);pointer-events:none;z-index:1;}
+#tl-earth{position:absolute;top:50%;height:5px;border-radius:2px;background:var(--gold);opacity:.85;transform:translateY(-50%);pointer-events:none;z-index:2;}
 #tscrub{
   position:absolute;top:0;left:0;width:100%;height:100%;
-  -webkit-appearance:none;appearance:none;background:transparent;outline:none;cursor:pointer;z-index:3;
-  margin:0;padding:0;
+  -webkit-appearance:none;appearance:none;background:transparent;outline:none;cursor:pointer;z-index:3;margin:0;
 }
-#tscrub::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 8px var(--cyan);margin-top:-8px;}
+#tscrub::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 8px var(--cyan);margin-top:-9px;}
 #tscrub::-webkit-slider-runnable-track{height:3px;background:transparent;}
-#tscrub::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;}
-/* Select vitesse */
+#tscrub::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;}
 #spd-select{
   flex-shrink:0;
   background:rgba(74,174,255,.07);border:1px solid rgba(74,174,255,.35);
-  color:var(--cyan);border-radius:4px;padding:3px 6px;
-  font-family:'Space Mono',monospace;font-size:.58rem;cursor:pointer;
+  color:var(--cyan);border-radius:4px;padding:3px 18px 3px 6px;
+  font-family:'Space Mono',monospace;font-size:.56rem;cursor:pointer;
   -webkit-appearance:none;appearance:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%234aaeff'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 5px center;padding-right:16px;
+  background-repeat:no-repeat;background-position:right 5px center;
+  background-color:rgba(74,174,255,.07);
 }
-#spd-select:focus{outline:none;}
 
-/* Bouton ⚙ — visible sur mobile, caché sur desktop */
-#bparams{
-  width:28px;height:28px;border-radius:50%;flex-shrink:0;
-  border:1px solid rgba(74,174,255,.45);background:rgba(74,174,255,.10);
-  color:var(--cyan);font-size:.90rem;cursor:pointer;
-  display:none;align-items:center;justify-content:center;transition:background .15s;
-}
-#bparams:hover{background:rgba(74,174,255,.22);}
-
-/* Params inline — desktop uniquement */
-.pgrid{display:flex;gap:10px;flex-wrap:nowrap;align-items:center;flex-shrink:0;}
+/* Params inline desktop */
+.pgrid{display:flex;gap:10px;flex-wrap:nowrap;align-items:center;}
 .pm{display:flex;flex-direction:column;gap:3px;width:110px;}
 .ph{display:flex;justify-content:space-between;align-items:baseline;gap:4px;}
-.pn{font-size:.52rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
-.pv{font-family:'Space Mono',monospace;font-size:.64rem;color:var(--gold);font-weight:700;}
+.pn{font-size:.50rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
+.pv{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--gold);font-weight:700;}
 input[type=range]{width:100%;height:2px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,.15);border-radius:1px;outline:none;cursor:pointer;}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:var(--cyan);cursor:pointer;}
 input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;}
 
-/* Bloc droite (légende + regen) — desktop */
-#rblock{display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0;}
-#bregen{
-  padding:5px 12px;font-family:'Space Mono',monospace;font-size:.56rem;
-  letter-spacing:.08em;text-transform:uppercase;
-  border:1px solid rgba(74,174,255,.35);background:rgba(74,174,255,.07);
-  color:var(--cyan);border-radius:4px;cursor:pointer;transition:background .15s;white-space:nowrap;
-}
-#bregen:hover{background:rgba(74,174,255,.16);}
-.leg{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
-.li{display:flex;align-items:center;gap:4px;font-size:.52rem;color:var(--lbl);white-space:nowrap;}
-.ld{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-
-/* ── MOBILE : bascule layout ── */
+/* ── MOBILE/* ── MOBILE : bascule layout ── */
 @media (max-width: 1024px){
   #title-text{font-size:.75rem;}
   .hstat{padding:5px 8px;}
@@ -264,77 +238,46 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 </div>
 
 <div id="topbar">
-    <div id="topbar-inner">
-      <div id="title-block" onclick="toggleInfo()">
-        <span id="title-text">Le silence du cosmos</span>
-        <span id="title-chevron" aria-label="En savoir plus">?</span>
-      </div>
-      <div class="hstat"><span class="hv" id="hactive">0</span><span class="hl">Civs actives</span></div>
-      <div class="hstat"><span class="hv" id="hwaves">0</span><span class="hl">Ondes visibles</span></div>
-      <div class="hstat"><span class="hv" id="hsimul">—</span><span class="hl">Simult. moy.</span></div>
-      <div id="hdet">
-        <span class="dc" id="hdc">0 détection</span>
-        <span class="dlog" id="hdlog">Aucune détection pendant la vie de la Terre</span>
-      </div>
+  <!-- Ligne 1 : titre + stats + bouton ⚙ -->
+  <div id="topbar-inner">
+    <div id="title-block" onclick="toggleInfo()">
+      <span id="title-text">Le silence du cosmos</span>
+      <span id="title-chevron" aria-label="En savoir plus">?</span>
     </div>
+    <div class="hstat"><span class="hv" id="hactive">0</span><span class="hl">Civs</span></div>
+    <div class="hstat"><span class="hv" id="hwaves">0</span><span class="hl">Ondes</span></div>
+    <div class="hstat"><span class="hv" id="hsimul">—</span><span class="hl">Simult.</span></div>
+    <div id="hdet">
+      <span class="dc" id="hdc">0 détection</span>
+      <span class="dlog" id="hdlog">Aucune détection</span>
+    </div>
+    <button id="bparams" onclick="toggleParams()">⚙</button>
+  </div>
+  <!-- Ligne 2 : contrôles temporels -->
+  <div id="ctrlbar">
+    <button id="bplay">⏸</button>
+    <span id="tdisp">An +0</span>
     <div id="timeline-wrap">
       <div id="tl-bg"></div>
       <div id="tl-earth"></div>
       <input type="range" id="tscrub" min="-10000" max="10000" step="10" value="0">
     </div>
+    <select id="spd-select">
+      <option value="50">×50</option>
+      <option value="200">×200</option>
+      <option value="1000">×1k</option>
+      <option value="5000" selected>×5k</option>
+      <option value="20000">×20k</option>
+    </select>
   </div>
+</div>
 
 <div id="wrap">
   <canvas id="cg"></canvas>
   <canvas id="cs"></canvas>
 </div>
 
-<!-- Barre de contrôle -->
-<div id="ctrl">
-  <div id="tblock">
-    <div id="trow">
-      <button id="bplay">⏸</button>
-      <span id="tdisp">An +0</span>
-      <select id="spd-select">
-        <option value="50">×50</option>
-        <option value="200">×200</option>
-        <option value="1000">×1k</option>
-        <option value="5000">×5k</option>
-        <option value="20000">×20k</option>
-      </select>
-    </div>
-  </div>
-  <button id="bparams" onclick="toggleParams()">⚙</button>
-  <div class="pgrid">
-    <div class="pm">
-      <div class="ph"><span class="pn">N simult. moy.</span><span class="pv" id="vN">20</span></div>
-      <input type="range" id="slN" min="1" max="1000" step="1" value="20">
-    </div>
-    <div class="pm">
-      <div class="ph"><span class="pn">L émission (an)</span><span class="pv" id="vL">10 000</span></div>
-      <input type="range" id="slL" min="100" max="50000" step="100" value="10000">
-    </div>
-    <div class="pm">
-      <div class="ph"><span class="pn">Portée S (al)</span><span class="pv" id="vS">40 000</span></div>
-      <input type="range" id="slS" min="100" max="52000" step="100" value="40000">
-    </div>
-    <div class="pm">
-      <div class="ph"><span class="pn">Vie civ. (an)</span><span class="pv" id="vU">500</span></div>
-      <input type="range" id="slU" min="100" max="100000" step="100" value="500">
-    </div>
-  </div>
-  <div id="rblock">
-    <button id="bregen">↺ Régénérer</button>
-    <div class="leg">
-      <div class="li"><div class="ld" style="background:#4aaeff;box-shadow:0 0 4px #4aaeff"></div>Active</div>
-      <div class="li"><div class="ld" style="background:#7ab0d8"></div>Fossile</div>
-      <div class="li"><div class="ld" style="background:#f4c430;box-shadow:0 0 5px #f4c430"></div>Terre</div>
-      <div class="li"><div class="ld" style="background:#50fa7b;box-shadow:0 0 4px #50fa7b"></div>Contact</div>
-    </div>
-  </div>
-</div>
-
-<!-- Modale info -->
+<!-- Modale<!-- Modale info -->
 <div id="info-overlay" onclick="handleOverlayClick(event)">
   <div id="info-panel">
     <button id="info-close" onclick="toggleInfo()">✕</button>
@@ -814,17 +757,16 @@ function startLoop(){
 // CONTROLS
 // ══════════════════════════════════════════════════
 function readP(){
-  P.N=+document.getElementById('slN').value;
-  P.L=+document.getElementById('slL').value;
-  P.S=+document.getElementById('slS').value;
-  P.U=+document.getElementById('slU').value;
+  P.N=+document.getElementById('slNm').value;
+  P.L=+document.getElementById('slLm').value;
+  P.S=+document.getElementById('slSm').value;
+  P.U=+document.getElementById('slUm').value;
   P.B=1.0;
-  document.getElementById('vN').textContent=P.N;
-  document.getElementById('vL').textContent=P.L.toLocaleString('fr-FR');
-  document.getElementById('vS').textContent=P.S.toLocaleString('fr-FR');
-  document.getElementById('vU').textContent=P.U.toLocaleString('fr-FR');
-
-  document.getElementById('hsimul').textContent=(P.N*P.L/SIM_DUR).toFixed(1);
+  document.getElementById('vNm').textContent=P.N;
+  document.getElementById('vLm').textContent=P.L.toLocaleString('fr-FR');
+  document.getElementById('vSm').textContent=P.S.toLocaleString('fr-FR');
+  document.getElementById('vUm').textContent=P.U.toLocaleString('fr-FR');
+  document.getElementById('hsimul').textContent=P.N.toFixed(0);
   updateEarthMarker();
 }
 
@@ -861,16 +803,14 @@ document.addEventListener('touchend',()=>{
 });
 
 // Desktop sliders → trigger sim + sync mobile
-['slN','slL'].forEach(id=>{
+['slNm','slLm'].forEach(id=>{
   document.getElementById(id).addEventListener('input',()=>{
     readP();spawnCivs();simTime=EARTH_BIRTH;
-    syncToMobile();
   });
 });
-['slS','slU'].forEach(id=>{
+['slSm','slUm'].forEach(id=>{
   document.getElementById(id).addEventListener('input',()=>{
     readP();precomputeDetections();updateEarthMarker();
-    syncToMobile();
   });
 });
 // Mobile sliders → sync to desktop + trigger sim
@@ -889,21 +829,9 @@ document.getElementById('bregen-modal').addEventListener('click',()=>{
   toggleParams();
 });
 
-function syncToMobile(){
-  ['N','L','S','U'].forEach(k=>{
-    const vm = document.getElementById('v'+k+'m');
-    const slm = document.getElementById('sl'+k+'m');
-    const vd = document.getElementById('v'+k);
-    const sld = document.getElementById('sl'+k);
-    if(vm) vm.textContent = vd.textContent;
-    if(slm) slm.value = sld.value;
-  });
-}
 
-document.getElementById('bregen').addEventListener('click',()=>{
-  readP();spawnCivs();simTime=SIM_START;playing=true;
-  document.getElementById('bplay').textContent='⏸';lastTS=null;
-});
+
+
 
 // ══════════════════════════════════════════════════
 // INIT
