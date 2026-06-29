@@ -39,181 +39,127 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   flex-shrink:0;
   z-index:20;
   pointer-events:none;
-  background:rgba(2,4,16,0.97);
-  border-bottom:1px solid var(--border);
 }
-/* Ligne 1 : stats */
 #topbar-inner{
-  display:flex;align-items:stretch;min-height:40px;
+  display:flex;align-items:stretch;min-height:50px;
+  background:rgba(2,4,16,0.93);
+  border-bottom:1px solid var(--border);
   backdrop-filter:blur(18px);
 }
 #title-block{
-  display:flex;align-items:center;gap:8px;
-  padding:0 12px;border-right:1px solid var(--border);
-  pointer-events:all;transition:background .15s;flex-shrink:0;
+  display:flex;align-items:center;gap:10px;
+  padding:0 16px;border-right:1px solid var(--border);
+  cursor:pointer;pointer-events:all;transition:background .15s;flex-shrink:0;
 }
 #title-block:hover{background:rgba(255,255,255,0.03);}
 #title-text{
-  font-family:'Space Mono',monospace;font-size:.85rem;font-weight:700;
-  letter-spacing:.06em;color:#fff;text-transform:uppercase;white-space:nowrap;cursor:pointer;
+  font-family:'Space Mono',monospace;font-size:.95rem;font-weight:700;
+  letter-spacing:.08em;color:#fff;text-transform:uppercase;white-space:nowrap;
   text-shadow:0 0 20px rgba(74,174,255,0.5);
 }
 #title-chevron{
-  width:20px;height:20px;border-radius:50%;
+  width:22px;height:22px;border-radius:50%;
   background:var(--cyan);color:#000;
-  font-family:'Space Mono',monospace;font-size:.70rem;font-weight:700;
+  font-family:'Space Mono',monospace;font-size:.75rem;font-weight:700;
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;cursor:pointer;transition:opacity .2s;user-select:none;
-  pointer-events:all;
 }
+#title-chevron:hover{opacity:.80;}
 #title-chevron.open{background:transparent;color:var(--cyan);border:1.5px solid var(--cyan);}
 .hstat{
   display:flex;flex-direction:column;justify-content:center;
-  padding:4px 10px;border-right:1px solid var(--border);
+  padding:6px 14px;border-right:1px solid var(--border);
 }
-.hv{font-family:'Space Mono',monospace;font-size:.82rem;color:var(--txt);line-height:1;font-weight:700;}
-.hl{font-size:.46rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.07em;margin-top:2px;}
-#hdet{display:flex;flex-direction:column;justify-content:center;padding:4px 10px;flex:1;}
-.dc{font-family:'Space Mono',monospace;font-size:.82rem;color:var(--lbl);line-height:1;font-weight:700;transition:color .25s;}
+.hv{font-family:'Space Mono',monospace;font-size:.85rem;color:var(--txt);line-height:1;font-weight:700;}
+.hl{font-size:.52rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.07em;margin-top:2px;}
+#hdet{display:flex;flex-direction:column;justify-content:center;padding:6px 14px;}
+.dc{font-family:'Space Mono',monospace;font-size:.85rem;color:var(--lbl);line-height:1;font-weight:700;transition:color .25s;}
 .dc.on{color:var(--green);}
-.dlog{font-size:.46rem;color:var(--lbl);margin-top:2px;line-height:1.3;}
-/* Bouton ⚙ — même style bulle que #title-chevron */
-#bparams,#bregen{
-  width:20px;height:20px;border-radius:50%;
-  background:var(--cyan);color:#000;
-  font-family:'Space Mono',monospace;font-size:.70rem;font-weight:700;
-  display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;cursor:pointer;transition:opacity .2s;user-select:none;
-  pointer-events:all;border:none;
-}
-#bparams:hover,#bregen:hover{opacity:.80;}
-#bparams.open{background:transparent;color:var(--cyan);border:1.5px solid var(--cyan);}
-#bregen:active{transform:rotate(180deg);transition:transform .3s,opacity .2s;}
+.dlog{font-size:.52rem;color:var(--lbl);margin-top:2px;line-height:1.4;max-width:300px;}
 
-/* Ligne 2 : contrôles temporels */
-#ctrlbar{
-  display:flex;align-items:center;gap:8px;
-  padding:5px 10px;
-  border-top:1px solid var(--border);
-  pointer-events:all;
+/* ── BARRE DE CONTRÔLE DU BAS ── */
+#ctrl{
+  flex-shrink:0;
+  background:var(--panel);border-top:1px solid var(--border);
+  padding:8px 14px 10px;
+  display:flex;gap:10px;align-items:center;
+  /* Ne wrap jamais — tout reste sur une ligne */
+  flex-wrap:nowrap;
+  z-index:10;
+  width:100%;
 }
+#tblock{display:flex;flex-direction:row;align-items:center;gap:8px;flex:1;min-width:0;}
+#trow{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;}
 #bplay{
-  width:26px;height:26px;border-radius:50%;flex-shrink:0;
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
   border:1px solid rgba(74,174,255,.45);background:rgba(74,174,255,.10);
-  color:var(--cyan);font-size:.75rem;cursor:pointer;
+  color:var(--cyan);font-size:.80rem;cursor:pointer;
   display:flex;align-items:center;justify-content:center;transition:background .15s;
 }
 #bplay:hover{background:rgba(74,174,255,.22);}
-/* Panneau zoom vertical — toujours visible, bas droite */
-#zoom-panel{
-  position:fixed;
-  bottom:52px;
-  right:10px;
-  width:34px;
-  background:rgba(3,7,24,0.88);
-  border:1px solid rgba(74,174,255,.28);
-  border-radius:17px;
-  padding:8px 0 6px;
-  display:flex;flex-direction:column;align-items:center;gap:6px;
-  z-index:50;
-  pointer-events:all;
+#tdisp{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--gold);font-weight:700;white-space:nowrap;flex-shrink:0;}
+/* Curseur dans la topbar */
+#timeline-wrap{
+  position:relative;width:100%;height:28px;
+  background:rgba(2,4,16,0.93);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
 }
-#zoom-label-max{font-size:.42rem;color:var(--cyan);font-family:'Space Mono',monospace;text-align:center;line-height:1.2;opacity:.85;}
-#zoom-label-min{font-size:.42rem;color:var(--lbl);font-family:'Space Mono',monospace;text-align:center;line-height:1.2;}
-#szoom{
-  -webkit-appearance:slider-vertical;
-  appearance:slider-vertical;
-  writing-mode:vertical-lr;
-  direction:rtl;
-  width:6px;height:110px;
-  cursor:pointer;
-  accent-color:var(--cyan);
-  background:transparent;
-}
-#tdisp{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--gold);font-weight:700;white-space:nowrap;flex-shrink:0;}
-#timeline-wrap{position:relative;flex:1;height:26px;min-width:0;}
-#tl-bg{position:absolute;top:50%;left:0;right:0;height:3px;border-radius:2px;background:rgba(255,255,255,.12);transform:translateY(-50%);pointer-events:none;z-index:1;}
-#tl-earth{position:absolute;top:50%;height:5px;border-radius:2px;background:var(--gold);opacity:.85;transform:translateY(-50%);pointer-events:none;z-index:2;transition:background .3s;}
-#tl-earth.warning{background:linear-gradient(90deg,var(--gold) 30%,#ff6b35);}
-/* Poignée drag droite de la barre Terre */
-#tl-earth-handle{
-  position:absolute;top:50%;z-index:4;
-  width:10px;height:16px;border-radius:3px;
-  background:var(--gold);border:1.5px solid rgba(255,255,255,.4);
-  transform:translate(-50%,-50%);
-  cursor:ew-resize;touch-action:none;
-  transition:background .3s;
-}
-#tl-earth-handle.warning{background:#ff6b35;}
-/* Bouton i sur le début de la barre Terre */
-#tl-earth-info{
-  position:absolute;top:50%;z-index:5;
-  width:13px;height:13px;border-radius:50%;
-  background:var(--gold);color:#000;
-  font-family:'Space Mono',monospace;font-size:.48rem;font-weight:700;
-  display:flex;align-items:center;justify-content:center;
-  transform:translate(-50%,-50%);
-  cursor:pointer;pointer-events:all;
-  border:none;flex-shrink:0;
-}
-#tl-earth-info:hover{opacity:.8;}
-/* Warning inline sous le slider U */
-#u-warning{
-  display:none;font-size:.56rem;color:#ff6b35;
-  font-family:'Space Mono',monospace;line-height:1.45;
-  margin-top:4px;padding:5px 7px;
-  border-left:2px solid #ff6b35;
-  background:rgba(255,107,53,.08);border-radius:0 4px 4px 0;
-}
-#u-warning.show{display:block;}
+#tl-bg{position:absolute;top:50%;left:0;right:0;height:3px;border-radius:2px;background:rgba(255,255,255,.11);transform:translateY(-50%);pointer-events:none;z-index:1;}
+#tl-earth{position:absolute;top:50%;height:5px;border-radius:3px;background:var(--gold);opacity:.80;transform:translateY(-50%);pointer-events:none;z-index:2;}
 #tscrub{
   position:absolute;top:0;left:0;width:100%;height:100%;
-  -webkit-appearance:none;appearance:none;background:transparent;outline:none;cursor:pointer;z-index:3;margin:0;
+  -webkit-appearance:none;appearance:none;background:transparent;outline:none;cursor:pointer;z-index:3;
+  margin:0;padding:0;
 }
-#tscrub::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 8px var(--cyan);margin-top:-9px;}
+#tscrub::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 8px var(--cyan);margin-top:-8px;}
 #tscrub::-webkit-slider-runnable-track{height:3px;background:transparent;}
-#tscrub::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;}
+#tscrub::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;}
+/* Select vitesse */
 #spd-select{
   flex-shrink:0;
   background:rgba(74,174,255,.07);border:1px solid rgba(74,174,255,.35);
-  color:var(--cyan);border-radius:4px;padding:3px 18px 3px 6px;
-  font-family:'Space Mono',monospace;font-size:.56rem;cursor:pointer;
+  color:var(--cyan);border-radius:4px;padding:3px 6px;
+  font-family:'Space Mono',monospace;font-size:.58rem;cursor:pointer;
   -webkit-appearance:none;appearance:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%234aaeff'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 5px center;
-  background-color:rgba(74,174,255,.07);
+  background-repeat:no-repeat;background-position:right 5px center;padding-right:16px;
 }
+#spd-select:focus{outline:none;}
 
-/* Params inline desktop */
-.pgrid{display:flex;gap:10px;flex-wrap:nowrap;align-items:center;}
+/* Bouton ⚙ — visible sur mobile, caché sur desktop */
+#bparams{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  border:1px solid rgba(74,174,255,.45);background:rgba(74,174,255,.10);
+  color:var(--cyan);font-size:.90rem;cursor:pointer;
+  display:none;align-items:center;justify-content:center;transition:background .15s;
+}
+#bparams:hover{background:rgba(74,174,255,.22);}
+
+/* Params inline — desktop uniquement */
+.pgrid{display:flex;gap:10px;flex-wrap:nowrap;align-items:center;flex-shrink:0;}
 .pm{display:flex;flex-direction:column;gap:3px;width:110px;}
 .ph{display:flex;justify-content:space-between;align-items:baseline;gap:4px;}
-.pn{font-size:.50rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
-.pv{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--gold);font-weight:700;}
+.pn{font-size:.52rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
+.pv{font-family:'Space Mono',monospace;font-size:.64rem;color:var(--gold);font-weight:700;}
 input[type=range]{width:100%;height:2px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,.15);border-radius:1px;outline:none;cursor:pointer;}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:var(--cyan);cursor:pointer;}
 input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;}
 
-/* ── MOBILE/* ── MOBILE : bascule layout ── */
-/* ── KPI bar portrait mobile ── */
-#kpi-bar{
-  display:none; /* caché par défaut (desktop) */
-  flex-direction:row;align-items:stretch;
-  border-top:1px solid var(--border);
-  overflow:hidden;
-  justify-content:flex-start; /* aligné à gauche */
+/* Bloc droite (légende + regen) — desktop */
+#rblock{display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0;}
+#bregen{
+  padding:5px 12px;font-family:'Space Mono',monospace;font-size:.56rem;
+  letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid rgba(74,174,255,.35);background:rgba(74,174,255,.07);
+  color:var(--cyan);border-radius:4px;cursor:pointer;transition:background .15s;white-space:nowrap;
 }
-#kpi-bar .hstat{flex:0 0 auto;border-right:1px solid var(--border);padding:4px 10px;}
-#kpi-bar .hstat:last-child{border-right:none;}
+#bregen:hover{background:rgba(74,174,255,.16);}
+.leg{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+.li{display:flex;align-items:center;gap:4px;font-size:.52rem;color:var(--lbl);white-space:nowrap;}
+.ld{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 
-@media (max-width: 1024px) and (orientation: portrait){
-  /* Masquer les KPIs de la ligne titre */
-  #topbar-inner .hstat,
-  #topbar-inner #hdet{ display:none !important; }
-  /* Afficher la kpi-bar entre le titre et la barre de temps */
-  #kpi-bar{ display:flex !important; }
-}
-
+/* ── MOBILE : bascule layout ── */
 @media (max-width: 1024px){
   #title-text{font-size:.75rem;}
   .hstat{padding:5px 8px;}
@@ -273,13 +219,6 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   width:100%;max-height:80svh;overflow-y:auto;
 }
 #params-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.2);margin:0 auto 16px;}
-#params-close{
-  position:absolute;top:12px;right:14px;
-  background:transparent;border:none;color:var(--lbl);
-  font-size:1.1rem;cursor:pointer;padding:4px;transition:color .15s;
-}
-#params-close:hover{color:var(--txt);}
-#params-panel{position:relative;}
 #params-panel h3{
   font-family:'Space Mono',monospace;font-size:.70rem;font-weight:700;
   color:var(--cyan);letter-spacing:.10em;text-transform:uppercase;margin-bottom:14px;
@@ -289,192 +228,113 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 .ph-modal{display:flex;justify-content:space-between;align-items:baseline;}
 .pn-modal{font-size:.68rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.04em;}
 .pv-modal{font-family:'Space Mono',monospace;font-size:.80rem;color:var(--gold);font-weight:700;}
-
-/* ── Infobulles paramètres ── */
-.pi-btn{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:13px;height:13px;border-radius:50%;
-  border:1px solid rgba(74,174,255,.50);
-  color:rgba(74,174,255,.70);font-size:.52rem;font-family:'Space Mono',monospace;
-  cursor:pointer;flex-shrink:0;position:relative;
-  transition:border-color .15s, color .15s;
-  user-select:none;vertical-align:middle;
-}
-.pi-btn:hover{border-color:var(--cyan);color:var(--cyan);}
-.pi-tip{
-  display:none;
-  position:fixed; /* fixed pour ne jamais être clippé par un parent overflow */
-  background:rgba(3,7,30,0.97);border:1px solid rgba(74,174,255,.30);
-  border-radius:8px;padding:10px 13px;
-  width:260px;max-width:calc(100vw - 24px);
-  font-size:.62rem;color:var(--txt);line-height:1.65;
-  font-family:'Space Mono',monospace;font-weight:400;text-transform:none;
-  letter-spacing:0;z-index:9999;pointer-events:none;
-  box-shadow:0 4px 24px rgba(0,0,0,.7);
-  white-space:normal;word-break:normal;
-}
-.pi-tip::after{
-  content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
-  border:5px solid transparent;border-top-color:rgba(74,174,255,.30);
-}
-.pi-btn:hover .pi-tip,
-.pi-btn:focus .pi-tip{ display:block; }
 .leg-modal{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
-.leg-modal .li{font-size:.60rem;color:var(--lbl);display:flex;align-items:center;gap:5px;}
-.leg-modal .ld{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.leg-modal .li{font-size:.60rem;}
+#bregen-modal{
+  margin-top:16px;width:100%;padding:10px;
+  font-family:'Space Mono',monospace;font-size:.60rem;
+  letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid rgba(74,174,255,.35);background:rgba(74,174,255,.07);
+  color:var(--cyan);border-radius:6px;cursor:pointer;transition:background .15s;
+}
+#bregen-modal:hover{background:rgba(74,174,255,.16);}
 
-
-/* ── POPUP HINT TIMELINE ── */
-#hint-timeline{
-  position:fixed;z-index:201;
-  background:rgba(3,7,24,0.96);border:1px solid rgba(244,196,48,.45);
-  border-radius:10px;padding:10px 13px;
-  font-family:'Space Mono',monospace;font-size:.60rem;color:var(--gold);
-  display:none;flex-direction:column;gap:5px;
-  pointer-events:all;cursor:default;
-  animation:fadeInHint .4s ease;
-  box-shadow:0 0 18px rgba(244,196,48,.12);
-  max-width:220px;line-height:1.55;
+/* ── OVERLAY ROTATION PORTRAIT ── */
+#rotate-overlay{
+  display:none;position:fixed;inset:0;z-index:9999;
+  background:#000005;flex-direction:column;
+  align-items:center;justify-content:center;gap:24px;
+  text-align:center;padding:32px;
 }
-#hint-timeline.show{display:flex;}
-#hint-timeline-arrow{
-  position:absolute;top:-7px;left:50%;
-  transform:translateX(-50%);
-  width:0;height:0;
-  border-left:6px solid transparent;
-  border-right:6px solid transparent;
-  border-bottom:7px solid rgba(244,196,48,.45);
-}
-#hint-timeline-arrow::after{
-  content:'';position:absolute;top:2px;left:-5px;
-  width:0;height:0;
-  border-left:5px solid transparent;
-  border-right:5px solid transparent;
-  border-bottom:6px solid rgba(3,7,24,0.96);
-}
-#hint-timeline-close{
-  position:absolute;top:6px;right:8px;
-  background:transparent;border:none;
-  color:rgba(244,196,48,.5);font-size:.65rem;cursor:pointer;
-  transition:color .15s;padding:0;
-}
-#hint-timeline-close:hover{color:var(--gold);}
-
-/* ── POPUP HINT ? ── */
-#hint-popup{
-  position:fixed;z-index:200;
-  top:54px;left:12px;
-  background:rgba(3,7,24,0.96);border:1px solid rgba(74,174,255,.35);
-  border-radius:10px;padding:10px 14px;
-  font-family:'Space Mono',monospace;font-size:.65rem;color:var(--cyan);
-  display:none;align-items:center;gap:8px;
-  pointer-events:all;cursor:pointer;
-  animation:fadeInHint .4s ease;
-  box-shadow:0 0 18px rgba(74,174,255,.15);
-}
-#hint-popup.show{display:flex;}
-#hint-close{
-  margin-left:4px;font-size:.65rem;color:var(--lbl);
-  cursor:pointer;transition:color .15s;flex-shrink:0;
-}
-#hint-close:hover{color:var(--txt);}
-#hint-arrow{
-  position:absolute;top:-7px;left:50%; /* JS ajustera left */
-  transform:translateX(-50%);
-  width:0;height:0;
-  border-left:6px solid transparent;
-  border-right:6px solid transparent;
-  border-bottom:7px solid rgba(74,174,255,.35);
-}
-#hint-arrow::after{
-  content:'';position:absolute;top:2px;left:-5px;
-  width:0;height:0;
-  border-left:5px solid transparent;
-  border-right:5px solid transparent;
-  border-bottom:6px solid rgba(3,7,24,0.96);
-}
-@keyframes fadeInHint{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
-
-
+#rotate-overlay .rotate-icon{font-size:4rem;animation:rotateHint 2s ease-in-out infinite;}
+@keyframes rotateHint{0%,100%{transform:rotate(0deg);}40%{transform:rotate(90deg);}60%{transform:rotate(90deg);}}
+#rotate-overlay h2{font-family:'Space Mono',monospace;color:var(--cyan);font-size:1.1rem;letter-spacing:.08em;}
+#rotate-overlay p{color:var(--lbl);font-size:.85rem;line-height:1.6;max-width:260px;}
+@media (max-width:768px) and (orientation:portrait){
+  #rotate-overlay{display:flex;}
 }
 </style>
 </head>
 <body>
 
-
+<div id="rotate-overlay">
+  <div class="rotate-icon">📱</div>
+  <h2>Tournez votre écran</h2>
+  <p>Cette simulation est conçue pour le mode paysage.<br>Faites pivoter votre téléphone pour explorer le cosmos.</p>
+</div>
 
 <div id="topbar">
-  <!-- Ligne 1 : titre + stats + bouton ⚙ -->
-  <div id="topbar-inner">
-    <div id="title-block">
-      <span id="title-text" onclick="toggleInfo()">Le silence du cosmos</span>
-      <span id="title-chevron" onclick="toggleInfo()" aria-label="En savoir plus">?</span>
-      <button id="bparams" onclick="toggleParams()">⚙</button>
-      <button id="bregen" onclick="doRegen()" title="Régénérer la simulation">↺</button>
+    <div id="topbar-inner">
+      <div id="title-block" onclick="toggleInfo()">
+        <span id="title-text">Le silence du cosmos</span>
+        <span id="title-chevron" aria-label="En savoir plus">?</span>
+      </div>
+      <div class="hstat"><span class="hv" id="hactive">0</span><span class="hl">Civs actives</span></div>
+      <div class="hstat"><span class="hv" id="hwaves">0</span><span class="hl">Ondes visibles</span></div>
+      <div class="hstat"><span class="hv" id="hsimul">—</span><span class="hl">Simult. moy.</span></div>
+      <div id="hdet">
+        <span class="dc" id="hdc">0 détection</span>
+        <span class="dlog" id="hdlog">Aucune détection pendant la vie de la Terre</span>
+      </div>
     </div>
-    <div class="hstat"><span class="hv" id="hactive">0</span><span class="hl">Civs</span></div>
-    <div class="hstat"><span class="hv" id="hwaves">0</span><span class="hl">Ondes</span></div>
-    <div class="hstat"><span class="hv" id="hsimul">—</span><span class="hl">Act.</span></div>
-    <div id="hdet">
-      <span class="dc" id="hdc">0 détection</span>
-      <span class="dlog" id="hdlog">Aucune détection</span>
-    </div>
-  </div>
-  <!-- KPI bar : visible uniquement en portrait mobile -->
-  <div id="kpi-bar">
-    <div class="hstat"><span class="hv" id="hactive2">0</span><span class="hl">Civs</span></div>
-    <div class="hstat"><span class="hv" id="hwaves2">0</span><span class="hl">Ondes</span></div>
-    <div class="hstat"><span class="hv" id="hsimul2">—</span><span class="hl">Act.</span></div>
-    <div class="hstat"><span class="dc" id="hdc2">0 détection</span></div>
-  </div>
-  <!-- Ligne 2 : contrôles temporels -->
-  <div id="ctrlbar">
-    <button id="bplay">⏸</button>
-    <span id="tdisp">An +0</span>
     <div id="timeline-wrap">
       <div id="tl-bg"></div>
       <div id="tl-earth"></div>
-      <button id="tl-earth-info" title="Fenêtre terrestre">i</button>
-      <div id="tl-earth-handle" title="Glisser pour modifier la durée de réception"></div>
       <input type="range" id="tscrub" min="-10000" max="10000" step="10" value="0">
     </div>
-    <select id="spd-select">
-      <option value="50">×50</option>
-      <option value="200">×200</option>
-      <option value="1000">×1k</option>
-      <option value="5000" selected>×5k</option>
-      <option value="20000">×20k</option>
-    </select>
   </div>
-</div>
-
-<!-- Panneau zoom vertical -->
-<div id="zoom-panel">
-  <span id="zoom-label-max">🔍<br>Terre</span>
-  <input type="range" id="szoom" min="1" max="12" step="0.1" value="3.2">
-  <span id="zoom-label-min">🌌<br>Voie<br>Lactée</span>
-</div>
 
 <div id="wrap">
-  <div id="hint-timeline">
-    <div id="hint-timeline-arrow"></div>
-    <button id="hint-timeline-close" onclick="dismissHintTimeline()">✕</button>
-    <span style="font-size:.95rem;">📡</span>
-    <span>Début de la fenêtre terrestre</span>
-    <span style="color:var(--txt);font-size:.57rem;">En 1960, Frank Drake réalise <em>Project Ozma</em> — la première écoute systématique de signaux radio extraterrestres. C'est à partir de cette époque que la Terre devient capable de détecter un signal venu d'ailleurs.</span>
-  </div>
-
-  <div id="hint-popup" onclick="onHintClick();">
-  <div id="hint-arrow"></div>
-  <span style="font-size:1.3rem;">🤔</span>
-  <span>Qu'est-ce que c'est&nbsp;?</span>
-  <span id="hint-close" onclick="event.stopPropagation();dismissHint();" title="Fermer">✕</span>
-</div>
-<canvas id="cg" ></canvas>
+  <canvas id="cg"></canvas>
   <canvas id="cs"></canvas>
 </div>
 
-<!-- Modale<!-- Modale info -->
+<!-- Barre de contrôle -->
+<div id="ctrl">
+  <div id="tblock">
+    <div id="trow">
+      <button id="bplay">⏸</button>
+      <span id="tdisp">An +0</span>
+      <select id="spd-select">
+        <option value="50">×50</option>
+        <option value="200">×200</option>
+        <option value="1000">×1k</option>
+        <option value="5000">×5k</option>
+        <option value="20000">×20k</option>
+      </select>
+    </div>
+  </div>
+  <button id="bparams" onclick="toggleParams()">⚙</button>
+  <div class="pgrid">
+    <div class="pm">
+      <div class="ph"><span class="pn">N simult. moy.</span><span class="pv" id="vN">20</span></div>
+      <input type="range" id="slN" min="1" max="1000" step="1" value="20">
+    </div>
+    <div class="pm">
+      <div class="ph"><span class="pn">L émission (an)</span><span class="pv" id="vL">10 000</span></div>
+      <input type="range" id="slL" min="100" max="50000" step="100" value="10000">
+    </div>
+    <div class="pm">
+      <div class="ph"><span class="pn">Portée S (al)</span><span class="pv" id="vS">40 000</span></div>
+      <input type="range" id="slS" min="100" max="52000" step="100" value="40000">
+    </div>
+    <div class="pm">
+      <div class="ph"><span class="pn">Vie civ. (an)</span><span class="pv" id="vU">500</span></div>
+      <input type="range" id="slU" min="100" max="100000" step="100" value="500">
+    </div>
+  </div>
+  <div id="rblock">
+    <button id="bregen">↺ Régénérer</button>
+    <div class="leg">
+      <div class="li"><div class="ld" style="background:#4aaeff;box-shadow:0 0 4px #4aaeff"></div>Active</div>
+      <div class="li"><div class="ld" style="background:#7ab0d8"></div>Fossile</div>
+      <div class="li"><div class="ld" style="background:#f4c430;box-shadow:0 0 5px #f4c430"></div>Terre</div>
+      <div class="li"><div class="ld" style="background:#50fa7b;box-shadow:0 0 4px #50fa7b"></div>Contact</div>
+    </div>
+  </div>
+</div>
+
+<!-- Modale info -->
 <div id="info-overlay" onclick="handleOverlayClick(event)">
   <div id="info-panel">
     <button id="info-close" onclick="toggleInfo()">✕</button>
@@ -482,26 +342,21 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div class="info-col">
         <h2>Le silence</h2>
         <p>Nous avons scruté le ciel pendant des siècles. Rien. Pas un signal, pas un écho, pas la moindre trace d'une autre voix dans l'immensité. Et pourtant les étoiles sont légion, les planètes innombrables, le temps vertigineux. La vie aurait dû surgir ailleurs. L'intelligence aurait dû fleurir. Quelqu'un, quelque part, aurait dû parler.</p>
-        <p>Ce silence est la question la plus troublante que l'humanité ait jamais posée.</p>
-        <p>Cette simulation représente notre galaxie, la Voie Lactée — environ 200 milliards d'étoiles sur 100 000 années-lumière de diamètre. À l'échelle de l'univers observable, c'est une infime fraction : il contiendrait quelque 2 000 milliards de galaxies similaires.</p>
-        <p>Chaque <strong style="color:#4aaeff">anneau bleu</strong> a pour centre une civilisation technologique — cette brève flamme dans le noir représente les signaux radio qu'elle émet dans toutes les directions, à la vitesse de la lumière. Ces ondes se propagent pendant des millénaires après l'extinction de leur source, fantômes d'une présence révolue.</p>
-        <p>Notre <strong style="color:#f4c430">Terre</strong> est ce point doré, quelque part dans la galaxie. Pour qu'un contact ait lieu, il faut que deux miracles coïncident : que quelqu'un émette, et que nous soyons là pour recevoir.</p>
-        <p>L'anneau passe au <strong style="color:#50fa7b">vert</strong> quand il touche la Terre pendant cette infime fenêtre. Notre civilisation n'est capable d'émettre et recevoir des ondes radio que depuis environ 100 ans.</p>
+        <p>Ce silence est la question la plus troublante que l'humanité ait jamais posée. Et cette simulation n'en explore qu'une infime partie : notre galaxie, la Voie Lactée — environ 200 milliards d'étoiles. L'univers observable en contient 2 000 milliards d'autres comme elle.</p>
+        <p>Cette simulation représente notre galaxie, la Voie Lactée, vue de dessus — environ 200 milliards d'étoiles sur 100 000 années-lumière de diamètre. À l'échelle de l'univers observable, c'est une infime fraction : il contiendrait quelque 2 000 milliards de galaxies similaires.</p>
+        <p>Chaque <strong style="color:#4aaeff">anneau bleu</strong> est une civilisation technologique — une brève flamme dans le noir qui émet ses signaux radio dans toutes les directions, à la vitesse de la lumière. Ces ondes se propagent pendant des millénaires après l'extinction de leur source, fantômes d'une présence révolue. L'anneau devient <strong style="color:#8ab4d4">bleu clair</strong> quand la civilisation s'est éteinte (signal fossile). Il passe au <strong style="color:#50fa7b">vert</strong> quand il touche la Terre pendant qu'elle héberge une civilisation technologique. La nôtre, par exemple, est capable d'émettre et recevoir des ondes radio depuis environ 100 ans.</p>
+        <p>La <strong style="color:#f4c430">Terre</strong> est ce point doré. Mais la planète seule ne suffit pas — ce qui compte, c'est la fenêtre où une civilisation technologique y existe, capable d'émettre et de recevoir des signaux radio. Cette fenêtre — quelques milliers d'années sur deux cent mille simulées — est infiniment étroite. Pour qu'un contact ait lieu, il faut que deux miracles coïncident : que quelqu'un émette, et que nous soyons là pour recevoir.</p>
         <p>Jouez avec les paramètres. Regardez les anneaux se multiplier, se croiser, parfois frôler la Terre. Et demandez-vous pourquoi, dans notre univers réel, nous n'en avons capté aucun. Peut-être sommes-nous trop tôt. Peut-être trop tard. Peut-être seuls.</p>
       </div>
       <div class="info-col">
         <h2>Les paramètres</h2>
         <div class="param-list">
-          <strong>N</strong> — civilisations apparues sur 200 000 ans
-          <span class="pi-btn" tabindex="0">i<span class="pi-tip">Nombre total de civilisations technologiques apparues dans la galaxie sur les 200 000 ans simulés. Indépendant de leur durée de vie — si L est courte, elles se succèdent rapidement ; si L est longue, elles coexistent davantage.<br><br>Le nombre simultané à tout instant est affiché en temps réel (Act.). Valeurs plausibles : 10–500.</span></span><br>
-          <strong>L</strong> — durée d'émission moyenne
-          <span class="pi-btn" tabindex="0">i<span class="pi-tip">Durée pendant laquelle une civilisation émet des signaux détectables. Correspond à l'épaisseur des anneaux bleus.<br><br>Notre civilisation émet depuis ~100 ans. Une guerre, une extinction ou une transition technologique pourraient l'arrêter. Valeurs plausibles : 100–10 000 ans.</span></span><br>
-          <strong>S</strong> — portée du signal
-          <span class="pi-btn" tabindex="0">i<span class="pi-tip">Distance maximale de contact effectif. Synthèse de deux grandeurs : la portée d'émission (puissance du signal à la source) et la sensibilité de réception terrestre (nos radio-télescopes).<br><br>Un signal s'affaiblit en 1/r² : doubler la distance divise la puissance par 4. S représente le seuil en-deçà duquel le signal émerge du bruit de fond cosmique. Rayon de la Voie Lactée : 52 000 al. Valeurs plausibles : 1 000–50 000 al.</span></span><br>
-          <strong>U</strong> — fenêtre de réception terrestre
-          <span class="pi-btn" tabindex="0">i<span class="pi-tip">Durée pendant laquelle la Terre héberge une civilisation technologique capable de recevoir des signaux. Représente l'anneau doré et la zone verte de contact.<br><br>Nous recevons depuis ~100 ans. Combien de temps encore ? C'est la variable la plus personnelle — et la plus incertaine. Valeurs plausibles : 100–10 000 ans.</span></span>
+          <strong>N</strong> — nombre de civilisations technologiques simultanées en moyenne (équation de Drake)<br>
+          <strong>L</strong> — durée d'émission moyenne (années) → épaisseur des anneaux<br>
+          <strong>Portée S</strong> — distance maximale de détection (al) → rayon max des anneaux<br>
+          <strong>Vie Terre</strong> — durée pendant laquelle nous existons et pouvons recevoir
         </div>
-        <p style="margin-top:12px;">Le paradoxe de Fermi s'observe directement : même avec plusieurs civilisations, les fenêtres de contact simultané sont rares. Augmentez N pour spawner plus de civilisations, L pour les faire durer plus longtemps, S pour élargir leur portée.</p>
+        <p style="margin-top:12px;">Le paradoxe de Fermi s'observe directement : même avec des centaines de civilisations, les fenêtres de contact simultané sont rares. Augmentez N, L et S pour voir les premières détections apparaître.</p>
       </div>
     </div>
   </div>
@@ -510,46 +365,24 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 <!-- Modale paramètres (mobile) -->
 <div id="params-overlay" onclick="handleParamsOverlay(event)">
   <div id="params-panel">
-    <button id="params-close" onclick="toggleParams()">✕</button>
     <div id="params-handle"></div>
     <h3>Paramètres</h3>
     <div class="pgrid-modal">
       <div class="pm-modal">
-        <div class="ph-modal">
-          <span class="pn-modal">N — Civs apparues sur 200 000 ans
-            <span class="pi-btn" tabindex="0">i<span class="pi-tip">Nombre total de civilisations technologiques apparues dans la galaxie sur les 200 000 ans simulés. Indépendant de leur durée de vie — si L est courte, elles se succèdent rapidement ; si L est longue, elles coexistent davantage.<br><br>Le nombre simultané à tout instant est affiché en temps réel (Act.). Valeurs plausibles&nbsp;: 10–500.</span></span>
-          </span>
-          <span class="pv-modal" id="vNm">50</span>
-        </div>
-        <input type="range" id="slNm" min="1" max="1000" step="1" value="50">
+        <div class="ph-modal"><span class="pn-modal">N — Civs simultanées (Drake)</span><span class="pv-modal" id="vNm">20</span></div>
+        <input type="range" id="slNm" min="1" max="1000" step="1" value="20">
       </div>
       <div class="pm-modal">
-        <div class="ph-modal">
-          <span class="pn-modal">L — Durée d'émission moyenne (ans)
-            <span class="pi-btn" tabindex="0">i<span class="pi-tip">Durée pendant laquelle une civilisation émet des signaux détectables. Correspond à l'épaisseur des anneaux.<br><br>Notre propre civilisation émet depuis ~100 ans. Une extinction, une guerre ou une transition énergétique pourraient l'arrêter. Valeurs plausibles&nbsp;: 100–10 000 ans.</span></span>
-          </span>
-          <span class="pv-modal" id="vLm">10 000</span>
-        </div>
-        <input type="range" id="slLm" min="100" max="10000" step="100" value="1000">
+        <div class="ph-modal"><span class="pn-modal">L — Durée d'émission (ans)</span><span class="pv-modal" id="vLm">10 000</span></div>
+        <input type="range" id="slLm" min="100" max="50000" step="100" value="10000">
       </div>
       <div class="pm-modal">
-        <div class="ph-modal">
-          <span class="pn-modal">S — Portée du signal (al)
-            <span class="pi-btn" tabindex="0">i<span class="pi-tip">Distance maximale à laquelle un signal radio reste détectable. Limite le rayon des anneaux.<br><br>Nos émissions actuelles s'affaiblissent rapidement. Une civilisation avancée pourrait émettre des faisceaux beaucoup plus puissants. Rayon de la Voie Lactée&nbsp;: 52 000 al. Valeurs plausibles&nbsp;: 1 000–50 000 al.</span></span>
-          </span>
-          <span class="pv-modal" id="vSm">40 000</span>
-        </div>
-        <input type="range" id="slSm" min="100" max="52000" step="100" value="10000">
+        <div class="ph-modal"><span class="pn-modal">S — Portée du signal (al)</span><span class="pv-modal" id="vSm">40 000</span></div>
+        <input type="range" id="slSm" min="100" max="52000" step="100" value="40000">
       </div>
       <div class="pm-modal">
-        <div class="ph-modal">
-          <span class="pn-modal">U — Fenêtre terrestre (ans)
-            <span class="pi-btn" tabindex="0">i<span class="pi-tip">Durée pendant laquelle la Terre héberge une civilisation technologique capable de recevoir des signaux. Représente l'anneau doré.<br><br>Nous sommes capables de recevoir depuis ~100 ans. Combien de temps encore&nbsp;? Valeurs plausibles&nbsp;: 100–10 000 ans.</span></span>
-          </span>
-          <span class="pv-modal" id="vUm">500</span>
-        </div>
-        <input type="range" id="slUm" min="100" max="10000" step="100" value="1000">
-        <div id="u-warning">⚠ Au-delà de 500 ans, il est très peu probable qu'une civilisation évite une catastrophe existentielle — guerre nucléaire, effondrement climatique, pandémie, IA incontrôlable.</div>
+        <div class="ph-modal"><span class="pn-modal">U — Vie civ. terrestre (ans)</span><span class="pv-modal" id="vUm">500</span></div>
+        <input type="range" id="slUm" min="100" max="100000" step="100" value="500">
       </div>
     </div>
     <div class="leg-modal">
@@ -558,6 +391,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div class="li"><div class="ld" style="background:#f4c430;box-shadow:0 0 5px #f4c430"></div>Onde Terre</div>
       <div class="li"><div class="ld" style="background:#50fa7b;box-shadow:0 0 4px #50fa7b"></div>Contact !</div>
     </div>
+    <button id="bregen-modal">↺ Régénérer</button>
   </div>
 </div>
 
@@ -566,9 +400,9 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 // ══════════════════════════════════════════════════
 // CONSTANTS
 // ══════════════════════════════════════════════════
-const SIM_START   = -100000; // civs spawn depuis -100000
-const SIM_END     =   10000;
-const SIM_DUR     =  110000; // durée totale de spawn
+const SIM_START   = -10000;
+const SIM_END     =  10000;
+const SIM_DUR     =  20000;
 const MW_R        =  52000;
 const EARTH_GX    =  8500;
 const EARTH_GY    =  0;
@@ -585,11 +419,9 @@ const R0_SP     = 2500;
 // ══════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════
-let P = {N:50, L:1000, S:10000, U:1000, B:1.0};
-let zoomLevel = 3.2; // 1 = vue galactique complète, >1 = zoom sur Terre
-let zoomTarget = 3.2;
+let P = {N:20, L:10000, S:40000, U:500, B:1.0};
 let civs=[], gStars=[];
-let simTime=-10000, playing=true, speed=500;
+let simTime=EARTH_BIRTH, playing=true, speed=500;
 let lastTS=null, animId=null, scrubbing=false;
 let gCache=null, cacheW=0, cacheH=0;
 
@@ -637,28 +469,12 @@ function handleOverlayClick(e){
 // ══════════════════════════════════════════════════
 // COORDINATES
 // ══════════════════════════════════════════════════
-function getBaseScale(W,H){
+function getScale(W,H){
   return Math.min(W*0.96/(2*MW_R), H*0.96/(2*MW_R*0.40));
 }
-function getScale(W,H){
-  return getBaseScale(W,H) * zoomLevel;
-}
-// Origine de la caméra : quand zoom > 1, on centre sur la Terre
-function getCamOrigin(W,H){
-  const bs = getBaseScale(W,H);
-  // Position de la Terre en coords écran sans zoom
-  const ex = W/2 + EARTH_GX * bs;
-  const ey = H/2 + EARTH_GY * bs * 0.40;
-  // On translate pour que la Terre reste au centre
-  return {
-    ox: W/2 - (ex - W/2) * (zoomLevel - 1),
-    oy: H/2 - (ey - H/2) * (zoomLevel - 1)
-  };
-}
 function g2c(gx,gy,W,H){
-  const s = getScale(W,H);
-  const {ox,oy} = getCamOrigin(W,H);
-  return {x: ox + gx*s, y: oy + gy*s*0.40};
+  const s=getScale(W,H);
+  return {x:W/2+gx*s, y:H/2+gy*s*0.40};
 }
 function ly2px(ly,W,H){ return ly*getScale(W,H); }
 
@@ -698,7 +514,6 @@ function generateGalaxy(){
   return stars;
 }
 function buildGalaxyCache(W,H){
-  // Cache du fond de nébuleuse uniquement (sans étoiles)
   const off=document.createElement('canvas');
   off.width=W;off.height=H;
   const c=off.getContext('2d');
@@ -707,64 +522,22 @@ function buildGalaxyCache(W,H){
   const dg=c.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H)*0.52);
   dg.addColorStop(0,'rgba(120,140,230,0.07)');dg.addColorStop(0.5,'rgba(70,90,200,0.03)');dg.addColorStop(1,'rgba(0,0,0,0)');
   c.fillStyle=dg;c.fillRect(0,0,W,H*3);c.restore();
+  for(const s of gStars){
+    const p=g2c(s.gx,s.gy,W,H);
+    c.globalAlpha=Math.min(1,s.b);c.beginPath();c.arc(p.x,p.y,s.sz,0,Math.PI*2);
+    const v=s.b;c.fillStyle=`rgb(${Math.round(150+v*105)},${Math.round(160+v*80)},${Math.round(205+v*50)})`;c.fill();
+  }
+  c.globalAlpha=1;
   c.save();c.translate(W/2,H/2);c.scale(1,0.40);c.translate(-W/2,-H/2);
   const cg2=c.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.min(W,H)*0.09);
   cg2.addColorStop(0,'rgba(255,248,200,0.30)');cg2.addColorStop(0.4,'rgba(220,190,255,0.10)');cg2.addColorStop(1,'rgba(0,0,0,0)');
   c.fillStyle=cg2;c.fillRect(0,0,W,H*3);c.restore();
   return off;
 }
-// Cache étoiles : clé = "W_H_zoom" arrondi à 2 décimales
-// Pendant une transition de zoom on redessine ; dès que le zoom est stable
-// on réutilise le cache → 0 coût CPU pour les étoiles à zoom fixe.
-let starCache = null, starCacheKey = '';
-function invalidateStarCache(){ starCache = null; starCacheKey = ''; }
-
-function buildStarLayer(W,H){
-  const off = document.createElement('canvas');
-  off.width = W; off.height = H;
-  const c = off.getContext('2d');
-  for(const s of gStars){
-    const p = g2c(s.gx,s.gy,W,H);
-    if(p.x < -4 || p.x > W+4 || p.y < -4 || p.y > H+4) continue;
-    c.globalAlpha = Math.min(1,s.b);
-    c.beginPath(); c.arc(p.x,p.y,s.sz,0,Math.PI*2);
-    const v=s.b;
-    c.fillStyle=`rgb(${Math.round(150+v*105)},${Math.round(160+v*80)},${Math.round(205+v*50)})`;
-    c.fill();
-  }
-  c.globalAlpha=1;
-  return off;
-}
-
 function paintGalaxy(W,H){
-  if(!gCache||cacheW!==W||cacheH!==H){gCache=buildGalaxyCache(W,H);cacheW=W;cacheH=H;invalidateStarCache();}
-  gc.fillStyle='#000005'; gc.fillRect(0,0,W,H);
-  gc.globalAlpha=P.B; gc.drawImage(gCache,0,0); gc.globalAlpha=1;
-
-  const zooming = Math.abs(zoomLevel - zoomTarget) > 0.005;
-  const key = W+'_'+H+'_'+zoomLevel.toFixed(2);
-
-  if(zooming){
-    // Pendant la transition : dessin direct, pas de cache
-    for(const s of gStars){
-      const p=g2c(s.gx,s.gy,W,H);
-      if(p.x < -4 || p.x > W+4 || p.y < -4 || p.y > H+4) continue;
-      gc.globalAlpha=Math.min(1,s.b);
-      gc.beginPath(); gc.arc(p.x,p.y,s.sz,0,Math.PI*2);
-      const v=s.b;
-      gc.fillStyle=`rgb(${Math.round(150+v*105)},${Math.round(160+v*80)},${Math.round(205+v*50)})`;
-      gc.fill();
-    }
-    gc.globalAlpha=1;
-    starCacheKey=''; // invalider pour forcer rebuild dès stabilisation
-  } else {
-    // Zoom stable : utiliser le cache étoiles
-    if(starCacheKey !== key){
-      starCache = buildStarLayer(W,H);
-      starCacheKey = key;
-    }
-    gc.drawImage(starCache,0,0);
-  }
+  if(!gCache||cacheW!==W||cacheH!==H){gCache=buildGalaxyCache(W,H);cacheW=W;cacheH=H;}
+  gc.fillStyle='#000005';gc.fillRect(0,0,W,H);
+  gc.globalAlpha=P.B;gc.drawImage(gCache,0,0);gc.globalAlpha=1;
 }
 
 // ══════════════════════════════════════════════════
@@ -776,34 +549,16 @@ function dist2earth(gx,gy){
 }
 
 function spawnCivs(){
-  // N = nombre total de civilisations apparues sur toute la simulation (~200 000 ans)
-  // Indépendant de L : on spawne exactement N civs, leurs durées varient via log-normale
-  const total = Math.max(1, P.N);
-  document.getElementById('hsimul').textContent='—';
+  // N = civilisations simultanées en moyenne (équation de Drake)
+  // total à spawner = N * SIM_DUR / L pour maintenir cette densité
+  const total = Math.max(1, Math.round(P.N * SIM_DUR / P.L));
+  document.getElementById('hsimul').textContent=P.N.toFixed(1);
   civs=[];
   for(let i=0;i<total;i++){
-    // Tirage pondéré par la Zone Habitable Galactique (GHZ)
-    // Gaussienne centrée à GHZ_PEAK al, σ = GHZ_SIGMA
-    // Évite le centre (trop de radiation) et la périphérie (trop peu de métaux)
-    const GHZ_PEAK  = 6000;  // al — pic de densité d'étoiles habitables
-    const GHZ_SIGMA = 4000;  // al — largeur de la distribution
-    let si, gx, gy;
-    for(let attempt=0; attempt<20; attempt++){
-      si = Math.floor(Math.random()*gStars.length);
-      gx = gStars[si].gx; gy = gStars[si].gy;
-      const R = Math.sqrt(gx*gx + gy*gy);
-      const ghzWeight = Math.exp(-0.5*((R-GHZ_PEAK)/GHZ_SIGMA)**2);
-      if(Math.random() < ghzWeight) break;
-    }
+    const si=Math.floor(Math.random()*gStars.length);
+    const {gx,gy}=gStars[si];
     const birth=SIM_START+Math.random()*SIM_DUR;
-    // Durée effective selon une loi log-normale de médiane L.
-    // σ_log=0.8 donne un facteur ~10x entre les civs courtes et longues,
-    // ce qui est visuellement parlant et cohérent avec les estimations SETI.
-    // μ_log = ln(L) - σ²/2 garantit que E[lifespan] = L.
-    const SIGMA_LOG = 0.8;
-    const u1=Math.random()||1e-10, u2=Math.random();
-    const z=Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);
-    const lifespan=Math.max(50, Math.round(Math.exp(Math.log(P.L) - SIGMA_LOG*SIGMA_LOG/2 + SIGMA_LOG*z)));
+    const lifespan=P.L*(0.6+Math.random()*0.8);
     civs.push({gx,gy,birth,death:birth+lifespan,lifespan});
   }
   precomputeDetections();
@@ -885,12 +640,8 @@ function isDetectingAt(t){
 // Opacity: solid color fill, no gradient. Simple and clean.
 // ══════════════════════════════════════════════════
 function drawRing(emitGx, emitGy, birth, death, S, col, W, H){
-  const lifespan = death - birth;
-  const outerLy = Math.min(Math.max(0, simTime - birth), S);
-  // Physical trailing edge: max(0, t - death), clamped to S
-  // But also enforce shell thickness = lifespan (anneau ne peut pas être plus épais que L)
-  const trailingEdge = Math.min(Math.max(0, simTime - death), S);
-  const innerLy = Math.max(trailingEdge, outerLy - lifespan);
+  const outerLy = Math.min(Math.max(0, simTime - birth),  S);
+  const innerLy = Math.min(Math.max(0, simTime - death),  S);
 
   if(outerLy <= 0) return false;          // not started
   if(innerLy >= S) return false;          // inner past S → ring gone
@@ -902,38 +653,19 @@ function drawRing(emitGx, emitGy, birth, death, S, col, W, H){
 
   if(outerPx < 0.3) return false;
 
-  // Garantir 1px minimum d'épaisseur visible
-  const safeInnerPx = Math.min(innerPx, Math.max(0, outerPx - 1));
-
   const [r,g,b,a] = col; // col = [r,g,b,alpha]
-
-  // Gradient centré sur la SOURCE (r=0), s'estompe vers S (r=outerLyMax)
-  // Chaque point de l'anneau reçoit une opacité liée à sa distance au centre émetteur,
-  // indépendamment de sa position dans l'épaisseur de l'anneau.
-  // Courbe sigmoïde inverse : reste lumineux jusqu'à ~60% de S, chute sur le dernier tiers.
-  // α(t) = 1 / (1 + exp(8*(t - 0.75)))  où t = r/S ∈ [0,1]
-  // À t=1 (distance S) : α ≈ 0.12 → fantôme visible mais discret.
-  const maxPx = ly2px(S, W, H); // rayon pixel correspondant à S
-
-  // Gradient de 0 à maxPx (distance S depuis la source)
-  const nStops = 12;
-  const grad = sc.createRadialGradient(0, 0, 0, 0, 0, maxPx);
-  for(let i=0; i<=nStops; i++){
-    const t = i/nStops;                                        // t ∈ [0,1] = r/S
-    const alpha = a / (1 + Math.exp(8*(t - 0.75)));           // sigmoïde inverse
-    grad.addColorStop(t, `rgba(${r},${g},${b},${alpha.toFixed(3)})`);
-  }
 
   sc.save();
   sc.translate(cp.x, cp.y);
   sc.scale(1, 0.40); // galaxy tilt
 
+  // Draw annulus: filled circle minus inner hole
   sc.beginPath();
   sc.arc(0, 0, outerPx, 0, Math.PI*2, false);
-  if(safeInnerPx > 0.5){
-    sc.arc(0, 0, safeInnerPx, 0, Math.PI*2, true);
+  if(innerPx > 0.5){
+    sc.arc(0, 0, innerPx, 0, Math.PI*2, true);
   }
-  sc.fillStyle = grad;
+  sc.fillStyle = `rgba(${r},${g},${b},${a})`;
   sc.fill();
 
   sc.restore();
@@ -995,10 +727,7 @@ function drawSim(t, W, H){
   }
 
   // ── Earth ring ──
-  // Physique exacte : birth=earthStart, death=earthEnd, épaisseur = U en al
-  // Le ring émetteur disparaît quand innerLy >= S (signal sorti de la galaxie)
-  // earthAliveForRing : on dessine dès t > earthStart (signal déjà parti)
-  const earthAliveForRing = t > earthStart;
+  const earthAliveForRing = t >= earthStart;
   if(earthAliveForRing){
     const eCol = currentlyDetecting && earthAlive
       ? [80, 250, 123, 0.82]
@@ -1015,23 +744,15 @@ function drawSim(t, W, H){
   sc.beginPath();sc.arc(ep.x,ep.y,22,0,Math.PI*2);sc.fillStyle=erG;sc.fill();
   sc.beginPath();sc.arc(ep.x,ep.y,5,0,Math.PI*2);
   sc.fillStyle=`rgba(${ec[0]},${ec[1]},${ec[2]},${dotA})`;sc.fill();
-  // Label TERRE : taille et position fixes, indépendantes du zoom
-  sc.font='bold 11px Space Mono,monospace';
-  sc.shadowColor=`rgba(${ec[0]},${ec[1]},${ec[2]},1.0)`;
-  sc.shadowBlur=12;
-  sc.fillStyle=`rgba(${ec[0]},${ec[1]},${ec[2]},${earthAlive?1.0:0.55})`;
-  sc.fillText('TERRE',ep.x+9,ep.y-9);
-  sc.shadowBlur=8;
-  sc.fillText('TERRE',ep.x+9,ep.y-9); // double pass pour glow
-  sc.shadowBlur=0;
+  sc.font='bold 9px Space Mono,monospace';
+  sc.fillStyle=`rgba(${ec[0]},${ec[1]},${ec[2]},${earthAlive?0.90:0.35})`;
+  sc.fillText('TERRE',ep.x+8,ep.y-8);
 
   // ── HUD ──
   const detNow = countDetectionsAt(t);
   updateDetHUD(currentlyDetecting && earthAlive, detNow);
   document.getElementById('hactive').textContent = nActive;
   document.getElementById('hwaves').textContent  = nWaves;
-  document.getElementById('hsimul').textContent  = nActive; // civs simultanées réelles
-  syncKpiBar(nActive, nWaves);
 }
 
 function updateDetHUD(activeDet, count){
@@ -1054,40 +775,13 @@ function updateDetHUD(activeDet, count){
 // TIMELINE MARKER
 // ══════════════════════════════════════════════════
 function updateEarthMarker(){
-  const el     = document.getElementById('tl-earth');
-  const handle = document.getElementById('tl-earth-handle');
-  const info   = document.getElementById('tl-earth-info');
-  const wrap   = document.getElementById('timeline-wrap');
-  const W      = wrap.offsetWidth;
-  const CURSOR_START = -10000, CURSOR_DUR = 20000;
-  const t0pct = (EARTH_BIRTH - CURSOR_START) / CURSOR_DUR;
-  const t1pct = Math.min(1, (EARTH_BIRTH + P.U - CURSOR_START) / CURSOR_DUR);
-  const x0px  = Math.max(0, t0pct * W);
-  const x1px  = Math.max(x0px + 2, t1pct * W);
-
-  el.style.left  = x0px + 'px';
-  el.style.width = (x1px - x0px) + 'px';
-
-  // Poignée à l'extrémité droite
-  if(handle) handle.style.left = x1px + 'px';
-
-  // Bouton i au début de la barre
-  if(info) info.style.left = x0px + 'px';
-
-  // Couleur warning si U > 500
-  const warn = P.U > 500;
-  el.classList.toggle('warning', warn);
-  if(handle) handle.classList.toggle('warning', warn);
-
-  // Warning inline dans la modale
-  const uw = document.getElementById('u-warning');
-  if(uw) uw.classList.toggle('show', warn);
-
-  // Sync slider + affichage
-  const sl = document.getElementById('slUm');
-  if(sl && +sl.value !== P.U) sl.value = P.U;
-  const vUm = document.getElementById('vUm');
-  if(vUm) vUm.textContent = P.U.toLocaleString('fr-FR');
+  const el=document.getElementById('tl-earth');
+  const wrap=document.getElementById('timeline-wrap');
+  const W=wrap.offsetWidth;
+  const t0pct=(EARTH_BIRTH - SIM_START)/SIM_DUR;
+  const t1pct=(EARTH_BIRTH + P.U - SIM_START)/SIM_DUR;
+  el.style.left=Math.max(0,t0pct*W)+'px';
+  el.style.width=Math.max(2,(t1pct-t0pct)*W)+'px';
 }
 
 // ══════════════════════════════════════════════════
@@ -1099,7 +793,7 @@ function loop(ts){
   lastTS=ts;
   if(playing&&!scrubbing){
     simTime+=dt*speed;
-    if(simTime>SIM_END){simTime=-10000;}
+    if(simTime>SIM_END){simTime=SIM_START;}
     document.getElementById('tscrub').value=simTime;
   }
   const yr=Math.round(simTime);
@@ -1107,7 +801,6 @@ function loop(ts){
     'An '+(yr>=0?'+':'')+yr.toLocaleString('fr-FR');
 
   const W=cs.width,H=cs.height;
-  updateZoom();
   paintGalaxy(W,H);
   drawSim(simTime,W,H);
   animId=requestAnimationFrame(loop);
@@ -1121,16 +814,17 @@ function startLoop(){
 // CONTROLS
 // ══════════════════════════════════════════════════
 function readP(){
-  P.N=+document.getElementById('slNm').value;
-  P.L=+document.getElementById('slLm').value;
-  P.S=+document.getElementById('slSm').value;
-  P.U=+document.getElementById('slUm').value;
+  P.N=+document.getElementById('slN').value;
+  P.L=+document.getElementById('slL').value;
+  P.S=+document.getElementById('slS').value;
+  P.U=+document.getElementById('slU').value;
   P.B=1.0;
-  document.getElementById('vNm').textContent=P.N;
-  document.getElementById('vLm').textContent=P.L.toLocaleString('fr-FR');
-  document.getElementById('vSm').textContent=P.S.toLocaleString('fr-FR');
-  document.getElementById('vUm').textContent=P.U.toLocaleString('fr-FR');
-  // hsimul affiche nActive en temps réel (mis à jour dans drawSim)
+  document.getElementById('vN').textContent=P.N;
+  document.getElementById('vL').textContent=P.L.toLocaleString('fr-FR');
+  document.getElementById('vS').textContent=P.S.toLocaleString('fr-FR');
+  document.getElementById('vU').textContent=P.U.toLocaleString('fr-FR');
+
+  document.getElementById('hsimul').textContent=(P.N*P.L/SIM_DUR).toFixed(1);
   updateEarthMarker();
 }
 
@@ -1167,14 +861,16 @@ document.addEventListener('touchend',()=>{
 });
 
 // Desktop sliders → trigger sim + sync mobile
-['slNm','slLm'].forEach(id=>{
+['slN','slL'].forEach(id=>{
   document.getElementById(id).addEventListener('input',()=>{
-    readP();spawnCivs();simTime=-10000;
+    readP();spawnCivs();simTime=EARTH_BIRTH;
+    syncToMobile();
   });
 });
-['slSm','slUm'].forEach(id=>{
+['slS','slU'].forEach(id=>{
   document.getElementById(id).addEventListener('input',()=>{
     readP();precomputeDetections();updateEarthMarker();
+    syncToMobile();
   });
 });
 // Mobile sliders → sync to desktop + trigger sim
@@ -1187,254 +883,38 @@ document.addEventListener('touchend',()=>{
     if(desktop){ desktop.value = el.value; desktop.dispatchEvent(new Event('input')); }
   });
 });
-// bregen-modal supprimé
+document.getElementById('bregen-modal').addEventListener('click',()=>{
+  readP();spawnCivs();simTime=EARTH_BIRTH;playing=true;
+  document.getElementById('bplay').textContent='⏸';lastTS=null;
+  toggleParams();
+});
 
+function syncToMobile(){
+  ['N','L','S','U'].forEach(k=>{
+    const vm = document.getElementById('v'+k+'m');
+    const slm = document.getElementById('sl'+k+'m');
+    const vd = document.getElementById('v'+k);
+    const sld = document.getElementById('sl'+k);
+    if(vm) vm.textContent = vd.textContent;
+    if(slm) slm.value = sld.value;
+  });
+}
 
-
-
+document.getElementById('bregen').addEventListener('click',()=>{
+  readP();spawnCivs();simTime=SIM_START;playing=true;
+  document.getElementById('bplay').textContent='⏸';lastTS=null;
+});
 
 // ══════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════
-window.addEventListener('resize',()=>{resize();gCache=null;invalidateStarCache();updateEarthMarker();});
+window.addEventListener('resize',()=>{resize();gCache=null;updateEarthMarker();});
 gStars=generateGalaxy();
 readP();
 resize();
 updateEarthMarker();
 spawnCivs();
 startLoop();
-
-// ── Zoom sur la Terre ──
-const ZOOM_MAX = 12.0;
-const szoomEl = document.getElementById('szoom');
-
-// Le curseur contrôle zoomTarget directement
-szoomEl.addEventListener('input', function(){
-  zoomTarget = parseFloat(this.value);
-});
-
-// Animation douce du zoom dans la loop principale
-function updateZoom(){
-  if(Math.abs(zoomLevel - zoomTarget) > 0.005){
-    zoomLevel += (zoomTarget - zoomLevel) * 0.10;
-  } else {
-    zoomLevel = zoomTarget;
-  }
-}
-
-// ── Hint timeline : pointe sur le début de la barre jaune ──
-function positionHintTimeline(){
-  const ht = document.getElementById('hint-timeline');
-  const earth = document.getElementById('tl-earth');
-  if(!ht || !earth) return;
-
-  const er = earth.getBoundingClientRect();
-  const htW = ht.offsetWidth || 220;
-  const margin = 8;
-
-  // Positionner EN DESSOUS du début (bord gauche) de la barre jaune
-  let left = er.left - htW/2 + 4;
-  if(left < margin) left = margin;
-  if(left + htW > window.innerWidth - margin) left = window.innerWidth - htW - margin;
-
-  const top = er.bottom + 10; // sous la barre de temps
-
-  ht.style.left = left + 'px';
-  ht.style.top  = top  + 'px';
-
-  // Flèche pointe vers le haut sur le début de la barre
-  const arrowLeft = (er.left + 4) - left;
-  const arrow = document.getElementById('hint-timeline-arrow');
-  if(arrow) arrow.style.left = Math.max(10, Math.min(htW-10, arrowLeft)) + 'px';
-}
-
-function dismissHintTimeline(){
-  const ht = document.getElementById('hint-timeline');
-  if(ht) ht.classList.remove('show');
-  sessionStorage.setItem('lsdc_tl_hint','1');
-}
-
-// Afficher après 3s si pas déjà vu
-(function(){
-  if(!sessionStorage.getItem('lsdc_tl_hint')){
-    setTimeout(function(){
-      const ht = document.getElementById('hint-timeline');
-      const overlay = document.getElementById('info-overlay');
-      if(ht && !overlay.classList.contains('open')){
-        ht.classList.add('show');
-        // Attendre que le DOM soit peint avant de positionner
-        requestAnimationFrame(function(){
-          requestAnimationFrame(positionHintTimeline);
-        });
-      }
-    }, 3000);
-  }
-})();
-
-// Fermer si clic en dehors
-document.addEventListener('click', function(e){
-  const ht = document.getElementById('hint-timeline');
-  if(ht && ht.classList.contains('show') && !ht.contains(e.target)){
-    dismissHintTimeline();
-  }
-});
-
-// ── Hint popup après 10s ──
-(function(){
-  setTimeout(function(){
-    const p = document.getElementById('hint-popup');
-    const overlay = document.getElementById('info-overlay');
-    if(p && !overlay.classList.contains('open')){
-      p.classList.add('show');
-      positionHintArrow();
-    }
-  }, 10000);
-})();
-function dismissHint(){
-  const p = document.getElementById('hint-popup');
-  if(p) p.classList.remove('show');
-}
-function positionHintArrow(){
-  const chevron = document.getElementById('title-chevron');
-  const popup   = document.getElementById('hint-popup');
-  const arrow   = document.getElementById('hint-arrow');
-  if(!chevron || !popup || !arrow) return;
-  const cr = chevron.getBoundingClientRect();
-  const pr = popup.getBoundingClientRect();
-  // Centre du ? en relatif au popup
-  const arrowLeft = (cr.left + cr.width/2) - pr.left;
-  arrow.style.left = Math.max(10, Math.min(pr.width-10, arrowLeft)) + 'px';
-  arrow.style.transform = 'translateX(-50%)';
-}
-function onHintClick(){
-  // Ouvre la modale puis ferme le popup
-  const overlay = document.getElementById('info-overlay');
-  if(!overlay.classList.contains('open')){
-    toggleInfo();
-  }
-  dismissHint();
-}
-// Fermer le hint si clic en dehors (bubble, pas capture)
-document.addEventListener('click', function(e){
-  const p = document.getElementById('hint-popup');
-  if(p && p.classList.contains('show') && !p.contains(e.target)){
-    dismissHint();
-  }
-});
-
-// ── Drag poignée barre Terre ──
-(function(){
-  const handle = document.getElementById('tl-earth-handle');
-  const wrap   = document.getElementById('timeline-wrap');
-  if(!handle || !wrap) return;
-
-  const CURSOR_START = -10000, CURSOR_DUR = 20000;
-  const U_MIN = 100, U_MAX = 10000, U_STEP = 100;
-  let dragging = false;
-
-  function pxToU(clientX){
-    const wr = wrap.getBoundingClientRect();
-    const pct = Math.max(0, Math.min(1, (clientX - wr.left) / wr.width));
-    const yr = CURSOR_START + pct * CURSOR_DUR;  // année correspondante
-    const u = yr - 0;                             // EARTH_BIRTH = 0
-    return Math.max(U_MIN, Math.min(U_MAX, Math.round(u / U_STEP) * U_STEP));
-  }
-
-  function onMove(clientX){
-    const newU = pxToU(clientX);
-    if(newU === P.U) return;
-    P.U = newU;
-    updateEarthMarker();
-    precomputeDetections();
-  }
-
-  // Mouse
-  handle.addEventListener('mousedown', function(e){
-    dragging = true; e.preventDefault();
-  });
-  document.addEventListener('mousemove', function(e){
-    if(dragging) onMove(e.clientX);
-  });
-  document.addEventListener('mouseup', function(){
-    dragging = false;
-  });
-
-  // Touch
-  handle.addEventListener('touchstart', function(e){
-    dragging = true; e.preventDefault();
-  },{passive:false});
-  document.addEventListener('touchmove', function(e){
-    if(dragging) onMove(e.touches[0].clientX);
-  },{passive:true});
-  document.addEventListener('touchend', function(){
-    dragging = false;
-  });
-})();
-
-// ── Bouton i sur la barre Terre (ouvre hint-timeline) ──
-(function(){
-  const btn = document.getElementById('tl-earth-info');
-  if(!btn) return;
-  btn.addEventListener('click', function(e){
-    e.stopPropagation();
-    const ht = document.getElementById('hint-timeline');
-    if(!ht) return;
-    ht.classList.toggle('show');
-    if(ht.classList.contains('show')){
-      requestAnimationFrame(function(){
-        requestAnimationFrame(positionHintTimeline);
-      });
-    }
-    sessionStorage.removeItem('lsdc_tl_hint'); // permet de rouvrir même si déjà vu
-  });
-})();
-
-// ── Bouton régénérer (topbar) ──
-function doRegen(){
-  readP(); spawnCivs(); simTime = -100;
-  document.getElementById('tscrub').value = -100;
-  playing = true;
-  document.getElementById('bplay').textContent = '⏸';
-  lastTS = null;
-}
-
-// ── Sync KPI bar portrait (miroir des KPIs principaux) ──
-function syncKpiBar(nActive, nWaves){
-  const a2 = document.getElementById('hactive2');
-  const w2 = document.getElementById('hwaves2');
-  const s2 = document.getElementById('hsimul2');
-  const d2 = document.getElementById('hdc2');
-  if(a2) a2.textContent = document.getElementById('hactive').textContent;
-  if(w2) w2.textContent = document.getElementById('hwaves').textContent;
-  if(s2) s2.textContent = document.getElementById('hsimul').textContent;
-  if(d2){ d2.textContent = document.getElementById('hdc').textContent;
-          d2.className   = document.getElementById('hdc').className; }
-}
-
-// ── Positionnement dynamique des infobulles (fixed, anti-débordement) ──
-document.querySelectorAll('.pi-btn').forEach(function(btn){
-  const tip = btn.querySelector('.pi-tip');
-  if(!tip) return;
-  btn.addEventListener('mouseenter', function(){
-    const r = btn.getBoundingClientRect();
-    // Position de base : centré au-dessus du bouton
-    let left = r.left + r.width/2 - tip.offsetWidth/2;
-    let top  = r.top - tip.offsetHeight - 10;
-    // Anti-débordement horizontal
-    const margin = 8;
-    if(left < margin) left = margin;
-    if(left + tip.offsetWidth > window.innerWidth - margin)
-      left = window.innerWidth - tip.offsetWidth - margin;
-    // Anti-débordement haut : passer en dessous si trop près du bord
-    if(top < margin){
-      top = r.bottom + 10;
-      tip.style.setProperty('--arrow-top','auto');
-      tip.style.setProperty('--arrow-bottom','100%');
-    }
-    tip.style.left = left + 'px';
-    tip.style.top  = top  + 'px';
-  });
-});
 
 </script>
 </body>
