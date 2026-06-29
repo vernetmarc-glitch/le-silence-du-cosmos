@@ -944,25 +944,36 @@ function precomputeDetections(){
 
 // ── Probabilité analytique de contact (loi de Poisson) ──
 function computeContactProbability(){
-  const S = P.S, L = P.L, U = P.U, N = P.N;
-  const R = MW_R;
-  // Densité spatiale : civs par al²
-  const lambda = N / (Math.PI * R * R);
-  // Intégrale numérique sur d de 0 à min(S, U+L)
-  const dMax = Math.min(S, U + L);
-  const steps = 500;
-  const dd = dMax / steps;
-  let integral = 0;
-  for(let k = 0; k < steps; k++){
-    const d = (k + 0.5) * dd;
-    // Recouvrement temporel de [d, d+L] avec [0, U]
-    const overlap = Math.max(0, Math.min(d + L, U) - Math.max(d, 0));
-    if(overlap <= 0) continue;
-    // Fraction de la fenêtre terrestre couverte
-    const frac = overlap / U;
-    integral += 2 * Math.PI * d * frac * dd;
+  // Monte Carlo : reproduit fidèlement le spawn de spawnCivs()
+  // incluant le biais GHZ et la distribution log-normale des lifespans.
+  const S = P.S, U = P.U, N = P.N;
+  const SIGMA_LOG = 0.8;
+  const GHZ_PEAK = 6000, GHZ_SIGMA = 4000;
+  const MC = 4000; // tirages (rapide, ~4ms)
+  let contacts = 0;
+  for(let i = 0; i < MC; i++){
+    // Position : tirage sur disque avec biais GHZ (max 20 essais, comme la sim)
+    let gx, gy;
+    for(let att = 0; att < 20; att++){
+      const r = MW_R * Math.sqrt(Math.random());
+      const phi = Math.random() * 2 * Math.PI;
+      gx = r * Math.cos(phi); gy = r * Math.sin(phi);
+      const R = Math.sqrt(gx*gx + gy*gy);
+      const w = Math.exp(-0.5*((R-GHZ_PEAK)/GHZ_SIGMA)**2);
+      if(Math.random() < w) break;
+    }
+    const dx = gx - EARTH_GX, dy = gy - EARTH_GY;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if(dist > S) continue;
+    const birth = SIM_START + Math.random() * SIM_DUR;
+    const u1 = Math.random() || 1e-10, u2 = Math.random();
+    const z = Math.sqrt(-2*Math.log(u1)) * Math.cos(2*Math.PI*u2);
+    const lifespan = Math.max(50, Math.exp(Math.log(P.L) - SIGMA_LOG*SIGMA_LOG/2 + SIGMA_LOG*z));
+    const sigStart = birth + dist, sigEnd = birth + lifespan + dist;
+    if(sigEnd > 0 && sigStart < U) contacts++;
   }
-  const mu = lambda * integral; // nombre moyen de contacts
+  const pOne = contacts / MC;
+  const mu = N * pOne;
   const prob = 1 - Math.exp(-mu);
   return {prob, mu};
 }
