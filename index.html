@@ -1374,17 +1374,7 @@ document.addEventListener('click', function(e){
   }
 });
 
-// ── Hint popup après 10s ──
-(function(){
-  setTimeout(function(){
-    const p = document.getElementById('hint-popup');
-    const overlay = document.getElementById('info-overlay');
-    if(p && !overlay.classList.contains('open')){
-      p.classList.add('show');
-      positionHintArrow();
-    }
-  }, 10000);
-})();
+// ── Hint popup : affiché uniquement au clic/survol du ? ──
 function dismissHint(){
   const p = document.getElementById('hint-popup');
   if(p) p.classList.remove('show');
