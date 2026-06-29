@@ -200,16 +200,24 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   -webkit-appearance:none;appearance:none;
   background:transparent;outline:none;cursor:pointer;
   z-index:3;margin:0;padding:0;touch-action:none;
+  /* Masquer le thumb natif — on dessine un curseur custom via JS sur le canvas de la timeline */
 }
+/* Thumb invisible — curseur dessiné en CSS pur via #tl-cursor */
 #tscrub::-webkit-slider-thumb{
-  -webkit-appearance:none;width:22px;height:22px;
-  border-radius:50%;background:var(--cyan);
-  cursor:pointer;box-shadow:0 0 8px var(--cyan);
+  -webkit-appearance:none;width:1px;height:1px;opacity:0;
 }
-#tscrub::-webkit-slider-runnable-track{height:3px;background:transparent;}
+#tscrub::-webkit-slider-runnable-track{height:100%;background:transparent;}
 #tscrub::-moz-range-thumb{
-  width:22px;height:22px;border-radius:50%;
-  background:var(--cyan);border:none;cursor:pointer;
+  width:1px;height:1px;opacity:0;border:none;background:transparent;
+}
+
+/* Curseur de temps custom (aligné exactement) */
+#tl-cursor{
+  position:absolute;top:50%;transform:translate(-50%,-50%);
+  width:18px;height:18px;border-radius:50%;
+  background:var(--cyan);box-shadow:0 0 8px var(--cyan);
+  pointer-events:none;z-index:4;
+  transition:none;
 }
 
 /* Bouton "i" début barre Terre */
@@ -284,6 +292,15 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   #ctrl{overflow:hidden;}
 }
 
+/* ── PORTRAIT : 3 boutons dans title-block, stats dans KPI bar ── */
+@media (max-width:1024px) and (orientation:portrait){
+  #topbar-inner .hstat,
+  #topbar-inner #hdet{display:none !important;}
+  /* title-block prend la ligne entière */
+  #title-block{flex:1;border-right:none;justify-content:space-between;padding:0 12px;}
+  #ctrl{padding:5px 10px 7px;}
+}
+
 /* ── MODALE INFO ── */
 #info-overlay{
   display:none;position:fixed;inset:0;z-index:50;
@@ -347,20 +364,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 }
 #bregen-modal:hover{background:rgba(74,174,255,.16);}
 
-/* ── OVERLAY ROTATION PORTRAIT ── */
-#rotate-overlay{
-  display:none;position:fixed;inset:0;z-index:9999;
-  background:#000005;flex-direction:column;
-  align-items:center;justify-content:center;gap:24px;
-  text-align:center;padding:32px;
-}
-#rotate-overlay .rotate-icon{font-size:4rem;animation:rotateHint 2s ease-in-out infinite;}
-@keyframes rotateHint{0%,100%{transform:rotate(0deg);}40%{transform:rotate(90deg);}60%{transform:rotate(90deg);}}
-#rotate-overlay h2{font-family:'Space Mono',monospace;color:var(--cyan);font-size:1.1rem;letter-spacing:.08em;}
-#rotate-overlay p{color:var(--lbl);font-size:.85rem;line-height:1.6;max-width:260px;}
-@media (max-width:768px) and (orientation:portrait){
-  #rotate-overlay{display:flex;}
-}
+/* Rotate overlay supprimé — portrait supporté nativement */
 
 /* ── KPI bar portrait mobile ── */
 #kpi-bar{
@@ -370,11 +374,9 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   overflow:hidden;
   justify-content:flex-start;
 }
-#kpi-bar .hstat{flex:0 0 auto;border-right:1px solid var(--border);padding:4px 10px;}
+#kpi-bar .hstat{flex:1;border-right:1px solid var(--border);padding:4px 8px;min-width:0;}
 #kpi-bar .hstat:last-child{border-right:none;}
 @media (max-width:1024px) and (orientation:portrait){
-  #topbar-inner .hstat,
-  #topbar-inner #hdet{display:none !important;}
   #kpi-bar{display:flex !important;}
 }
 
@@ -479,12 +481,6 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 </head>
 <body>
 
-<div id="rotate-overlay">
-  <div class="rotate-icon">📱</div>
-  <h2>Tournez votre écran</h2>
-  <p>Cette simulation est conçue pour le mode paysage.<br>Faites pivoter votre téléphone pour explorer le cosmos.</p>
-</div>
-
 <div id="topbar">
     <div id="topbar-inner">
       <div id="title-block">
@@ -518,6 +514,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       </div>
       <span id="tl-warning-icon">⚠</span>
       <button id="tl-earth-info">i</button>
+      <div id="tl-cursor"></div>
       <input type="range" id="tscrub" min="-10000" max="10000" step="10" value="0">
     </div>
   </div>
@@ -717,7 +714,7 @@ let civs=[], gStars=[];
 let simTime=EARTH_BIRTH, playing=true, speed=5000;
 let lastTS=null, animId=null, scrubbing=false;
 let gCache=null, cacheW=0, cacheH=0;
-let zoomLevel=1.0, zoomTarget=1.0;
+let zoomLevel=2.33, zoomTarget=2.33;
 let uWarningDismissed=false;
 
 let detections = []; // [{civIdx, start, end}]
@@ -1324,6 +1321,17 @@ document.querySelectorAll('.pi-btn').forEach(function(btn){
 });
 
 // ══════════════════════════════════════════════════
+// SCRUB CURSOR POSITION (exact pixel alignment)
+// ══════════════════════════════════════════════════
+function updateScrubCursor(){
+  const cursor = document.getElementById('tl-cursor');
+  const wrap   = document.getElementById('timeline-wrap');
+  const W = wrap.offsetWidth;
+  const pct = (simTime - SIM_START) / SIM_DUR;
+  cursor.style.left = Math.round(pct * W) + 'px';
+}
+
+// ══════════════════════════════════════════════════
 // LOOP
 // ══════════════════════════════════════════════════
 function loop(ts){
@@ -1340,6 +1348,7 @@ function loop(ts){
     'An '+(yr>=0?'+':'')+yr.toLocaleString('fr-FR');
 
   updateZoom();
+  updateScrubCursor();
 
   const W=cs.width,H=cs.height;
   paintGalaxy(W,H);
@@ -1464,6 +1473,7 @@ function syncToMobile(){
 }
 
 // Zoom
+document.getElementById('szoom').value = zoomLevel.toFixed(2);
 document.getElementById('szoom').addEventListener('input',function(){
   zoomTarget=+this.value;
 });
