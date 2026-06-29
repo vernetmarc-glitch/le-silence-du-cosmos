@@ -136,16 +136,26 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 #tl-earth{position:absolute;top:50%;height:5px;border-radius:2px;background:var(--gold);opacity:.85;transform:translateY(-50%);pointer-events:none;z-index:2;transition:background .3s;}
 #tl-earth.warning{background:linear-gradient(90deg,var(--gold) 30%,#ff6b35);}
 /* Poignée drag droite de la barre Terre */
-#tl-earth-handle{
-  position:absolute;top:50%;z-index:6;
-  width:10px;height:18px;border-radius:3px;
+/* Rond de fin de fenêtre terrestre */
+#tl-earth-end{
+  position:absolute;top:50%;z-index:5;
+  width:10px;height:10px;border-radius:50%;
   background:var(--gold);border:1.5px solid rgba(255,255,255,.35);
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  transition:background .3s;
+}
+#tl-earth-end.warning{background:#ff6b35;}
+#tl-earth-handle{
+  position:absolute;top:50%;z-index:7;
+  width:18px;height:18px;border-radius:50%;
+  background:transparent;border:none;
   transform:translate(-50%,-50%);
   cursor:ew-resize;touch-action:none;
   transition:background .3s;
   user-select:none;
 }
-#tl-earth-handle.warning{background:#ff6b35;}
+#tl-earth-handle.warning{}
 /* Label durée : visible seulement pendant le drag */
 #tl-handle-label{
   position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);
@@ -260,6 +270,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 }
 #kpi-bar .hstat{flex:0 0 auto;border-right:1px solid var(--border);padding:4px 10px;}
 #kpi-bar .hstat:last-child{border-right:none;}
+#hdet2{display:flex;flex-direction:column;justify-content:center;padding:4px 10px;flex:1;border-right:none;}
 
 @media (max-width: 1024px) and (orientation: portrait){
   /* Masquer les KPIs de la ligne titre */
@@ -480,7 +491,10 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
     <div class="hstat"><span class="hv" id="hactive2">0</span><span class="hl">Civs</span></div>
     <div class="hstat"><span class="hv" id="hwaves2">0</span><span class="hl">Ondes</span></div>
     <div class="hstat"><span class="hv" id="hsimul2">—</span><span class="hl">Act.</span></div>
-    <div class="hstat"><span class="dc" id="hdc2">0 détection</span></div>
+    <div id="hdet2">
+      <span class="dc" id="hdc2">0 détection</span>
+      <span class="dlog" id="hdlog2">Aucune détection</span>
+    </div>
   </div>
   <!-- Ligne 2 : contrôles temporels -->
   <div id="ctrlbar">
@@ -490,16 +504,17 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div id="tl-bg"></div>
       <div id="tl-earth"></div>
       <button id="tl-earth-info" title="Fenêtre terrestre">i</button>
+      <div id="tl-earth-end"></div>
       <div id="tl-earth-handle">
         <div id="tl-handle-label">
           <span id="tl-handle-val">1 000 ans</span>
-          <span id="tl-handle-warn-text">Guerre nucléaire, pandémie, IA… vraiment plus de 500 ans&nbsp;?</span>
+          <span id="tl-handle-warn-text">Maintenir une capacité d'écoute sur 1 000+ ans suppose une stabilité civilisationnelle sans précédent historique.</span>
         </div>
       </div>
       <span id="tl-warning-icon">⚠</span>
       <div id="u-warning-tip">
         <button id="u-warning-close" onclick="dismissUWarning(event)">✕</button>
-        Guerre nucléaire, pandémie, IA… pensez-vous vraiment que notre civilisation saurait rester à l'écoute plus de 500 ans&nbsp;?
+        Aucune civilisation connue n'a maintenu une infrastructure technologique active sur plus de quelques siècles. Au-delà de 1 000 ans, l'hypothèse d'une écoute continue implique une stabilité institutionnelle, énergétique et sociale que l'histoire ne documente pas.
       </div>
       <input type="range" id="tscrub" min="-10000" max="10000" step="10" value="0">
     </div>
@@ -1133,7 +1148,14 @@ function updateEarthMarker(){
   el.style.left  = x0px + 'px';
   el.style.width = (x1px - x0px) + 'px';
 
-  // Poignée à l'extrémité droite
+  // Rond de fin de fenêtre
+  const endCircle = document.getElementById('tl-earth-end');
+  if(endCircle){
+    endCircle.style.left = x1px + 'px';
+    endCircle.classList.toggle('warning', warn);
+  }
+
+  // Poignée à l'extrémité droite (handle reste pour drag, mais masqué visuellement)
   if(handle){
     handle.style.left = x1px + 'px';
     const valEl = document.getElementById('tl-handle-val');
@@ -1144,8 +1166,8 @@ function updateEarthMarker(){
   if(info) info.style.left = x0px + 'px';
 
   // Couleur warning si U > 500
-  if(P.U <= 500){ uWarningDismissed = false; }
-  const warn = P.U > 500;
+  if(P.U <= 1000){ uWarningDismissed = false; }
+  const warn = P.U > 1000;
   el.classList.toggle('warning', warn);
   if(handle) handle.classList.toggle('warning', warn);
 
@@ -1526,6 +1548,8 @@ function syncKpiBar(nActive, nWaves){
   if(s2) s2.textContent = document.getElementById('hsimul').textContent;
   if(d2){ d2.textContent = document.getElementById('hdc').textContent;
           d2.className   = document.getElementById('hdc').className; }
+  const l2 = document.getElementById('hdlog2');
+  if(l2){ l2.textContent = document.getElementById('hdlog').textContent; }
 }
 
 // ── Positionnement dynamique des infobulles (fixed, anti-débordement) ──
