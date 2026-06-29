@@ -212,6 +212,16 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   border:none;flex-shrink:0;
 }
 #tl-earth-info:hover{opacity:.8;}
+/* Rond de fin de fenêtre terrestre */
+#tl-earth-end{
+  position:absolute;top:50%;z-index:5;
+  width:13px;height:13px;border-radius:50%;
+  background:var(--gold);border:1.5px solid rgba(255,255,255,.35);
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  transition:background .3s;
+}
+#tl-earth-end.warning{background:#ff6b35;}
 /* Warning inline sous le slider U */
 #u-warning{
   display:none;font-size:.56rem;color:#ff6b35;
@@ -490,6 +500,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div id="tl-bg"></div>
       <div id="tl-earth"></div>
       <button id="tl-earth-info" title="Fenêtre terrestre">i</button>
+      <div id="tl-earth-end"></div>
       <div id="tl-earth-handle">
         <div id="tl-handle-label">
           <span id="tl-handle-val">1 000 ans</span>
@@ -1139,6 +1150,10 @@ function updateEarthMarker(){
     const valEl = document.getElementById('tl-handle-val');
     if(valEl) valEl.textContent = P.U.toLocaleString('fr-FR') + ' ans';
   }
+
+  // Rond de fin
+  const endCircle = document.getElementById('tl-earth-end');
+  if(endCircle) endCircle.style.left = x1px + 'px';
 
   // Bouton i au début de la barre
   if(info) info.style.left = x0px + 'px';
