@@ -238,7 +238,9 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 #bregen-modal:hover{background:rgba(74,174,255,.16);}
 
 /* ── MOBILE : cacher params inline, montrer bouton ⚙ ── */
-@media (max-height: 500px){
+/* ── MOBILE (phones en paysage) ── */
+@media (max-width: 900px) and (orientation: landscape){
+  /* Topbar compacte */
   #topbar-inner{min-height:40px;}
   #title-text{font-size:.80rem;}
   #title-chevron{width:20px;height:20px;font-size:.70rem;}
@@ -249,6 +251,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   .dc{font-size:.78rem;}
   .dlog{font-size:.46rem;}
 
+  /* Barre temps uniquement */
   #ctrl{padding:5px 10px 6px;gap:8px;}
   #bplay{width:26px;height:26px;font-size:.75rem;}
   #tdisp{font-size:.68rem;min-width:86px;}
@@ -256,13 +259,13 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   .spd{padding:2px 5px;font-size:.52rem;}
   #timeline-wrap{height:16px;}
 
-  /* Cacher les params desktop et le rblock, montrer le bouton ⚙ */
-  .pgrid{display:none;}
-  #rblock{display:none;}
-  #bparams{display:flex;}
+  /* Cacher params inline + légende, montrer bouton ⚙ */
+  .pgrid{display:none !important;}
+  #rblock{display:none !important;}
+  #bparams{display:flex !important;}
 
-  /* Sheet remonte un peu plus sur mobile paysage */
-  #params-panel{border-radius:12px;margin:12px;width:auto;}
+  /* Bottom sheet */
+  #params-panel{border-radius:12px 12px 0 0;margin:0;width:100%;}
 }
 /* ── ROTATE SCREEN OVERLAY (portrait mobile only) ── */
 #rotate-overlay{
@@ -333,7 +336,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div class="info-col">
         <h2>Le silence</h2>
         <p>Nous avons scruté le ciel pendant des siècles. Rien. Pas un signal, pas un écho, pas la moindre trace d'une autre voix dans l'immensité. Et pourtant les étoiles sont légion, les planètes innombrables, le temps vertigineux. La vie aurait dû surgir ailleurs. L'intelligence aurait dû fleurir. Quelqu'un, quelque part, aurait dû parler.</p>
-        <p>Ce silence est la question la plus troublante que l'humanité ait jamais posée.</p>
+        <p>Ce silence est la question la plus troublante que l'humanité ait jamais posée. Et cette simulation n'en explore qu'une infime partie : notre galaxie, la Voie Lactée — environ 200 milliards d'étoiles. L'univers observable en contient 2 000 milliards d'autres comme elle.</p>
         <p>Cette simulation explore une réponse possible. Chaque <strong style="color:#4aaeff">anneau bleu</strong> est une civilisation technologique — une brève flamme dans le noir qui émet ses signaux radio dans toutes les directions, à la vitesse de la lumière. Ces ondes se propagent pendant des millénaires après l'extinction de leur source, fantômes d'une présence révolue. L'anneau devient <strong style="color:#8ab4d4">bleu clair</strong> quand la civilisation s'est éteinte (signal fossile). Il passe au <strong style="color:#50fa7b">vert</strong> quand il touche la Terre pendant son existence.</p>
         <p>La <strong style="color:#f4c430">Terre</strong> est ce point doré. Mais la planète seule ne suffit pas — ce qui compte, c'est la fenêtre où une civilisation technologique y existe, capable d'émettre et de recevoir des signaux radio. Cette fenêtre — quelques milliers d'années sur deux cent mille simulées — est infiniment étroite. Pour qu'un contact ait lieu, il faut que deux miracles coïncident : que quelqu'un émette, et que nous soyons là pour recevoir.</p>
         <p>Jouez avec les paramètres. Regardez les anneaux se multiplier, se croiser, parfois frôler la Terre. Et demandez-vous pourquoi, dans notre univers réel, nous n'en avons capté aucun. Peut-être sommes-nous trop tôt. Peut-être trop tard. Peut-être seuls.</p>
