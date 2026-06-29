@@ -168,7 +168,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   display:none;
 }
 #tl-earth-handle.warning #tl-handle-warn-text{display:block;}
-/* Icône warning : visible quand > 500, pas de bloc qui bloque */
+/* Icône warning : visible quand > 1000, pas de bloc qui bloque */
 #tl-warning-icon{
   position:absolute;top:50%;z-index:6;
   transform:translate(6px,-50%);
@@ -504,13 +504,13 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div id="tl-earth-handle">
         <div id="tl-handle-label">
           <span id="tl-handle-val">1 000 ans</span>
-          <span id="tl-handle-warn-text">Guerre nucléaire, pandémie, IA… vraiment plus de 500 ans&nbsp;?</span>
+          <span id="tl-handle-warn-text">Maintenir une capacité d'écoute sur 1&nbsp;000+ ans suppose une stabilité civilisationnelle sans précédent historique.</span>
         </div>
       </div>
       <span id="tl-warning-icon">⚠</span>
       <div id="u-warning-tip">
         <button id="u-warning-close" onclick="dismissUWarning(event)">✕</button>
-        Guerre nucléaire, pandémie, IA… pensez-vous vraiment que notre civilisation saurait rester à l'écoute plus de 500 ans&nbsp;?
+        Aucune civilisation connue n'a maintenu une infrastructure technologique active sur plus de quelques siècles. Au-delà de 1&nbsp;000 ans, l'hypothèse d'une écoute continue implique une stabilité institutionnelle, énergétique et sociale que l'histoire ne documente pas.
       </div>
       <input type="range" id="tscrub" min="-10000" max="10000" step="10" value="0">
     </div>
@@ -625,7 +625,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
           <span class="pv-modal" id="vUm">500</span>
         </div>
         <input type="range" id="slUm" min="100" max="10000" step="100" value="1000">
-        <div id="u-warning">⚠ Au-delà de 500 ans, il est très peu probable qu'une civilisation évite une catastrophe existentielle — guerre nucléaire, effondrement climatique, pandémie, IA incontrôlable.</div>
+        <div id="u-warning">⚠ Au-delà de 1&nbsp;000 ans, maintenir une capacité d'écoute active suppose une stabilité institutionnelle, énergétique et technologique sans précédent dans l'histoire humaine connue.</div>
       </div>
     </div>
     <div class="leg-modal">
@@ -1158,9 +1158,9 @@ function updateEarthMarker(){
   // Bouton i au début de la barre
   if(info) info.style.left = x0px + 'px';
 
-  // Couleur warning si U > 500
-  if(P.U <= 500){ uWarningDismissed = false; }
-  const warn = P.U > 500;
+  // Couleur warning si U > 1000
+  if(P.U <= 1000){ uWarningDismissed = false; }
+  const warn = P.U > 1000;
   el.classList.toggle('warning', warn);
   if(handle) handle.classList.toggle('warning', warn);
 
