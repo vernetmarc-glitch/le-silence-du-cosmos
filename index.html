@@ -20,20 +20,12 @@
 }
 
 /* ── LAYOUT PRINCIPAL ── */
-html,body{width:100%;height:100%;}
 body{
   background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;
-  /* Hauteur = fenêtre visible (exclut barre nav mobile) */
-  height:100svh;
+  height:100vh;height:100dvh;height:100svh;
   overflow:hidden;display:flex;flex-direction:column;
 }
 /* Fallback pour navigateurs sans svh */
-@supports not (height: 100svh){
-  body{height:100dvh;}
-}
-@supports not (height: 100dvh){
-  body{height:100vh;}
-}
 
 /* Zone galaxie : prend tout l'espace entre topbar et ctrl */
 #wrap{flex:1;position:relative;overflow:hidden;min-height:0;}
@@ -884,16 +876,39 @@ document.addEventListener('touchend',()=>{
   }
 });
 
+// Desktop sliders → trigger sim + sync mobile
 ['slN','slL'].forEach(id=>{
   document.getElementById(id).addEventListener('input',()=>{
-    readP();spawnCivs();simTime=SIM_START;
+    readP();spawnCivs();simTime=EARTH_BIRTH;
+    syncToMobile();
   });
 });
 ['slS','slU'].forEach(id=>{
   document.getElementById(id).addEventListener('input',()=>{
     readP();precomputeDetections();updateEarthMarker();
+    syncToMobile();
   });
 });
+// Mobile sliders → sync to desktop + trigger sim
+['slNm','slLm','slSm','slUm'].forEach(id=>{
+  const el = document.getElementById(id);
+  if(!el) return;
+  const desktopId = id.replace('m','').replace('sl','sl');
+  el.addEventListener('input',()=>{
+    const desktop = document.getElementById(id.slice(0,-1));
+    if(desktop){ desktop.value = el.value; desktop.dispatchEvent(new Event('input')); }
+  });
+});
+function syncToMobile(){
+  ['N','L','S','U'].forEach(k=>{
+    const vm = document.getElementById('v'+k+'m');
+    const slm = document.getElementById('sl'+k+'m');
+    const vd = document.getElementById('v'+k);
+    const sld = document.getElementById('sl'+k);
+    if(vm) vm.textContent = vd.textContent;
+    if(slm) slm.value = sld.value;
+  });
+}
 
 document.getElementById('bregen').addEventListener('click',()=>{
   readP();spawnCivs();simTime=SIM_START;playing=true;
