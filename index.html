@@ -307,7 +307,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   <button id="bparams" onclick="toggleParams()">⚙</button>
   <div class="pgrid">
     <div class="pm">
-      <div class="ph"><span class="pn">N / 200k ans</span><span class="pv" id="vN">20</span></div>
+      <div class="ph"><span class="pn">N simult. moy.</span><span class="pv" id="vN">20</span></div>
       <input type="range" id="slN" min="1" max="1000" step="1" value="20">
     </div>
     <div class="pm">
@@ -351,7 +351,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div class="info-col">
         <h2>Les paramètres</h2>
         <div class="param-list">
-          <strong>N</strong> — nombre total de civilisations émettrices sur les 20 000 ans de simulation<br>
+          <strong>N</strong> — nombre de civilisations technologiques simultanées en moyenne (équation de Drake)<br>
           <strong>L</strong> — durée d'émission moyenne (années) → épaisseur des anneaux<br>
           <strong>Portée S</strong> — distance maximale de détection (al) → rayon max des anneaux<br>
           <strong>Vie Terre</strong> — durée pendant laquelle nous existons et pouvons recevoir
@@ -369,7 +369,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
     <h3>Paramètres</h3>
     <div class="pgrid-modal">
       <div class="pm-modal">
-        <div class="ph-modal"><span class="pn-modal">N — Civilisations / 200k ans</span><span class="pv-modal" id="vNm">20</span></div>
+        <div class="ph-modal"><span class="pn-modal">N — Civs simultanées (Drake)</span><span class="pv-modal" id="vNm">20</span></div>
         <input type="range" id="slNm" min="1" max="1000" step="1" value="20">
       </div>
       <div class="pm-modal">
@@ -549,9 +549,12 @@ function dist2earth(gx,gy){
 }
 
 function spawnCivs(){
-  document.getElementById('hsimul').textContent=(P.N*P.L/SIM_DUR).toFixed(1);
+  // N = civilisations simultanées en moyenne (équation de Drake)
+  // total à spawner = N * SIM_DUR / L pour maintenir cette densité
+  const total = Math.max(1, Math.round(P.N * SIM_DUR / P.L));
+  document.getElementById('hsimul').textContent=P.N.toFixed(1);
   civs=[];
-  for(let i=0;i<P.N;i++){
+  for(let i=0;i<total;i++){
     const si=Math.floor(Math.random()*gStars.length);
     const {gx,gy}=gStars[si];
     const birth=SIM_START+Math.random()*SIM_DUR;
