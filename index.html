@@ -1159,8 +1159,8 @@ function updateEarthMarker(){
   if(info) info.style.left = x0px + 'px';
 
   // Couleur warning si U > 500
-  if(P.U <= 1000){ uWarningDismissed = false; }
-  const warn = P.U > 1000;
+  if(P.U <= 500){ uWarningDismissed = false; }
+  const warn = P.U > 500;
   el.classList.toggle('warning', warn);
   if(handle) handle.classList.toggle('warning', warn);
 
