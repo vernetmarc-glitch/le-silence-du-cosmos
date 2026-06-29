@@ -250,6 +250,34 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 .ph-modal{display:flex;justify-content:space-between;align-items:baseline;}
 .pn-modal{font-size:.68rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.04em;}
 .pv-modal{font-family:'Space Mono',monospace;font-size:.80rem;color:var(--gold);font-weight:700;}
+
+/* ── Infobulles paramètres ── */
+.pi-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:13px;height:13px;border-radius:50%;
+  border:1px solid rgba(74,174,255,.50);
+  color:rgba(74,174,255,.70);font-size:.52rem;font-family:'Space Mono',monospace;
+  cursor:pointer;flex-shrink:0;position:relative;
+  transition:border-color .15s, color .15s;
+  user-select:none;
+}
+.pi-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+.pi-tip{
+  display:none;
+  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  background:rgba(3,7,30,0.97);border:1px solid rgba(74,174,255,.30);
+  border-radius:8px;padding:9px 11px;width:230px;
+  font-size:.60rem;color:var(--txt);line-height:1.6;
+  font-family:'Space Mono',monospace;font-weight:400;text-transform:none;
+  letter-spacing:0;z-index:200;pointer-events:none;
+  box-shadow:0 4px 20px rgba(0,0,0,.6);
+}
+.pi-tip::after{
+  content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:rgba(74,174,255,.30);
+}
+.pi-btn:hover .pi-tip,
+.pi-btn:focus .pi-tip{ display:block; }
 .leg-modal{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
 .leg-modal .li{font-size:.60rem;color:var(--lbl);display:flex;align-items:center;gap:5px;}
 .leg-modal .ld{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
@@ -395,19 +423,39 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
     <h3>Paramètres</h3>
     <div class="pgrid-modal">
       <div class="pm-modal">
-        <div class="ph-modal"><span class="pn-modal">N — Civs communicant simultanément</span><span class="pv-modal" id="vNm">3</span></div>
+        <div class="ph-modal">
+          <span class="pn-modal">N — Civs communicant simultanément
+            <span class="pi-btn" tabindex="0">i<span class="pi-tip">Nombre de civilisations capables d'émettre des signaux radio <em>simultanément</em> dans la galaxie.<br><br>Drake estimait N entre 1 et plusieurs milliers. Dans notre galaxie réelle, N pourrait être… 1 (nous). Valeurs plausibles&nbsp;: 1–50.</span></span>
+          </span>
+          <span class="pv-modal" id="vNm">3</span>
+        </div>
         <input type="range" id="slNm" min="1" max="10" step="1" value="3">
       </div>
       <div class="pm-modal">
-        <div class="ph-modal"><span class="pn-modal">L — Durée d'émission moyenne (ans)</span><span class="pv-modal" id="vLm">10 000</span></div>
+        <div class="ph-modal">
+          <span class="pn-modal">L — Durée d'émission moyenne (ans)
+            <span class="pi-btn" tabindex="0">i<span class="pi-tip">Durée pendant laquelle une civilisation émet des signaux détectables. Correspond à l'épaisseur des anneaux.<br><br>Notre propre civilisation émet depuis ~100 ans. Une extinction, une guerre ou une transition énergétique pourraient l'arrêter. Valeurs plausibles&nbsp;: 100–10 000 ans.</span></span>
+          </span>
+          <span class="pv-modal" id="vLm">10 000</span>
+        </div>
         <input type="range" id="slLm" min="100" max="10000" step="100" value="1000">
       </div>
       <div class="pm-modal">
-        <div class="ph-modal"><span class="pn-modal">S — Portée du signal (al)</span><span class="pv-modal" id="vSm">40 000</span></div>
+        <div class="ph-modal">
+          <span class="pn-modal">S — Portée du signal (al)
+            <span class="pi-btn" tabindex="0">i<span class="pi-tip">Distance maximale à laquelle un signal radio reste détectable. Limite le rayon des anneaux.<br><br>Nos émissions actuelles s'affaiblissent rapidement. Une civilisation avancée pourrait émettre des faisceaux beaucoup plus puissants. Rayon de la Voie Lactée&nbsp;: 52 000 al. Valeurs plausibles&nbsp;: 1 000–50 000 al.</span></span>
+          </span>
+          <span class="pv-modal" id="vSm">40 000</span>
+        </div>
         <input type="range" id="slSm" min="100" max="52000" step="100" value="10000">
       </div>
       <div class="pm-modal">
-        <div class="ph-modal"><span class="pn-modal">U — Vie civ. terrestre (ans)</span><span class="pv-modal" id="vUm">500</span></div>
+        <div class="ph-modal">
+          <span class="pn-modal">U — Fenêtre terrestre (ans)
+            <span class="pi-btn" tabindex="0">i<span class="pi-tip">Durée pendant laquelle la Terre héberge une civilisation technologique capable de recevoir des signaux. Représente l'anneau doré.<br><br>Nous sommes capables de recevoir depuis ~100 ans. Combien de temps encore&nbsp;? Valeurs plausibles&nbsp;: 100–10 000 ans.</span></span>
+          </span>
+          <span class="pv-modal" id="vUm">500</span>
+        </div>
         <input type="range" id="slUm" min="100" max="10000" step="100" value="1000">
       </div>
     </div>
@@ -573,22 +621,58 @@ function buildGalaxyCache(W,H){
   c.fillStyle=cg2;c.fillRect(0,0,W,H*3);c.restore();
   return off;
 }
-function paintGalaxy(W,H){
-  if(!gCache||cacheW!==W||cacheH!==H){gCache=buildGalaxyCache(W,H);cacheW=W;cacheH=H;}
-  gc.fillStyle='#000005';gc.fillRect(0,0,W,H);
-  gc.globalAlpha=P.B;gc.drawImage(gCache,0,0);gc.globalAlpha=1;
-  // Étoiles redessinées chaque frame à taille fixe (sz en px physique, pas zoomé)
+// Cache étoiles : clé = "W_H_zoom" arrondi à 2 décimales
+// Pendant une transition de zoom on redessine ; dès que le zoom est stable
+// on réutilise le cache → 0 coût CPU pour les étoiles à zoom fixe.
+let starCache = null, starCacheKey = '';
+function invalidateStarCache(){ starCache = null; starCacheKey = ''; }
+
+function buildStarLayer(W,H){
+  const off = document.createElement('canvas');
+  off.width = W; off.height = H;
+  const c = off.getContext('2d');
   for(const s of gStars){
-    const p=g2c(s.gx,s.gy,W,H);
-    // Culling : ne dessiner que les étoiles visibles
+    const p = g2c(s.gx,s.gy,W,H);
     if(p.x < -4 || p.x > W+4 || p.y < -4 || p.y > H+4) continue;
-    gc.globalAlpha=Math.min(1,s.b);
-    gc.beginPath();gc.arc(p.x,p.y,s.sz,0,Math.PI*2); // sz toujours en px physique
+    c.globalAlpha = Math.min(1,s.b);
+    c.beginPath(); c.arc(p.x,p.y,s.sz,0,Math.PI*2);
     const v=s.b;
-    gc.fillStyle=`rgb(${Math.round(150+v*105)},${Math.round(160+v*80)},${Math.round(205+v*50)})`;
-    gc.fill();
+    c.fillStyle=`rgb(${Math.round(150+v*105)},${Math.round(160+v*80)},${Math.round(205+v*50)})`;
+    c.fill();
   }
-  gc.globalAlpha=1;
+  c.globalAlpha=1;
+  return off;
+}
+
+function paintGalaxy(W,H){
+  if(!gCache||cacheW!==W||cacheH!==H){gCache=buildGalaxyCache(W,H);cacheW=W;cacheH=H;invalidateStarCache();}
+  gc.fillStyle='#000005'; gc.fillRect(0,0,W,H);
+  gc.globalAlpha=P.B; gc.drawImage(gCache,0,0); gc.globalAlpha=1;
+
+  const zooming = Math.abs(zoomLevel - zoomTarget) > 0.005;
+  const key = W+'_'+H+'_'+zoomLevel.toFixed(2);
+
+  if(zooming){
+    // Pendant la transition : dessin direct, pas de cache
+    for(const s of gStars){
+      const p=g2c(s.gx,s.gy,W,H);
+      if(p.x < -4 || p.x > W+4 || p.y < -4 || p.y > H+4) continue;
+      gc.globalAlpha=Math.min(1,s.b);
+      gc.beginPath(); gc.arc(p.x,p.y,s.sz,0,Math.PI*2);
+      const v=s.b;
+      gc.fillStyle=`rgb(${Math.round(150+v*105)},${Math.round(160+v*80)},${Math.round(205+v*50)})`;
+      gc.fill();
+    }
+    gc.globalAlpha=1;
+    starCacheKey=''; // invalider pour forcer rebuild dès stabilisation
+  } else {
+    // Zoom stable : utiliser le cache étoiles
+    if(starCacheKey !== key){
+      starCache = buildStarLayer(W,H);
+      starCacheKey = key;
+    }
+    gc.drawImage(starCache,0,0);
+  }
 }
 
 // ══════════════════════════════════════════════════
@@ -968,7 +1052,7 @@ document.getElementById('bregen-modal').addEventListener('click',()=>{
 // ══════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════
-window.addEventListener('resize',()=>{resize();gCache=null;updateEarthMarker();});
+window.addEventListener('resize',()=>{resize();gCache=null;invalidateStarCache();updateEarthMarker();});
 gStars=generateGalaxy();
 readP();
 resize();
