@@ -246,18 +246,20 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   color:rgba(74,174,255,.70);font-size:.52rem;font-family:'Space Mono',monospace;
   cursor:pointer;flex-shrink:0;position:relative;
   transition:border-color .15s, color .15s;
-  user-select:none;
+  user-select:none;vertical-align:middle;
 }
 .pi-btn:hover{border-color:var(--cyan);color:var(--cyan);}
 .pi-tip{
   display:none;
-  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  position:fixed; /* fixed pour ne jamais être clippé par un parent overflow */
   background:rgba(3,7,30,0.97);border:1px solid rgba(74,174,255,.30);
-  border-radius:8px;padding:9px 11px;width:230px;
-  font-size:.60rem;color:var(--txt);line-height:1.6;
+  border-radius:8px;padding:10px 13px;
+  width:260px;max-width:calc(100vw - 24px);
+  font-size:.62rem;color:var(--txt);line-height:1.65;
   font-family:'Space Mono',monospace;font-weight:400;text-transform:none;
-  letter-spacing:0;z-index:200;pointer-events:none;
-  box-shadow:0 4px 20px rgba(0,0,0,.6);
+  letter-spacing:0;z-index:9999;pointer-events:none;
+  box-shadow:0 4px 24px rgba(0,0,0,.7);
+  white-space:normal;word-break:normal;
 }
 .pi-tip::after{
   content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
@@ -390,12 +392,16 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div class="info-col">
         <h2>Les paramètres</h2>
         <div class="param-list">
-          <strong>N</strong> — nombre de civilisations technologiques simultanées en moyenne (équation de Drake)<br>
-          <strong>L</strong> — durée d'émission moyenne (années) → épaisseur des anneaux<br>
-          <strong>Portée S</strong> — distance maximale de détection (al) → rayon max des anneaux<br>
-          <strong>Vie Terre</strong> — durée pendant laquelle nous existons et pouvons recevoir
+          <strong>N</strong> — civilisations communicant simultanément
+          <span class="pi-btn" tabindex="0">i<span class="pi-tip">Nombre de civilisations capables d'émettre des signaux radio <em>simultanément</em> dans la galaxie. C'est le terme central de l'équation de Drake.<br><br>Drake estimait N entre 1 et plusieurs milliers. Dans notre galaxie réelle, N pourrait être… 1. Valeurs plausibles : 1–50.</span></span><br>
+          <strong>L</strong> — durée d'émission moyenne
+          <span class="pi-btn" tabindex="0">i<span class="pi-tip">Durée pendant laquelle une civilisation émet des signaux détectables. Correspond à l'épaisseur des anneaux bleus.<br><br>Notre civilisation émet depuis ~100 ans. Une guerre, une extinction ou une transition technologique pourraient l'arrêter. Valeurs plausibles : 100–10 000 ans.</span></span><br>
+          <strong>S</strong> — portée du signal
+          <span class="pi-btn" tabindex="0">i<span class="pi-tip">Distance maximale à laquelle un signal radio reste détectable. Détermine le rayon maximal des anneaux.<br><br>Nos émissions actuelles s'affaiblissent très vite avec la distance. Une civilisation avancée pourrait émettre des faisceaux directionnels beaucoup plus puissants. Rayon de la Voie Lactée : 52 000 al. Valeurs plausibles : 1 000–50 000 al.</span></span><br>
+          <strong>U</strong> — fenêtre de réception terrestre
+          <span class="pi-btn" tabindex="0">i<span class="pi-tip">Durée pendant laquelle la Terre héberge une civilisation technologique capable de recevoir des signaux. Représente l'anneau doré et la zone verte de contact.<br><br>Nous recevons depuis ~100 ans. Combien de temps encore ? C'est la variable la plus personnelle — et la plus incertaine. Valeurs plausibles : 100–10 000 ans.</span></span>
         </div>
-        <p style="margin-top:12px;">Le paradoxe de Fermi s'observe directement : même avec des centaines de civilisations, les fenêtres de contact simultané sont rares. Augmentez N, L et S pour voir les premières détections apparaître.</p>
+        <p style="margin-top:12px;">Le paradoxe de Fermi s'observe directement : même avec plusieurs civilisations, les fenêtres de contact simultané sont rares. Ajustez N, L et S pour voir les premières détections apparaître.</p>
       </div>
     </div>
   </div>
@@ -1092,6 +1098,31 @@ document.addEventListener('click', function(e){
   if(p && p.classList.contains('show') && !p.contains(e.target)){
     dismissHint();
   }
+});
+
+// ── Positionnement dynamique des infobulles (fixed, anti-débordement) ──
+document.querySelectorAll('.pi-btn').forEach(function(btn){
+  const tip = btn.querySelector('.pi-tip');
+  if(!tip) return;
+  btn.addEventListener('mouseenter', function(){
+    const r = btn.getBoundingClientRect();
+    // Position de base : centré au-dessus du bouton
+    let left = r.left + r.width/2 - tip.offsetWidth/2;
+    let top  = r.top - tip.offsetHeight - 10;
+    // Anti-débordement horizontal
+    const margin = 8;
+    if(left < margin) left = margin;
+    if(left + tip.offsetWidth > window.innerWidth - margin)
+      left = window.innerWidth - tip.offsetWidth - margin;
+    // Anti-débordement haut : passer en dessous si trop près du bord
+    if(top < margin){
+      top = r.bottom + 10;
+      tip.style.setProperty('--arrow-top','auto');
+      tip.style.setProperty('--arrow-bottom','100%');
+    }
+    tip.style.left = left + 'px';
+    tip.style.top  = top  + 'px';
+  });
 });
 
 </script>
