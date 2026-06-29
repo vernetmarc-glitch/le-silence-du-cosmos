@@ -285,13 +285,13 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div id="timeline-wrap">
         <div id="tl-bg"></div>
         <div id="tl-earth"></div>
-        <input type="range" id="tscrub" min="-100000" max="100000" step="100" value="0">
+        <input type="range" id="tscrub" min="-10000" max="10000" step="10" value="0">
       </div>
       <select id="spd-select">
         <option value="50">×50</option>
         <option value="200">×200</option>
         <option value="1000">×1k</option>
-        <option value="5000" selected>×5k</option>
+        <option value="5000">×5k</option>
         <option value="20000">×20k</option>
       </select>
     </div>
@@ -299,20 +299,20 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   <button id="bparams" onclick="toggleParams()">⚙</button>
   <div class="pgrid">
     <div class="pm">
-      <div class="ph"><span class="pn">N / 200k ans</span><span class="pv" id="vN">200</span></div>
-      <input type="range" id="slN" min="1" max="1000" step="1" value="200">
+      <div class="ph"><span class="pn">N / 200k ans</span><span class="pv" id="vN">20</span></div>
+      <input type="range" id="slN" min="1" max="1000" step="1" value="20">
     </div>
     <div class="pm">
-      <div class="ph"><span class="pn">L émission (an)</span><span class="pv" id="vL">2 000</span></div>
-      <input type="range" id="slL" min="100" max="50000" step="100" value="2000">
+      <div class="ph"><span class="pn">L émission (an)</span><span class="pv" id="vL">10 000</span></div>
+      <input type="range" id="slL" min="100" max="50000" step="100" value="10000">
     </div>
     <div class="pm">
-      <div class="ph"><span class="pn">Portée S (al)</span><span class="pv" id="vS">10 000</span></div>
-      <input type="range" id="slS" min="100" max="52000" step="100" value="10000">
+      <div class="ph"><span class="pn">Portée S (al)</span><span class="pv" id="vS">40 000</span></div>
+      <input type="range" id="slS" min="100" max="52000" step="100" value="40000">
     </div>
     <div class="pm">
-      <div class="ph"><span class="pn">Vie civ. (an)</span><span class="pv" id="vU">2 000</span></div>
-      <input type="range" id="slU" min="100" max="100000" step="100" value="2000">
+      <div class="ph"><span class="pn">Vie civ. (an)</span><span class="pv" id="vU">500</span></div>
+      <input type="range" id="slU" min="100" max="100000" step="100" value="500">
     </div>
   </div>
   <div id="rblock">
@@ -343,7 +343,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div class="info-col">
         <h2>Les paramètres</h2>
         <div class="param-list">
-          <strong>N</strong> — nombre total de civilisations émettrices sur les 200 000 ans de simulation<br>
+          <strong>N</strong> — nombre total de civilisations émettrices sur les 20 000 ans de simulation<br>
           <strong>L</strong> — durée d'émission moyenne (années) → épaisseur des anneaux<br>
           <strong>Portée S</strong> — distance maximale de détection (al) → rayon max des anneaux<br>
           <strong>Vie Terre</strong> — durée pendant laquelle nous existons et pouvons recevoir
@@ -361,20 +361,20 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
     <h3>Paramètres</h3>
     <div class="pgrid-modal">
       <div class="pm-modal">
-        <div class="ph-modal"><span class="pn-modal">N — Civilisations / 200k ans</span><span class="pv-modal" id="vNm">200</span></div>
-        <input type="range" id="slNm" min="1" max="1000" step="1" value="200">
+        <div class="ph-modal"><span class="pn-modal">N — Civilisations / 200k ans</span><span class="pv-modal" id="vNm">20</span></div>
+        <input type="range" id="slNm" min="1" max="1000" step="1" value="20">
       </div>
       <div class="pm-modal">
-        <div class="ph-modal"><span class="pn-modal">L — Durée d'émission (ans)</span><span class="pv-modal" id="vLm">2 000</span></div>
-        <input type="range" id="slLm" min="100" max="50000" step="100" value="2000">
+        <div class="ph-modal"><span class="pn-modal">L — Durée d'émission (ans)</span><span class="pv-modal" id="vLm">10 000</span></div>
+        <input type="range" id="slLm" min="100" max="50000" step="100" value="10000">
       </div>
       <div class="pm-modal">
-        <div class="ph-modal"><span class="pn-modal">S — Portée du signal (al)</span><span class="pv-modal" id="vSm">10 000</span></div>
-        <input type="range" id="slSm" min="100" max="52000" step="100" value="10000">
+        <div class="ph-modal"><span class="pn-modal">S — Portée du signal (al)</span><span class="pv-modal" id="vSm">40 000</span></div>
+        <input type="range" id="slSm" min="100" max="52000" step="100" value="40000">
       </div>
       <div class="pm-modal">
-        <div class="ph-modal"><span class="pn-modal">U — Vie civ. terrestre (ans)</span><span class="pv-modal" id="vUm">2 000</span></div>
-        <input type="range" id="slUm" min="100" max="100000" step="100" value="2000">
+        <div class="ph-modal"><span class="pn-modal">U — Vie civ. terrestre (ans)</span><span class="pv-modal" id="vUm">500</span></div>
+        <input type="range" id="slUm" min="100" max="100000" step="100" value="500">
       </div>
     </div>
     <div class="leg-modal">
@@ -392,9 +392,9 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 // ══════════════════════════════════════════════════
 // CONSTANTS
 // ══════════════════════════════════════════════════
-const SIM_START   = -100000;
-const SIM_END     =  100000;
-const SIM_DUR     =  200000;
+const SIM_START   = -10000;
+const SIM_END     =  10000;
+const SIM_DUR     =  20000;
 const MW_R        =  52000;
 const EARTH_GX    =  8500;
 const EARTH_GY    =  0;
@@ -411,9 +411,9 @@ const R0_SP     = 2500;
 // ══════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════
-let P = {N:200, L:2000, S:10000, U:2000, B:1.0};
+let P = {N:20, L:10000, S:40000, U:500, B:1.0};
 let civs=[], gStars=[];
-let simTime=EARTH_BIRTH, playing=true, speed=5000;
+let simTime=EARTH_BIRTH, playing=true, speed=500;
 let lastTS=null, animId=null, scrubbing=false;
 let gCache=null, cacheW=0, cacheH=0;
 
