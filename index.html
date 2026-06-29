@@ -103,6 +103,15 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   display:flex;align-items:center;justify-content:center;transition:background .15s;
 }
 #bplay:hover{background:rgba(74,174,255,.22);}
+#bzoom{
+  width:26px;height:26px;border-radius:50%;flex-shrink:0;
+  border:1px solid rgba(74,174,255,.45);background:rgba(74,174,255,.10);
+  color:var(--cyan);font-size:.75rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+}
+#bzoom:hover{background:rgba(74,174,255,.22);}
+#bzoom.zoomed{background:rgba(74,174,255,.30);border-color:var(--cyan);}
 #tdisp{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--gold);font-weight:700;white-space:nowrap;flex-shrink:0;}
 #timeline-wrap{position:relative;flex:1;height:26px;min-width:0;}
 #tl-bg{position:absolute;top:50%;left:0;right:0;height:3px;border-radius:2px;background:rgba(255,255,255,.12);transform:translateY(-50%);pointer-events:none;z-index:1;}
@@ -297,6 +306,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <option value="5000" selected>×5k</option>
       <option value="20000">×20k</option>
     </select>
+    <button id="bzoom" title="Zoom sur la Terre">🔍</button>
   </div>
 </div>
 
@@ -353,7 +363,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       </div>
       <div class="pm-modal">
         <div class="ph-modal"><span class="pn-modal">L — Durée d'émission moyenne (ans)</span><span class="pv-modal" id="vLm">10 000</span></div>
-        <input type="range" id="slLm" min="100" max="10000" step="100" value="2000">
+        <input type="range" id="slLm" min="100" max="10000" step="100" value="1000">
       </div>
       <div class="pm-modal">
         <div class="ph-modal"><span class="pn-modal">S — Portée du signal (al)</span><span class="pv-modal" id="vSm">40 000</span></div>
@@ -361,7 +371,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       </div>
       <div class="pm-modal">
         <div class="ph-modal"><span class="pn-modal">U — Vie civ. terrestre (ans)</span><span class="pv-modal" id="vUm">500</span></div>
-        <input type="range" id="slUm" min="100" max="10000" step="100" value="2000">
+        <input type="range" id="slUm" min="100" max="10000" step="100" value="1000">
       </div>
     </div>
     <div class="leg-modal">
@@ -398,7 +408,9 @@ const R0_SP     = 2500;
 // ══════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════
-let P = {N:3, L:2000, S:10000, U:2000, B:1.0};
+let P = {N:3, L:1000, S:10000, U:1000, B:1.0};
+let zoomLevel = 1.0; // 1 = vue galactique complète, >1 = zoom sur Terre
+let zoomTarget = 1.0;
 let civs=[], gStars=[];
 let simTime=-10000, playing=true, speed=500;
 let lastTS=null, animId=null, scrubbing=false;
@@ -448,12 +460,28 @@ function handleOverlayClick(e){
 // ══════════════════════════════════════════════════
 // COORDINATES
 // ══════════════════════════════════════════════════
-function getScale(W,H){
+function getBaseScale(W,H){
   return Math.min(W*0.96/(2*MW_R), H*0.96/(2*MW_R*0.40));
 }
+function getScale(W,H){
+  return getBaseScale(W,H) * zoomLevel;
+}
+// Origine de la caméra : quand zoom > 1, on centre sur la Terre
+function getCamOrigin(W,H){
+  const bs = getBaseScale(W,H);
+  // Position de la Terre en coords écran sans zoom
+  const ex = W/2 + EARTH_GX * bs;
+  const ey = H/2 + EARTH_GY * bs * 0.40;
+  // On translate pour que la Terre reste au centre
+  return {
+    ox: W/2 - (ex - W/2) * (zoomLevel - 1),
+    oy: H/2 - (ey - H/2) * (zoomLevel - 1)
+  };
+}
 function g2c(gx,gy,W,H){
-  const s=getScale(W,H);
-  return {x:W/2+gx*s, y:H/2+gy*s*0.40};
+  const s = getScale(W,H);
+  const {ox,oy} = getCamOrigin(W,H);
+  return {x: ox + gx*s, y: oy + gy*s*0.40};
 }
 function ly2px(ly,W,H){ return ly*getScale(W,H); }
 
@@ -493,6 +521,7 @@ function generateGalaxy(){
   return stars;
 }
 function buildGalaxyCache(W,H){
+  // Cache du fond de nébuleuse uniquement (sans étoiles)
   const off=document.createElement('canvas');
   off.width=W;off.height=H;
   const c=off.getContext('2d');
@@ -501,12 +530,6 @@ function buildGalaxyCache(W,H){
   const dg=c.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H)*0.52);
   dg.addColorStop(0,'rgba(120,140,230,0.07)');dg.addColorStop(0.5,'rgba(70,90,200,0.03)');dg.addColorStop(1,'rgba(0,0,0,0)');
   c.fillStyle=dg;c.fillRect(0,0,W,H*3);c.restore();
-  for(const s of gStars){
-    const p=g2c(s.gx,s.gy,W,H);
-    c.globalAlpha=Math.min(1,s.b);c.beginPath();c.arc(p.x,p.y,s.sz,0,Math.PI*2);
-    const v=s.b;c.fillStyle=`rgb(${Math.round(150+v*105)},${Math.round(160+v*80)},${Math.round(205+v*50)})`;c.fill();
-  }
-  c.globalAlpha=1;
   c.save();c.translate(W/2,H/2);c.scale(1,0.40);c.translate(-W/2,-H/2);
   const cg2=c.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.min(W,H)*0.09);
   cg2.addColorStop(0,'rgba(255,248,200,0.30)');cg2.addColorStop(0.4,'rgba(220,190,255,0.10)');cg2.addColorStop(1,'rgba(0,0,0,0)');
@@ -517,6 +540,18 @@ function paintGalaxy(W,H){
   if(!gCache||cacheW!==W||cacheH!==H){gCache=buildGalaxyCache(W,H);cacheW=W;cacheH=H;}
   gc.fillStyle='#000005';gc.fillRect(0,0,W,H);
   gc.globalAlpha=P.B;gc.drawImage(gCache,0,0);gc.globalAlpha=1;
+  // Étoiles redessinées chaque frame à taille fixe (sz en px physique, pas zoomé)
+  for(const s of gStars){
+    const p=g2c(s.gx,s.gy,W,H);
+    // Culling : ne dessiner que les étoiles visibles
+    if(p.x < -4 || p.x > W+4 || p.y < -4 || p.y > H+4) continue;
+    gc.globalAlpha=Math.min(1,s.b);
+    gc.beginPath();gc.arc(p.x,p.y,s.sz,0,Math.PI*2); // sz toujours en px physique
+    const v=s.b;
+    gc.fillStyle=`rgb(${Math.round(150+v*105)},${Math.round(160+v*80)},${Math.round(205+v*50)})`;
+    gc.fill();
+  }
+  gc.globalAlpha=1;
 }
 
 // ══════════════════════════════════════════════════
@@ -738,11 +773,14 @@ function drawSim(t, W, H){
   sc.beginPath();sc.arc(ep.x,ep.y,22,0,Math.PI*2);sc.fillStyle=erG;sc.fill();
   sc.beginPath();sc.arc(ep.x,ep.y,5,0,Math.PI*2);
   sc.fillStyle=`rgba(${ec[0]},${ec[1]},${ec[2]},${dotA})`;sc.fill();
-  sc.font='bold 10px Space Mono,monospace';
-  sc.shadowColor=`rgba(${ec[0]},${ec[1]},${ec[2]},0.9)`;
-  sc.shadowBlur=6;
-  sc.fillStyle=`rgba(${ec[0]},${ec[1]},${ec[2]},${earthAlive?1.0:0.45})`;
-  sc.fillText('TERRE',ep.x+8,ep.y-8);
+  // Label TERRE : taille et position fixes, indépendantes du zoom
+  sc.font='bold 11px Space Mono,monospace';
+  sc.shadowColor=`rgba(${ec[0]},${ec[1]},${ec[2]},1.0)`;
+  sc.shadowBlur=12;
+  sc.fillStyle=`rgba(${ec[0]},${ec[1]},${ec[2]},${earthAlive?1.0:0.55})`;
+  sc.fillText('TERRE',ep.x+9,ep.y-9);
+  sc.shadowBlur=8;
+  sc.fillText('TERRE',ep.x+9,ep.y-9); // double pass pour glow
   sc.shadowBlur=0;
 
   // ── HUD ──
@@ -800,6 +838,7 @@ function loop(ts){
     'An '+(yr>=0?'+':'')+yr.toLocaleString('fr-FR');
 
   const W=cs.width,H=cs.height;
+  updateZoom();
   paintGalaxy(W,H);
   drawSim(simTime,W,H);
   animId=requestAnimationFrame(loop);
@@ -899,6 +938,29 @@ resize();
 updateEarthMarker();
 spawnCivs();
 startLoop();
+
+// ── Zoom sur la Terre ──
+const ZOOM_IN = 12.0; // facteur de zoom (ajustable)
+document.getElementById('bzoom').addEventListener('click', function(){
+  if(zoomTarget === 1.0){
+    zoomTarget = ZOOM_IN;
+    this.classList.add('zoomed');
+    this.title = 'Vue galactique';
+  } else {
+    zoomTarget = 1.0;
+    this.classList.remove('zoomed');
+    this.title = 'Zoom sur la Terre';
+  }
+});
+
+// Animation douce du zoom dans la loop principale
+function updateZoom(){
+  if(Math.abs(zoomLevel - zoomTarget) > 0.01){
+    zoomLevel += (zoomTarget - zoomLevel) * 0.08;
+  } else {
+    zoomLevel = zoomTarget;
+  }
+}
 
 // ── Hint popup après 10s ──
 (function(){
