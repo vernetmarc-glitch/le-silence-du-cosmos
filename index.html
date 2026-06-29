@@ -1159,8 +1159,8 @@ function updateEarthMarker(){
   if(info) info.style.left = x0px + 'px';
 
   // Couleur warning si U > 500
-  if(P.U <= 500){ uWarningDismissed = false; }
-  const warn = P.U > 500;
+  if(P.U <= 1000){ uWarningDismissed = false; }
+  const warn = P.U > 1000;
   el.classList.toggle('warning', warn);
   if(handle) handle.classList.toggle('warning', warn);
 
@@ -1349,23 +1349,6 @@ function dismissHintTimeline(){
   sessionStorage.setItem('lsdc_tl_hint','1');
 }
 
-// Afficher après 3s si pas déjà vu
-(function(){
-  if(!sessionStorage.getItem('lsdc_tl_hint')){
-    setTimeout(function(){
-      const ht = document.getElementById('hint-timeline');
-      const overlay = document.getElementById('info-overlay');
-      if(ht && !overlay.classList.contains('open')){
-        ht.classList.add('show');
-        // Attendre que le DOM soit peint avant de positionner
-        requestAnimationFrame(function(){
-          requestAnimationFrame(positionHintTimeline);
-        });
-      }
-    }, 3000);
-  }
-})();
-
 // Fermer si clic en dehors
 document.addEventListener('click', function(e){
   const ht = document.getElementById('hint-timeline');
@@ -1374,7 +1357,17 @@ document.addEventListener('click', function(e){
   }
 });
 
-// ── Hint popup : affiché uniquement au clic/survol du ? ──
+// ── Hint popup : affiché après 10s ──
+(function(){
+  setTimeout(function(){
+    const p = document.getElementById('hint-popup');
+    const overlay = document.getElementById('info-overlay');
+    if(p && !overlay.classList.contains('open')){
+      p.classList.add('show');
+      positionHintArrow();
+    }
+  }, 10000);
+})();
 function dismissHint(){
   const p = document.getElementById('hint-popup');
   if(p) p.classList.remove('show');
