@@ -103,41 +103,28 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   display:flex;align-items:center;justify-content:center;transition:background .15s;
 }
 #bplay:hover{background:rgba(74,174,255,.22);}
-#bzoom{
-  width:26px;height:26px;border-radius:50%;flex-shrink:0;
-  border:1px solid rgba(74,174,255,.45);background:rgba(74,174,255,.10);
-  color:var(--cyan);font-size:.75rem;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:background .15s;position:relative;
-}
-#bzoom:hover{background:rgba(74,174,255,.22);}
-#bzoom.active{background:rgba(74,174,255,.30);border-color:var(--cyan);}
-
-/* Panneau zoom vertical */
+/* Panneau zoom vertical — toujours visible, bas droite */
 #zoom-panel{
   position:fixed;
-  bottom:60px; /* au-dessus de la ctrlbar */
-  right:12px;
-  width:36px;
-  background:rgba(3,7,24,0.94);
-  border:1px solid rgba(74,174,255,.30);
-  border-radius:18px;
-  padding:10px 0;
-  display:flex;flex-direction:column;align-items:center;gap:8px;
+  bottom:52px;
+  right:10px;
+  width:34px;
+  background:rgba(3,7,24,0.88);
+  border:1px solid rgba(74,174,255,.28);
+  border-radius:17px;
+  padding:8px 0 6px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
   z-index:50;
-  opacity:0;pointer-events:none;
-  transform:translateY(8px);
-  transition:opacity .22s ease, transform .22s ease;
+  pointer-events:all;
 }
-#zoom-panel.open{opacity:1;pointer-events:all;transform:translateY(0);}
-#zoom-label-max{font-size:.44rem;color:var(--cyan);font-family:'Space Mono',monospace;letter-spacing:.03em;text-align:center;line-height:1.2;}
-#zoom-label-min{font-size:.44rem;color:var(--lbl);font-family:'Space Mono',monospace;letter-spacing:.03em;text-align:center;line-height:1.2;}
+#zoom-label-max{font-size:.42rem;color:var(--cyan);font-family:'Space Mono',monospace;text-align:center;line-height:1.2;opacity:.85;}
+#zoom-label-min{font-size:.42rem;color:var(--lbl);font-family:'Space Mono',monospace;text-align:center;line-height:1.2;}
 #szoom{
   -webkit-appearance:slider-vertical;
   appearance:slider-vertical;
   writing-mode:vertical-lr;
   direction:rtl;
-  width:6px;height:120px;
+  width:6px;height:110px;
   cursor:pointer;
   accent-color:var(--cyan);
   background:transparent;
@@ -364,7 +351,6 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <option value="5000" selected>×5k</option>
       <option value="20000">×20k</option>
     </select>
-    <button id="bzoom" title="Zoom sur la Terre">🔍</button>
   </div>
 </div>
 
@@ -1062,28 +1048,7 @@ startLoop();
 
 // ── Zoom sur la Terre ──
 const ZOOM_MAX = 12.0;
-const zoomPanelEl = document.getElementById('zoom-panel');
-const szoomEl     = document.getElementById('szoom');
-const bzoomEl     = document.getElementById('bzoom');
-
-function setZoomPanelOpen(open){
-  zoomPanelEl.classList.toggle('open', open);
-  bzoomEl.classList.toggle('active', open);
-}
-
-bzoomEl.addEventListener('click', function(e){
-  e.stopPropagation();
-  setZoomPanelOpen(!zoomPanelEl.classList.contains('open'));
-});
-
-// Fermer le panneau si clic dehors
-document.addEventListener('click', function(e){
-  if(zoomPanelEl.classList.contains('open') &&
-     !zoomPanelEl.contains(e.target) &&
-     e.target !== bzoomEl){
-    setZoomPanelOpen(false);
-  }
-});
+const szoomEl = document.getElementById('szoom');
 
 // Le curseur contrôle zoomTarget directement
 szoomEl.addEventListener('input', function(){
@@ -1097,8 +1062,6 @@ function updateZoom(){
   } else {
     zoomLevel = zoomTarget;
   }
-  // Sync le curseur si le zoom a été modifié autrement
-  // (pas nécessaire ici mais garde la cohérence)
 }
 
 // ── Hint popup après 10s ──
