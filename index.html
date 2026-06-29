@@ -138,31 +138,48 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 /* Poignée drag droite de la barre Terre */
 #tl-earth-handle{
   position:absolute;top:50%;z-index:6;
-  min-width:36px;height:18px;border-radius:4px;
+  width:10px;height:18px;border-radius:3px;
   background:var(--gold);border:1.5px solid rgba(255,255,255,.35);
   transform:translate(-50%,-50%);
   cursor:ew-resize;touch-action:none;
   transition:background .3s;
-  display:flex;align-items:center;justify-content:center;
-  padding:0 4px;
-  font-family:'Space Mono',monospace;font-size:.44rem;
-  font-weight:700;color:#000;white-space:nowrap;
   user-select:none;
 }
-#tl-earth-handle.warning{background:#ff6b35;color:#fff;}
-/* Warning flottant au-dessus de la poignée */
+#tl-earth-handle.warning{background:#ff6b35;}
+/* Label durée : visible seulement pendant le drag */
+#tl-handle-label{
+  position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:rgba(3,7,24,0.95);border:1px solid rgba(244,196,48,.5);
+  border-radius:5px;padding:3px 7px;
+  font-family:'Space Mono',monospace;font-size:.52rem;
+  color:var(--gold);white-space:nowrap;
+  pointer-events:none;display:none;z-index:10;
+}
+#tl-earth-handle.dragging #tl-handle-label{display:block;}
+#tl-earth-handle.warning #tl-handle-label{border-color:#ff6b35;color:#ff9966;}
+/* Icône warning : visible quand > 500, pas de bloc qui bloque */
+#tl-warning-icon{
+  position:absolute;top:50%;z-index:6;
+  transform:translate(6px,-50%);
+  font-size:.65rem;pointer-events:none;display:none;
+  filter:drop-shadow(0 0 3px #ff6b35);
+}
+#tl-warning-icon.show{display:block;}
+/* Modale warning : position fixed, ouverte par JS seulement, jamais auto */
 #u-warning-tip{
   position:fixed;z-index:9999;
   background:rgba(20,5,0,0.97);border:1px solid #ff6b35;
   border-radius:7px;padding:8px 28px 8px 10px;
   font-family:'Space Mono',monospace;font-size:.56rem;
   color:#ff9966;line-height:1.6;width:210px;
-  pointer-events:all;display:none;
+  pointer-events:all;
+  display:none; /* JAMAIS affiché par CSS seul */
   box-shadow:0 4px 16px rgba(255,107,53,.3);
 }
+#u-warning-tip.show{display:block;}
 #u-warning-tip::before{
   content:'';position:absolute;top:-6px;
-  left:var(--arrow-left, 50%);transform:translateX(-50%);
+  left:var(--arrow-left,50%);transform:translateX(-50%);
   border:5px solid transparent;border-bottom-color:#ff6b35;
 }
 #u-warning-close{
@@ -172,7 +189,6 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   transition:color .15s;padding:0;
 }
 #u-warning-close:hover{color:#ff6b35;}
-#tl-earth-handle.warning #u-warning-tip{display:block;}
 /* Bouton i sur le début de la barre Terre */
 #tl-earth-info{
   position:absolute;top:50%;z-index:7;
@@ -464,12 +480,13 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div id="tl-earth"></div>
       <button id="tl-earth-info" title="Fenêtre terrestre">i</button>
       <div id="tl-earth-handle">
-  <span id="tl-handle-val">1 000</span>
-  <div id="u-warning-tip">
-    <button id="u-warning-close" onclick="dismissUWarning(event)">✕</button>
-    Guerre nucléaire, pandémie, IA… pensez-vous vraiment que notre civilisation saurait rester à l'écoute plus de 500 ans&nbsp;?
-  </div>
-</div>
+        <div id="tl-handle-label">1 000 ans</div>
+      </div>
+      <span id="tl-warning-icon">⚠</span>
+      <div id="u-warning-tip">
+        <button id="u-warning-close" onclick="dismissUWarning(event)">✕</button>
+        Guerre nucléaire, pandémie, IA… pensez-vous vraiment que notre civilisation saurait rester à l'écoute plus de 500 ans&nbsp;?
+      </div>
       <input type="range" id="tscrub" min="-10000" max="10000" step="10" value="0">
     </div>
     <select id="spd-select">
@@ -1105,44 +1122,32 @@ function updateEarthMarker(){
   // Poignée à l'extrémité droite
   if(handle){
     handle.style.left = x1px + 'px';
-    const valEl = document.getElementById('tl-handle-val');
-    if(valEl) valEl.textContent = P.U.toLocaleString('fr-FR');
+    const labelEl = document.getElementById('tl-handle-label');
+    if(labelEl) labelEl.textContent = P.U.toLocaleString('fr-FR') + ' ans';
   }
 
   // Bouton i au début de la barre
   if(info) info.style.left = x0px + 'px';
 
   // Couleur warning si U > 500
-  // Réarmer si on repassé sous 500 puis au-dessus
   if(P.U <= 500){ uWarningDismissed = false; }
-  const warn = P.U > 500 && !uWarningDismissed;
+  const warn = P.U > 500;
   el.classList.toggle('warning', warn);
-  if(handle){
-    handle.classList.toggle('warning', warn);
-    // Positionner le warning tip en fixed sous la poignée
-    if(warn){
-      requestAnimationFrame(function(){
-        const tip = document.getElementById('u-warning-tip');
-        const hr  = handle.getBoundingClientRect();
-        if(tip && hr.width > 0){
-          const tipW = tip.offsetWidth || 210;
-          let left = hr.left + hr.width/2 - tipW/2;
-          const margin = 8;
-          if(left < margin) left = margin;
-          if(left + tipW > window.innerWidth - margin) left = window.innerWidth - tipW - margin;
-          tip.style.left = left + 'px';
-          tip.style.top  = (hr.bottom + 8) + 'px';
-          // Ajuster la flèche
-          const arrow_left = (hr.left + hr.width/2) - left;
-          tip.style.setProperty('--arrow-left', Math.max(10, Math.min(tipW-10, arrow_left)) + 'px');
-        }
-      });
+  if(handle) handle.classList.toggle('warning', warn);
+
+  // Icône ⚠ positionnée à droite de la poignée
+  const wIcon = document.getElementById('tl-warning-icon');
+  if(wIcon){
+    wIcon.classList.toggle('show', warn);
+    if(warn && handle){
+      const x1px = parseFloat(handle.style.left) || 0;
+      wIcon.style.left = (x1px + 8) + 'px';
     }
   }
 
-  // Warning inline dans la modale
+  // Modale warning : jamais auto-affichée, gérée par JS
   const uw = document.getElementById('u-warning');
-  if(uw) uw.classList.toggle('show', P.U > 500);
+  if(uw) uw.classList.toggle('show', warn);
 
   // Sync slider + affichage
   const sl = document.getElementById('slUm');
@@ -1411,39 +1416,63 @@ document.addEventListener('click', function(e){
 
   // Mouse
   handle.addEventListener('mousedown', function(e){
-    dragging = true; e.preventDefault();
+    dragging = true;
+    handle.classList.add('dragging');
+    e.preventDefault();
   });
   document.addEventListener('mousemove', function(e){
     if(dragging) onMove(e.clientX);
   });
   document.addEventListener('mouseup', function(){
-    dragging = false;
+    if(dragging){ dragging = false; handle.classList.remove('dragging'); }
   });
 
   // Touch
   handle.addEventListener('touchstart', function(e){
-    dragging = true; e.preventDefault();
+    dragging = true;
+    handle.classList.add('dragging');
+    e.preventDefault();
   },{passive:false});
   document.addEventListener('touchmove', function(e){
     if(dragging) onMove(e.touches[0].clientX);
   },{passive:true});
   document.addEventListener('touchend', function(){
-    dragging = false;
+    if(dragging){ dragging = false; handle.classList.remove('dragging'); }
   });
 })();
 
 // ── Fermer manuellement le warning U ──
 let uWarningDismissed = false;
 function dismissUWarning(e){
-  e.stopPropagation();
+  if(e) e.stopPropagation();
   uWarningDismissed = true;
-  const handle = document.getElementById('tl-earth-handle');
-  if(handle) handle.classList.remove('warning');
-  const el = document.getElementById('tl-earth');
-  if(el) el.classList.remove('warning');
+  const tip = document.getElementById('u-warning-tip');
+  if(tip) tip.classList.remove('show');
 }
-// Réarmer le warning si on repasse sous 500 puis au-dessus
-let uWasBelowThreshold = (typeof P !== 'undefined' && P.U <= 500);
+// Ouvrir la modale warning (appelé par l'icône ⚠)
+function showUWarning(){
+  const tip  = document.getElementById('u-warning-tip');
+  const icon = document.getElementById('tl-warning-icon');
+  if(!tip || !icon) return;
+  const ir = icon.getBoundingClientRect();
+  const tipW = 210;
+  const margin = 8;
+  let left = ir.left + ir.width/2 - tipW/2;
+  if(left < margin) left = margin;
+  if(left + tipW > window.innerWidth - margin) left = window.innerWidth - tipW - margin;
+  tip.style.left = left + 'px';
+  tip.style.top  = (ir.bottom + 8) + 'px';
+  const arrowLeft = (ir.left + ir.width/2) - left;
+  tip.style.setProperty('--arrow-left', Math.max(10, Math.min(tipW-10, arrowLeft)) + 'px');
+  tip.classList.add('show');
+  uWarningDismissed = false;
+}
+document.addEventListener('click', function(e){
+  const icon = document.getElementById('tl-warning-icon');
+  if(icon && icon.contains(e.target)){ showUWarning(); return; }
+  const tip = document.getElementById('u-warning-tip');
+  if(tip && tip.classList.contains('show') && !tip.contains(e.target)) dismissUWarning();
+});
 
 // ── Bouton i sur la barre Terre (ouvre hint-timeline) ──
 (function(){
