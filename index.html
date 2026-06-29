@@ -169,10 +169,10 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   flex-direction:row;align-items:stretch;
   border-top:1px solid var(--border);
   overflow:hidden;
+  justify-content:flex-start; /* aligné à gauche */
 }
-#kpi-bar .hstat{flex:1;border-right:1px solid var(--border);padding:4px 6px;}
+#kpi-bar .hstat{flex:0 0 auto;border-right:1px solid var(--border);padding:4px 10px;}
 #kpi-bar .hstat:last-child{border-right:none;}
-#kpi-bar #hdet{flex:2;padding:4px 8px;}
 
 @media (max-width: 1024px) and (orientation: portrait){
   /* Masquer les KPIs de la ligne titre */
@@ -290,14 +290,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 .leg-modal{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
 .leg-modal .li{font-size:.60rem;color:var(--lbl);display:flex;align-items:center;gap:5px;}
 .leg-modal .ld{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-#bregen-modal{
-  margin-top:16px;width:100%;padding:10px;
-  font-family:'Space Mono',monospace;font-size:.60rem;
-  letter-spacing:.08em;text-transform:uppercase;
-  border:1px solid rgba(74,174,255,.35);background:rgba(74,174,255,.07);
-  color:var(--cyan);border-radius:6px;cursor:pointer;transition:background .15s;
-}
-#bregen-modal:hover{background:rgba(74,174,255,.16);}
+
 
 /* ── POPUP HINT ? ── */
 #hint-popup{
@@ -318,7 +311,8 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 }
 #hint-close:hover{color:var(--txt);}
 #hint-arrow{
-  position:absolute;top:-7px;left:18px;
+  position:absolute;top:-7px;left:50%; /* JS ajustera left */
+  transform:translateX(-50%);
   width:0;height:0;
   border-left:6px solid transparent;
   border-right:6px solid transparent;
@@ -363,7 +357,6 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
     <div class="hstat"><span class="hv" id="hactive2">0</span><span class="hl">Civs</span></div>
     <div class="hstat"><span class="hv" id="hwaves2">0</span><span class="hl">Ondes</span></div>
     <div class="hstat"><span class="hv" id="hsimul2">—</span><span class="hl">Simult.</span></div>
-    <div id="hdet2" class="hstat" style="flex:2;"><span class="dc" id="hdc2">0 détection</span></div>
   </div>
   <!-- Ligne 2 : contrôles temporels -->
   <div id="ctrlbar">
@@ -447,9 +440,9 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
           <span class="pn-modal">N — Civs communicant simultanément
             <span class="pi-btn" tabindex="0">i<span class="pi-tip">Nombre de civilisations capables d'émettre des signaux radio <em>simultanément</em> dans la galaxie.<br><br>Drake estimait N entre 1 et plusieurs milliers. Dans notre galaxie réelle, N pourrait être… 1 (nous). Valeurs plausibles&nbsp;: 1–50.</span></span>
           </span>
-          <span class="pv-modal" id="vNm">3</span>
+          <span class="pv-modal" id="vNm">2</span>
         </div>
-        <input type="range" id="slNm" min="1" max="10" step="1" value="3">
+        <input type="range" id="slNm" min="1" max="10" step="1" value="2">
       </div>
       <div class="pm-modal">
         <div class="ph-modal">
@@ -458,7 +451,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
           </span>
           <span class="pv-modal" id="vLm">10 000</span>
         </div>
-        <input type="range" id="slLm" min="100" max="10000" step="100" value="1000">
+        <input type="range" id="slLm" min="100" max="10000" step="100" value="2000">
       </div>
       <div class="pm-modal">
         <div class="ph-modal">
@@ -485,7 +478,6 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div class="li"><div class="ld" style="background:#f4c430;box-shadow:0 0 5px #f4c430"></div>Onde Terre</div>
       <div class="li"><div class="ld" style="background:#50fa7b;box-shadow:0 0 4px #50fa7b"></div>Contact !</div>
     </div>
-    <button id="bregen-modal">↺ Régénérer</button>
   </div>
 </div>
 
@@ -513,7 +505,7 @@ const R0_SP     = 2500;
 // ══════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════
-let P = {N:3, L:1000, S:10000, U:1000, B:1.0};
+let P = {N:2, L:2000, S:10000, U:1000, B:1.0};
 let zoomLevel = 1.0; // 1 = vue galactique complète, >1 = zoom sur Terre
 let zoomTarget = 1.0;
 let civs=[], gStars=[];
@@ -1061,11 +1053,7 @@ document.addEventListener('touchend',()=>{
     if(desktop){ desktop.value = el.value; desktop.dispatchEvent(new Event('input')); }
   });
 });
-document.getElementById('bregen-modal').addEventListener('click',()=>{
-  readP();spawnCivs();simTime=-10000;playing=true;
-  document.getElementById('bplay').textContent='⏸';lastTS=null;
-  toggleParams();
-});
+// bregen-modal supprimé
 
 
 
@@ -1107,12 +1095,25 @@ function updateZoom(){
     const overlay = document.getElementById('info-overlay');
     if(p && !overlay.classList.contains('open')){
       p.classList.add('show');
+      positionHintArrow();
     }
   }, 10000);
 })();
 function dismissHint(){
   const p = document.getElementById('hint-popup');
   if(p) p.classList.remove('show');
+}
+function positionHintArrow(){
+  const chevron = document.getElementById('title-chevron');
+  const popup   = document.getElementById('hint-popup');
+  const arrow   = document.getElementById('hint-arrow');
+  if(!chevron || !popup || !arrow) return;
+  const cr = chevron.getBoundingClientRect();
+  const pr = popup.getBoundingClientRect();
+  // Centre du ? en relatif au popup
+  const arrowLeft = (cr.left + cr.width/2) - pr.left;
+  arrow.style.left = Math.max(10, Math.min(pr.width-10, arrowLeft)) + 'px';
+  arrow.style.transform = 'translateX(-50%)';
 }
 function onHintClick(){
   // Ouvre la modale puis ferme le popup
@@ -1132,7 +1133,8 @@ document.addEventListener('click', function(e){
 
 // ── Bouton régénérer (topbar) ──
 function doRegen(){
-  readP(); spawnCivs(); simTime = -10000;
+  readP(); spawnCivs(); simTime = -100;
+  document.getElementById('tscrub').value = -100;
   playing = true;
   document.getElementById('bplay').textContent = '⏸';
   lastTS = null;
