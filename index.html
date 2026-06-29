@@ -502,7 +502,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 <!-- Panneau zoom vertical -->
 <div id="zoom-panel">
   <span id="zoom-label-max">🔍<br>Terre</span>
-  <input type="range" id="szoom" min="1" max="12" step="0.1" value="3.2">
+  <input type="range" id="szoom" min="1" max="12" step="0.1" value="1">
   <span id="zoom-label-min">🌌<br>Voie<br>Lactée</span>
 </div>
 
@@ -525,7 +525,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   <canvas id="cs"></canvas>
 </div>
 
-<!-- Modale<!-- Modale info -->
+<!-- Modale info -->
 <div id="info-overlay" onclick="handleOverlayClick(event)">
   <div id="info-panel">
     <button id="info-close" onclick="toggleInfo()">✕</button>
@@ -637,8 +637,8 @@ const R0_SP     = 2500;
 // STATE
 // ══════════════════════════════════════════════════
 let P = {N:50, L:1000, S:10000, U:500, B:1.0};
-let zoomLevel = 3.2; // 1 = vue galactique complète, >1 = zoom sur Terre
-let zoomTarget = 3.2;
+let zoomLevel = 1.0; // 1 = vue galactique complète, >1 = zoom sur Terre
+let zoomTarget = 1.0;
 let civs=[], gStars=[];
 let simTime=-3000, playing=true, speed=500;
 let lastTS=null, animId=null, scrubbing=false;
@@ -1165,7 +1165,7 @@ function loop(ts){
   lastTS=ts;
   if(playing&&!scrubbing){
     simTime+=dt*speed;
-    if(simTime>SIM_END){simTime=-3000;}
+    if(simTime>3000){simTime=-3000;}
     document.getElementById('tscrub').value=Math.max(-3000,Math.min(3000,simTime));
   }
   const yr=Math.round(simTime);
