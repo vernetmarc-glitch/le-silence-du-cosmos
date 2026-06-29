@@ -87,8 +87,8 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   z-index:10;
   width:100%;
 }
-#tblock{display:flex;flex-direction:column;gap:5px;flex:1;min-width:0;}
-#trow{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;}
+#tblock{display:flex;flex-direction:column;gap:0;flex:1;min-width:0;}
+#trow{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;}
 #bplay{
   width:28px;height:28px;border-radius:50%;flex-shrink:0;
   border:1px solid rgba(74,174,255,.45);background:rgba(74,174,255,.10);
@@ -97,22 +97,27 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 }
 #bplay:hover{background:rgba(74,174,255,.22);}
 #tdisp{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--gold);font-weight:700;white-space:nowrap;flex-shrink:0;}
-.spds{display:flex;gap:2px;margin-left:auto;flex-shrink:0;}
-.spd{
-  padding:2px 5px;font-family:'Space Mono',monospace;font-size:.55rem;
-  border:1px solid var(--border);background:transparent;color:var(--lbl);
-  border-radius:3px;cursor:pointer;transition:all .12s;white-space:nowrap;
-}
-.spd.on{border-color:rgba(74,174,255,.55);color:var(--cyan);background:rgba(74,174,255,.10);}
-#timeline-wrap{position:relative;width:100%;height:18px;}
+/* Curseur inline dans #trow */
+#timeline-wrap{position:relative;flex:1;height:28px;min-width:0;}
 #tl-bg{position:absolute;top:50%;left:0;right:0;height:4px;border-radius:2px;background:rgba(255,255,255,.11);transform:translateY(-50%);pointer-events:none;z-index:1;}
 #tl-earth{position:absolute;top:50%;height:6px;border-radius:3px;background:var(--gold);opacity:.80;transform:translateY(-50%);pointer-events:none;z-index:2;}
 #tscrub{
-  position:absolute;top:50%;left:0;width:100%;height:4px;transform:translateY(-50%);
+  position:absolute;top:50%;left:0;width:100%;height:28px;transform:translateY(-50%);
   -webkit-appearance:none;appearance:none;background:transparent;outline:none;cursor:pointer;z-index:3;
 }
-#tscrub::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 7px var(--cyan);}
-#tscrub::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;}
+#tscrub::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 7px var(--cyan);}
+#tscrub::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;}
+/* Select vitesse */
+#spd-select{
+  flex-shrink:0;
+  background:rgba(74,174,255,.07);border:1px solid rgba(74,174,255,.35);
+  color:var(--cyan);border-radius:4px;padding:3px 6px;
+  font-family:'Space Mono',monospace;font-size:.58rem;cursor:pointer;
+  -webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%234aaeff'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 5px center;padding-right:16px;
+}
+#spd-select:focus{outline:none;}
 
 /* Bouton ⚙ — visible sur mobile, caché sur desktop */
 #bparams{
@@ -277,18 +282,18 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
     <div id="trow">
       <button id="bplay">⏸</button>
       <span id="tdisp">An +0</span>
-      <div class="spds">
-        <button class="spd" data-s="50">×50</button>
-        <button class="spd" data-s="200">×200</button>
-        <button class="spd" data-s="1000">×1k</button>
-        <button class="spd on" data-s="5000">×5k</button>
-        <button class="spd" data-s="20000">×20k</button>
+      <div id="timeline-wrap">
+        <div id="tl-bg"></div>
+        <div id="tl-earth"></div>
+        <input type="range" id="tscrub" min="-100000" max="100000" step="100" value="0">
       </div>
-    </div>
-    <div id="timeline-wrap">
-      <div id="tl-bg"></div>
-      <div id="tl-earth"></div>
-      <input type="range" id="tscrub" min="-100000" max="100000" step="100" value="0">
+      <select id="spd-select">
+        <option value="50">×50</option>
+        <option value="200">×200</option>
+        <option value="1000">×1k</option>
+        <option value="5000" selected>×5k</option>
+        <option value="20000">×20k</option>
+      </select>
     </div>
   </div>
   <button id="bparams" onclick="toggleParams()">⚙</button>
@@ -330,7 +335,8 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
         <h2>Le silence</h2>
         <p>Nous avons scruté le ciel pendant des siècles. Rien. Pas un signal, pas un écho, pas la moindre trace d'une autre voix dans l'immensité. Et pourtant les étoiles sont légion, les planètes innombrables, le temps vertigineux. La vie aurait dû surgir ailleurs. L'intelligence aurait dû fleurir. Quelqu'un, quelque part, aurait dû parler.</p>
         <p>Ce silence est la question la plus troublante que l'humanité ait jamais posée. Et cette simulation n'en explore qu'une infime partie : notre galaxie, la Voie Lactée — environ 200 milliards d'étoiles. L'univers observable en contient 2 000 milliards d'autres comme elle.</p>
-        <p>Cette simulation explore une réponse possible. Chaque <strong style="color:#4aaeff">anneau bleu</strong> est une civilisation technologique — une brève flamme dans le noir qui émet ses signaux radio dans toutes les directions, à la vitesse de la lumière. Ces ondes se propagent pendant des millénaires après l'extinction de leur source, fantômes d'une présence révolue. L'anneau devient <strong style="color:#8ab4d4">bleu clair</strong> quand la civilisation s'est éteinte (signal fossile). Il passe au <strong style="color:#50fa7b">vert</strong> quand il touche la Terre pendant son existence.</p>
+        <p>Cette simulation représente notre galaxie, la Voie Lactée, vue de dessus — environ 200 milliards d'étoiles sur 100 000 années-lumière de diamètre. À l'échelle de l'univers observable, c'est une infime fraction : il contiendrait quelque 2 000 milliards de galaxies similaires.</p>
+        <p>Chaque <strong style="color:#4aaeff">anneau bleu</strong> est une civilisation technologique — une brève flamme dans le noir qui émet ses signaux radio dans toutes les directions, à la vitesse de la lumière. Ces ondes se propagent pendant des millénaires après l'extinction de leur source, fantômes d'une présence révolue. L'anneau devient <strong style="color:#8ab4d4">bleu clair</strong> quand la civilisation s'est éteinte (signal fossile). Il passe au <strong style="color:#50fa7b">vert</strong> quand il touche la Terre pendant qu'elle héberge une civilisation technologique. La nôtre, par exemple, est capable d'émettre et recevoir des ondes radio depuis environ 100 ans.</p>
         <p>La <strong style="color:#f4c430">Terre</strong> est ce point doré. Mais la planète seule ne suffit pas — ce qui compte, c'est la fenêtre où une civilisation technologique y existe, capable d'émettre et de recevoir des signaux radio. Cette fenêtre — quelques milliers d'années sur deux cent mille simulées — est infiniment étroite. Pour qu'un contact ait lieu, il faut que deux miracles coïncident : que quelqu'un émette, et que nous soyons là pour recevoir.</p>
         <p>Jouez avec les paramètres. Regardez les anneaux se multiplier, se croiser, parfois frôler la Terre. Et demandez-vous pourquoi, dans notre univers réel, nous n'en avons capté aucun. Peut-être sommes-nous trop tôt. Peut-être trop tard. Peut-être seuls.</p>
       </div>
@@ -816,12 +822,8 @@ document.getElementById('bplay').addEventListener('click',()=>{
   document.getElementById('bplay').textContent=playing?'⏸':'▶';
   if(playing) lastTS=null;
 });
-document.querySelectorAll('.spd').forEach(b=>{
-  b.addEventListener('click',function(){
-    speed=+this.dataset.s;
-    document.querySelectorAll('.spd').forEach(x=>x.classList.remove('on'));
-    this.classList.add('on');
-  });
+document.getElementById('spd-select').addEventListener('change',function(){
+  speed=+this.value;
 });
 
 const scrubEl=document.getElementById('tscrub');
