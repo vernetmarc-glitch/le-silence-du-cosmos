@@ -107,14 +107,23 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 }
 #tl-bg{position:absolute;top:50%;left:0;right:0;height:3px;border-radius:2px;background:rgba(255,255,255,.11);transform:translateY(-50%);pointer-events:none;z-index:1;}
 #tl-earth{position:absolute;top:50%;height:5px;border-radius:3px;background:var(--gold);opacity:.80;transform:translateY(-50%);pointer-events:none;z-index:2;}
-#tscrub{
+/* Slider custom timeline */
+#tscrub-track{
   position:absolute;top:0;left:0;width:100%;height:100%;
-  -webkit-appearance:none;appearance:none;background:transparent;outline:none;cursor:pointer;z-index:3;
-  margin:0;padding:0;
+  cursor:pointer;z-index:3;touch-action:none;
 }
-#tscrub::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 8px var(--cyan);margin-top:-8px;}
-#tscrub::-webkit-slider-runnable-track{height:3px;background:transparent;}
-#tscrub::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;}
+#tscrub-fill{
+  position:absolute;top:50%;left:0;height:3px;
+  background:rgba(74,174,255,.3);transform:translateY(-50%);
+  pointer-events:none;border-radius:2px;width:50%;
+}
+#tscrub-thumb{
+  position:absolute;top:50%;left:50%;
+  width:22px;height:22px;border-radius:50%;
+  background:var(--cyan);box-shadow:0 0 8px var(--cyan);
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+}
 /* Select vitesse */
 #spd-select{
   flex-shrink:0;
@@ -478,7 +487,10 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
     <div id="timeline-wrap">
       <div id="tl-bg"></div>
       <div id="tl-earth"></div>
-      <input type="range" id="tscrub" min="-10000" max="10000" step="10" value="0">
+      <div id="tscrub-track">
+        <div id="tscrub-fill"></div>
+        <div id="tscrub-thumb"></div>
+      </div>
     </div>
   </div>
 
@@ -997,7 +1009,7 @@ function loop(ts){
   if(playing&&!scrubbing){
     simTime+=dt*speed;
     if(simTime>SIM_END){simTime=SIM_START;}
-    document.getElementById('tscrub').value=simTime;
+    updateScrubVisual();
   }
   const yr=Math.round(simTime);
   document.getElementById('tdisp').textContent=
@@ -1040,42 +1052,53 @@ document.getElementById('spd-select').addEventListener('change',function(){
   speed=+this.value;
 });
 
-const scrubEl=document.getElementById('tscrub');
-scrubEl.addEventListener('mousedown',()=>{
-  scrubbing=true;
-  playing=false;
-  document.getElementById('bplay').textContent='▶';
-});
-// Touch : gestion manuelle pour mobile
-scrubEl.addEventListener('touchstart',function(e){
-  scrubbing=true;playing=false;
-  document.getElementById('bplay').textContent='▶';
-},{passive:true});
-scrubEl.addEventListener('touchmove',function(e){
-  if(!scrubbing) return;
-  const touch=e.touches[0];
-  const rect=scrubEl.getBoundingClientRect();
-  const pct=Math.max(0,Math.min(1,(touch.clientX-rect.left)/rect.width));
-  const min=+scrubEl.min, max=+scrubEl.max;
-  simTime=Math.round((min+pct*(max-min))/10)*10;
-  scrubEl.value=simTime;
-},{passive:true});
-scrubEl.addEventListener('input',()=>{ simTime=+scrubEl.value; });
-document.addEventListener('mouseup',()=>{
-  if(scrubbing){
-    scrubbing=false;
-    playing=true;
-    document.getElementById('bplay').textContent='⏸';
-    lastTS=null;
-  }
-});
-document.addEventListener('touchend',()=>{
-  if(scrubbing){
-    scrubbing=false;playing=true;
-    document.getElementById('bplay').textContent='⏸';lastTS=null;
-  }
-});
+const // ── Slider custom (touch + mouse) ──
+const scrubTrack = document.getElementById('tscrub-track');
+const scrubThumb = document.getElementById('tscrub-thumb');
+const scrubFill  = document.getElementById('tscrub-fill');
+const SCRUB_MIN = -10000, SCRUB_MAX = 10000, SCRUB_STEP = 10;
 
+function scrubPosToTime(clientX) {
+  const rect = scrubTrack.getBoundingClientRect();
+  const pct  = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  return Math.round((SCRUB_MIN + pct * (SCRUB_MAX - SCRUB_MIN)) / SCRUB_STEP) * SCRUB_STEP;
+}
+
+function updateScrubVisual() {
+  const pct = (simTime - SCRUB_MIN) / (SCRUB_MAX - SCRUB_MIN);
+  const p   = (pct * 100).toFixed(2) + '%';
+  scrubThumb.style.left = p;
+  scrubFill.style.width = p;
+}
+
+function onScrubStart(clientX) {
+  scrubbing = true; playing = false;
+  document.getElementById('bplay').textContent = '▶';
+  simTime = scrubPosToTime(clientX);
+  updateScrubVisual();
+}
+function onScrubMove(clientX) {
+  if (!scrubbing) return;
+  simTime = scrubPosToTime(clientX);
+  updateScrubVisual();
+}
+function onScrubEnd() {
+  if (!scrubbing) return;
+  scrubbing = false; playing = true;
+  document.getElementById('bplay').textContent = '⏸';
+  lastTS = null;
+}
+
+scrubTrack.addEventListener('mousedown', function(e){ onScrubStart(e.clientX); });
+document.addEventListener('mousemove',   function(e){ onScrubMove(e.clientX); });
+document.addEventListener('mouseup',     function(){ onScrubEnd(); });
+scrubTrack.addEventListener('touchstart', function(e){
+  e.preventDefault(); onScrubStart(e.touches[0].clientX);
+},{passive:false});
+document.addEventListener('touchmove', function(e){
+  if(scrubbing){ e.preventDefault(); onScrubMove(e.touches[0].clientX); }
+},{passive:false});
+document.addEventListener('touchend', function(){ onScrubEnd(); });
 // Desktop sliders → trigger sim + sync mobile
 ['slN','slL'].forEach(id=>{
   document.getElementById(id).addEventListener('input',()=>{
