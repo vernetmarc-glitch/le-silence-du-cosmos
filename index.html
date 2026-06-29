@@ -235,6 +235,11 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   box-shadow:0 0 18px rgba(74,174,255,.15);
 }
 #hint-popup.show{display:flex;}
+#hint-close{
+  margin-left:4px;font-size:.65rem;color:var(--lbl);
+  cursor:pointer;transition:color .15s;flex-shrink:0;
+}
+#hint-close:hover{color:var(--txt);}
 #hint-arrow{
   position:absolute;top:-7px;left:18px;
   width:0;height:0;
@@ -311,10 +316,11 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 </div>
 
 <div id="wrap">
-  <div id="hint-popup" onclick="dismissHint()">
+  <div id="hint-popup" onclick="dismissHint();toggleInfo();">
   <div id="hint-arrow"></div>
   <span style="font-size:1.3rem;">🤔</span>
   <span>Qu'est-ce que c'est&nbsp;?</span>
+  <span id="hint-close" onclick="event.stopPropagation();dismissHint();" title="Fermer">✕</span>
 </div>
 <canvas id="cg" ></canvas>
   <canvas id="cs"></canvas>
@@ -923,6 +929,13 @@ function dismissHint(){
   const p = document.getElementById('hint-popup');
   if(p) p.classList.remove('show');
 }
+// Fermer le hint si clic en dehors
+document.addEventListener('click', function(e){
+  const p = document.getElementById('hint-popup');
+  if(p && p.classList.contains('show') && !p.contains(e.target)){
+    dismissHint();
+  }
+}, true);
 // Fermer le hint quand on ouvre l'info
 const _origToggleInfo = toggleInfo;
 toggleInfo = function(){
