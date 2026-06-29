@@ -212,7 +212,8 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 .pn-modal{font-size:.68rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.04em;}
 .pv-modal{font-family:'Space Mono',monospace;font-size:.80rem;color:var(--gold);font-weight:700;}
 .leg-modal{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
-.leg-modal .li{font-size:.60rem;}
+.leg-modal .li{font-size:.60rem;color:var(--lbl);display:flex;align-items:center;gap:5px;}
+.leg-modal .ld{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
 #bregen-modal{
   margin-top:16px;width:100%;padding:10px;
   font-family:'Space Mono',monospace;font-size:.60rem;
@@ -256,29 +257,13 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 }
 @keyframes fadeInHint{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
 
-/* ── OVERLAY ROTATION PORTRAIT ── */
-#rotate-overlay{
-  display:none;position:fixed;inset:0;z-index:9999;
-  background:#000005;flex-direction:column;
-  align-items:center;justify-content:center;gap:24px;
-  text-align:center;padding:32px;
-}
-#rotate-overlay .rotate-icon{font-size:4rem;animation:rotateHint 2s ease-in-out infinite;}
-@keyframes rotateHint{0%,100%{transform:rotate(0deg);}40%{transform:rotate(90deg);}60%{transform:rotate(90deg);}}
-#rotate-overlay h2{font-family:'Space Mono',monospace;color:var(--cyan);font-size:1.1rem;letter-spacing:.08em;}
-#rotate-overlay p{color:var(--lbl);font-size:.85rem;line-height:1.6;max-width:260px;}
-@media (max-width:768px) and (orientation:portrait){
-  #rotate-overlay{display:flex;}
+
 }
 </style>
 </head>
 <body>
 
-<div id="rotate-overlay">
-  <div class="rotate-icon">📱</div>
-  <h2>Tournez votre écran</h2>
-  <p>Cette simulation est conçue pour le mode paysage.<br>Faites pivoter votre téléphone pour explorer le cosmos.</p>
-</div>
+
 
 <div id="topbar">
   <!-- Ligne 1 : titre + stats + bouton ⚙ -->
