@@ -419,7 +419,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
           <strong>L</strong> — durée d'émission moyenne
           <span class="pi-btn" tabindex="0">i<span class="pi-tip">Durée pendant laquelle une civilisation émet des signaux détectables. Correspond à l'épaisseur des anneaux bleus.<br><br>Notre civilisation émet depuis ~100 ans. Une guerre, une extinction ou une transition technologique pourraient l'arrêter. Valeurs plausibles : 100–10 000 ans.</span></span><br>
           <strong>S</strong> — portée du signal
-          <span class="pi-btn" tabindex="0">i<span class="pi-tip">Distance maximale à laquelle un signal radio reste détectable. Détermine le rayon maximal des anneaux.<br><br>Nos émissions actuelles s'affaiblissent très vite avec la distance. Une civilisation avancée pourrait émettre des faisceaux directionnels beaucoup plus puissants. Rayon de la Voie Lactée : 52 000 al. Valeurs plausibles : 1 000–50 000 al.</span></span><br>
+          <span class="pi-btn" tabindex="0">i<span class="pi-tip">Distance maximale de contact effectif. Synthèse de deux grandeurs : la portée d'émission (puissance du signal à la source) et la sensibilité de réception terrestre (nos radio-télescopes).<br><br>Un signal s'affaiblit en 1/r² : doubler la distance divise la puissance par 4. S représente le seuil en-deçà duquel le signal émerge du bruit de fond cosmique. Rayon de la Voie Lactée : 52 000 al. Valeurs plausibles : 1 000–50 000 al.</span></span><br>
           <strong>U</strong> — fenêtre de réception terrestre
           <span class="pi-btn" tabindex="0">i<span class="pi-tip">Durée pendant laquelle la Terre héberge une civilisation technologique capable de recevoir des signaux. Représente l'anneau doré et la zone verte de contact.<br><br>Nous recevons depuis ~100 ans. Combien de temps encore ? C'est la variable la plus personnelle — et la plus incertaine. Valeurs plausibles : 100–10 000 ans.</span></span>
         </div>
@@ -703,8 +703,19 @@ function spawnCivs(){
   document.getElementById('hsimul').textContent=P.N.toFixed(1);
   civs=[];
   for(let i=0;i<total;i++){
-    const si=Math.floor(Math.random()*gStars.length);
-    const {gx,gy}=gStars[si];
+    // Tirage pondéré par la Zone Habitable Galactique (GHZ)
+    // Gaussienne centrée à GHZ_PEAK al, σ = GHZ_SIGMA
+    // Évite le centre (trop de radiation) et la périphérie (trop peu de métaux)
+    const GHZ_PEAK  = 6000;  // al — pic de densité d'étoiles habitables
+    const GHZ_SIGMA = 4000;  // al — largeur de la distribution
+    let si, gx, gy;
+    for(let attempt=0; attempt<20; attempt++){
+      si = Math.floor(Math.random()*gStars.length);
+      gx = gStars[si].gx; gy = gStars[si].gy;
+      const R = Math.sqrt(gx*gx + gy*gy);
+      const ghzWeight = Math.exp(-0.5*((R-GHZ_PEAK)/GHZ_SIGMA)**2);
+      if(Math.random() < ghzWeight) break;
+    }
     const birth=SIM_START+Math.random()*SIM_DUR;
     // Durée effective selon une loi log-normale de médiane L.
     // σ_log=0.8 donne un facteur ~10x entre les civs courtes et longues,
@@ -817,17 +828,33 @@ function drawRing(emitGx, emitGy, birth, death, S, col, W, H){
 
   const [r,g,b,a] = col; // col = [r,g,b,alpha]
 
+  // Gradient centré sur la SOURCE (r=0), s'estompe vers S (r=outerLyMax)
+  // Chaque point de l'anneau reçoit une opacité liée à sa distance au centre émetteur,
+  // indépendamment de sa position dans l'épaisseur de l'anneau.
+  // Courbe sigmoïde inverse : reste lumineux jusqu'à ~60% de S, chute sur le dernier tiers.
+  // α(t) = 1 / (1 + exp(8*(t - 0.75)))  où t = r/S ∈ [0,1]
+  // À t=1 (distance S) : α ≈ 0.12 → fantôme visible mais discret.
+  const maxPx = ly2px(S, W, H); // rayon pixel correspondant à S
+
+  // Gradient de 0 à maxPx (distance S depuis la source)
+  const nStops = 12;
+  const grad = sc.createRadialGradient(0, 0, 0, 0, 0, maxPx);
+  for(let i=0; i<=nStops; i++){
+    const t = i/nStops;                                        // t ∈ [0,1] = r/S
+    const alpha = a / (1 + Math.exp(8*(t - 0.75)));           // sigmoïde inverse
+    grad.addColorStop(t, `rgba(${r},${g},${b},${alpha.toFixed(3)})`);
+  }
+
   sc.save();
   sc.translate(cp.x, cp.y);
   sc.scale(1, 0.40); // galaxy tilt
 
-  // Draw annulus: filled circle minus inner hole
   sc.beginPath();
   sc.arc(0, 0, outerPx, 0, Math.PI*2, false);
   if(safeInnerPx > 0.5){
     sc.arc(0, 0, safeInnerPx, 0, Math.PI*2, true);
   }
-  sc.fillStyle = `rgba(${r},${g},${b},${a})`;
+  sc.fillStyle = grad;
   sc.fill();
 
   sc.restore();
