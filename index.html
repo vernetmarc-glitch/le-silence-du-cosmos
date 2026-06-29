@@ -976,20 +976,67 @@ function precomputeDetections(){
 
     detections.push({civIdx:i, start:overlapStart, end:overlapEnd});
   }
-  updateProbDisplay();
+  // Ne pas relancer le MC ici — il tourne en continu et est reset par resetProbMC()
 }
 
-// ── Probabilité analytique de contact (loi de Poisson) ──
-function computeContactProbability(){
-  // Monte Carlo : reproduit fidèlement le spawn de spawnCivs()
-  // incluant le biais GHZ et la distribution log-normale des lifespans.
-  const S = P.S, U = P.U, N = P.N;
+// ══════════════════════════════════════════════════
+// MONTE CARLO CONTINU — Probabilité de contact
+// ══════════════════════════════════════════════════
+// État partagé du MC
+const probMC = {
+  totalTrials: 0,   // tirages cumulés
+  totalHits: 0,     // civs ayant contacté la Terre
+  stable: false,    // convergence atteinte
+  prob: null,       // dernière probabilité calculée
+  mu: null,
+  // Pour détection de stabilité : variance glissante sur lots de BATCH_SIZE
+  recentBatchProbs: [], // proba de chaque lot récent
+  paramKey: '',     // clé des paramètres courants
+  rafId: null,
+};
+const BATCH_SIZE  = 300;  // tirages par tick
+const STABILITY_WINDOW = 30;   // nombre de lots pour estimer la variance
+const STABILITY_THRESHOLD = 0.003; // écart-type < 0.3% => stable
+
+function probMCParamKey(){
+  return `${P.N}_${P.L}_${P.S}_${P.U}`;
+}
+
+// Appelé quand un paramètre change — repart de zéro
+function resetProbMC(){
+  probMC.totalTrials = 0;
+  probMC.totalHits   = 0;
+  probMC.stable      = false;
+  probMC.prob        = null;
+  probMC.mu          = null;
+  probMC.recentBatchProbs = [];
+  probMC.paramKey    = probMCParamKey();
+  updateProbDisplay(); // affiche "calcul…"
+  scheduleProbMC();
+}
+
+function scheduleProbMC(){
+  if(probMC.rafId) return; // déjà planifié
+  if(probMC.stable) return; // convergé, on arrête
+  const fn = () => {
+    probMC.rafId = null;
+    runProbMCBatch();
+    if(!probMC.stable) scheduleProbMC();
+  };
+  if(typeof requestIdleCallback !== 'undefined'){
+    probMC.rafId = requestIdleCallback(fn, {timeout: 200});
+  } else {
+    probMC.rafId = setTimeout(fn, 16);
+  }
+}
+
+// Un lot de BATCH_SIZE tirages MC
+function runProbMCBatch(){
+  const S = P.S, U = P.U;
   const SIGMA_LOG = 0.8;
   const GHZ_PEAK = 6000, GHZ_SIGMA = 4000;
-  const MC = 4000; // tirages (rapide, ~4ms)
-  let contacts = 0;
-  for(let i = 0; i < MC; i++){
-    // Position : tirage sur disque avec biais GHZ (max 20 essais, comme la sim)
+  let batchHits = 0;
+  for(let i = 0; i < BATCH_SIZE; i++){
     let gx, gy;
     for(let att = 0; att < 20; att++){
       const r = MW_R * Math.sqrt(Math.random());
@@ -1007,37 +1054,74 @@ function computeContactProbability(){
     const z = Math.sqrt(-2*Math.log(u1)) * Math.cos(2*Math.PI*u2);
     const lifespan = Math.max(50, Math.exp(Math.log(P.L) - SIGMA_LOG*SIGMA_LOG/2 + SIGMA_LOG*z));
     const sigStart = birth + dist, sigEnd = birth + lifespan + dist;
-    if(sigEnd > 0 && sigStart < U) contacts++;
+    if(sigEnd > 0 && sigStart < U) batchHits++;
   }
-  const pOne = contacts / MC;
-  const mu = N * pOne;
-  const prob = 1 - Math.exp(-mu);
-  return {prob, mu};
+  probMC.totalTrials += BATCH_SIZE;
+  probMC.totalHits   += batchHits;
+
+  // Probabilité courante
+  const pOne = probMC.totalHits / probMC.totalTrials;
+  probMC.mu   = P.N * pOne;
+  probMC.prob = 1 - Math.exp(-probMC.mu);
+
+  // Stabilité : variance sur les STABILITY_WINDOW derniers lots
+  const batchProb = 1 - Math.exp(-P.N * batchHits / BATCH_SIZE);
+  probMC.recentBatchProbs.push(batchProb);
+  if(probMC.recentBatchProbs.length > STABILITY_WINDOW)
+    probMC.recentBatchProbs.shift();
+
+  if(probMC.recentBatchProbs.length >= STABILITY_WINDOW){
+    const mean = probMC.recentBatchProbs.reduce((a,b)=>a+b,0) / STABILITY_WINDOW;
+    const variance = probMC.recentBatchProbs.reduce((a,b)=>a+(b-mean)**2,0) / STABILITY_WINDOW;
+    if(Math.sqrt(variance) < STABILITY_THRESHOLD){
+      probMC.stable = true;
+    }
+  }
+
+  updateProbDisplay();
 }
 
 // ── Mise à jour affichage probabilité ──
 function updateProbDisplay(){
-  const {prob, mu} = computeContactProbability();
-  // Couleur : rouge < 1%, orange < 10%, jaune < 50%, vert >= 50%
+  const prob = probMC.prob;
+  const mu   = probMC.mu;
+  const stable = probMC.stable;
+  const trials = probMC.totalTrials;
+
+  // Pas encore de données
+  if(prob === null){
+    ['hprobval','prob-modal-val'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){el.textContent='…';el.style.color='var(--lbl)';}
+    });
+    ['hprobbar','prob-modal-bar'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){el.style.width='0%';}
+    });
+    const mdet=document.getElementById('prob-modal-detail');
+    if(mdet) mdet.innerHTML='Calcul en cours…';
+    return;
+  }
+
   const color = prob < 0.01 ? '#ff5555' : prob < 0.10 ? '#ff9944' : prob < 0.50 ? '#f4c430' : '#50fa7b';
   const pct = (prob * 100).toFixed(prob < 0.001 ? 3 : prob < 0.01 ? 2 : 1) + '%';
+  const stabLabel = stable ? '✓ convergé' : `${(trials/1000).toFixed(1)}k tirages…`;
 
-  // KPI topbar
-  const val = document.getElementById('hprobval');
-  const bar = document.getElementById('hprobbar');
-  if(val){ val.textContent = pct; val.style.color = color; }
-  if(bar){ bar.style.width = Math.min(100, prob * 100) + '%'; bar.style.background = color; }
+  ['hprobval','prob-modal-val'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.textContent=pct;el.style.color=color;}
+  });
+  ['hprobbar','prob-modal-bar'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.style.width=Math.min(100,prob*100)+'%';el.style.background=color;}
+  });
 
-  // Modale
-  const mval = document.getElementById('prob-modal-val');
-  const mbar = document.getElementById('prob-modal-bar');
-  const mdet = document.getElementById('prob-modal-detail');
-  if(mval){ mval.textContent = pct; mval.style.color = color; }
-  if(mbar){ mbar.style.width = Math.min(100, prob * 100) + '%'; mbar.style.background = color; }
-  if(mdet){ mdet.innerHTML =
+  const mdet=document.getElementById('prob-modal-detail');
+  if(mdet) mdet.innerHTML=
     `μ = ${mu.toFixed(3)} contacts attendus en moyenne<br>` +
     `P = 1 − e<sup>−μ</sup> = ${pct}<br>` +
-    `Portée S = ${P.S.toLocaleString('fr-FR')} al · Durée L = ${P.L.toLocaleString('fr-FR')} ans · Fenêtre U = ${P.U.toLocaleString('fr-FR')} ans`; }
+    `Portée S = ${P.S.toLocaleString('fr-FR')} al · L = ${P.L.toLocaleString('fr-FR')} ans · U = ${P.U.toLocaleString('fr-FR')} ans<br>` +
+    `<span style="color:var(--lbl);font-size:.50rem;">${stabLabel}</span>`;
 }
 
 // Count how many distinct detection events have STARTED by time t
@@ -1392,11 +1476,13 @@ document.addEventListener('touchend',()=>{
 ['slNm','slLm'].forEach(id=>{
   document.getElementById(id).addEventListener('input',()=>{
     readP();spawnCivs();simTime=-10000;
+    resetProbMC();
   });
 });
 ['slSm','slUm'].forEach(id=>{
   document.getElementById(id).addEventListener('input',()=>{
     readP();precomputeDetections();updateEarthMarker();
+    resetProbMC();
   });
 });
 // Mobile sliders → sync to desktop + trigger sim
@@ -1422,6 +1508,7 @@ let uWarningDismissed = false;
 window.addEventListener('resize',()=>{resize();gCache=null;invalidateStarCache();updateEarthMarker();});
 gStars=generateGalaxy();
 readP();
+resetProbMC();
 resize();
 updateEarthMarker();
 spawnCivs();
