@@ -650,7 +650,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
           </span>
           <span class="pv-modal" id="vNm">50</span>
         </div>
-        <input type="range" id="slNm" min="1" max="1000" step="1" value="50">
+        <input type="range" id="slNm" min="1" max="1000" step="1" value="25">
       </div>
       <div class="pm-modal">
         <div class="ph-modal">
@@ -720,7 +720,7 @@ const R0_SP     = 2500;
 // ══════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════
-let P = {N:50, L:1000, S:10000, U:1000, B:1.0};
+let P = {N:25, L:1000, S:10000, U:1000, B:1.0};
 let zoomLevel = 3.2; // 1 = vue galactique complète, >1 = zoom sur Terre
 let zoomTarget = 3.2;
 let civs=[], gStars=[];
@@ -1636,7 +1636,7 @@ document.addEventListener('click', function(e){
     if(dragging) onMove(e.clientX);
   });
   document.addEventListener('mouseup', function(){
-    if(dragging){ dragging = false; handle.classList.remove('dragging'); }
+    if(dragging){ dragging = false; handle.classList.remove('dragging'); resetProbMC(); }
   });
 
   // Touch
@@ -1649,7 +1649,7 @@ document.addEventListener('click', function(e){
     if(dragging) onMove(e.touches[0].clientX);
   },{passive:true});
   document.addEventListener('touchend', function(){
-    if(dragging){ dragging = false; handle.classList.remove('dragging'); }
+    if(dragging){ dragging = false; handle.classList.remove('dragging'); resetProbMC(); }
   });
 })();
 
