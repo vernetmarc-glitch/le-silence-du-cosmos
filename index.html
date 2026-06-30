@@ -54,7 +54,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 }
 #title-block:hover{background:rgba(255,255,255,0.03);}
 #title-text{
-  font-family:'Space Mono',monospace;font-size:.85rem;font-weight:700;
+  font-family:'Space Mono',monospace;font-size:1.05rem;font-weight:700;
   letter-spacing:.06em;color:#fff;text-transform:uppercase;white-space:nowrap;cursor:pointer;
   text-shadow:0 0 20px rgba(74,174,255,0.5);
 }
@@ -340,28 +340,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:11px;heigh
 input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;}
 
 /* ── MOBILE/* ── MOBILE : bascule layout ── */
-/* ── KPI bar portrait mobile ── */
-#kpi-bar{
-  display:none; /* caché par défaut (desktop) */
-  flex-direction:row;align-items:stretch;
-  border-top:1px solid var(--border);
-  overflow:hidden;
-  justify-content:flex-start; /* aligné à gauche */
-}
-#kpi-bar .hstat{flex:0 0 auto;border-right:1px solid var(--border);padding:4px 10px;}
-#kpi-bar .hstat:last-child{border-right:none;}
-#hdet2{display:flex;flex-direction:column;justify-content:center;padding:4px 10px;flex:1;min-width:0;}
 
 @media (max-width: 1024px) and (orientation: portrait){
-  /* Masquer les KPIs de la ligne titre */
-  #topbar-inner .hstat,
-  #topbar-inner #hdet{ display:none !important; }
-  /* Afficher la kpi-bar entre le titre et la barre de temps */
-  #kpi-bar{ display:flex !important; }
+  /* Masquer les KPIs Civs/Ondes/Act de la ligne titre, ne garder que le compteur de détection */
+  #topbar-inner .hstat{ display:none !important; }
+  #hdet{ flex-direction:row;align-items:center;justify-content:flex-end;padding:0 12px;border-left:1px solid var(--border); }
+  #hdet .dlog{ display:none; }
 }
 
 @media (max-width: 1024px){
-  #title-text{font-size:.75rem;}
+  #title-text{font-size:.95rem;}
   .hstat{padding:5px 8px;}
   .hv{font-size:.75rem;}
   .hl{font-size:.40rem;}
@@ -510,12 +498,12 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   bottom:230px;right:10px;
   background:rgba(3,7,24,0.96);border:1px solid rgba(74,174,255,.35);
   border-radius:10px;padding:10px 14px;
-  font-family:'Space Mono',monospace;font-size:.65rem;color:var(--cyan);
+  font-family:'Space Mono',monospace;font-size:.80rem;color:var(--cyan);
   display:none;align-items:center;gap:8px;
   pointer-events:all;cursor:pointer;
   animation:fadeInHint .4s ease;
   box-shadow:0 0 18px rgba(74,174,255,.15);
-  max-width:220px;
+  max-width:250px;
 }
 #hint-popup.show{display:flex;}
 #hint-close{
@@ -560,16 +548,6 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
     <div id="hdet">
       <span class="dc" id="hdc">0 détection</span>
       <span class="dlog" id="hdlog">Aucune détection</span>
-    </div>
-  </div>
-  <!-- KPI bar : visible uniquement en portrait mobile -->
-  <div id="kpi-bar">
-    <div class="hstat"><span class="hv" id="hactive2">0</span><span class="hl">Civs</span></div>
-    <div class="hstat"><span class="hv" id="hwaves2">0</span><span class="hl">Ondes</span></div>
-    <div class="hstat"><span class="hv" id="hsimul2">—</span><span class="hl">Act.</span></div>
-    <div id="hdet2">
-      <span class="dc" id="hdc2">0 détection</span>
-      <span class="dlog" id="hdlog2">Aucune détection</span>
     </div>
   </div>
   <!-- Ligne 2 : contrôles temporels -->
@@ -845,8 +823,10 @@ function toggleInfo(){
   const btn = document.getElementById('title-chevron');
   const isOpen = overlay.classList.contains('open');
   overlay.classList.toggle('open');
-  btn.classList.toggle('open');
-  btn.textContent = isOpen ? '?' : '✕';
+  if(btn){
+    btn.classList.toggle('open');
+    btn.textContent = isOpen ? '?' : '✕';
+  }
 }
 function handleOverlayClick(e){
   if(e.target === document.getElementById('info-overlay')) toggleInfo();
@@ -1398,7 +1378,6 @@ function drawSim(t, W, H){
   document.getElementById('hactive').textContent = nActive;
   document.getElementById('hwaves').textContent  = nWaves;
   document.getElementById('hsimul').textContent  = nActive; // civs simultanées réelles
-  syncKpiBar(nActive, nWaves);
 }
 
 function updateDetHUD(activeDet, count){
@@ -1808,21 +1787,6 @@ function doRegen(){
   playing = true;
   document.getElementById('bplay').textContent = '⏸';
   lastTS = null;
-}
-
-// ── Sync KPI bar portrait (miroir des KPIs principaux) ──
-function syncKpiBar(nActive, nWaves){
-  const a2 = document.getElementById('hactive2');
-  const w2 = document.getElementById('hwaves2');
-  const s2 = document.getElementById('hsimul2');
-  const d2 = document.getElementById('hdc2');
-  if(a2) a2.textContent = document.getElementById('hactive').textContent;
-  if(w2) w2.textContent = document.getElementById('hwaves').textContent;
-  if(s2) s2.textContent = document.getElementById('hsimul').textContent;
-  if(d2){ d2.textContent = document.getElementById('hdc').textContent;
-          d2.className   = document.getElementById('hdc').className; }
-  const l2 = document.getElementById('hdlog2');
-  if(l2) l2.textContent = document.getElementById('hdlog').textContent;
 }
 
 // ── Positionnement dynamique des infobulles (fixed, anti-débordement) ──
