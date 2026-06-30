@@ -117,6 +117,33 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   display:flex;align-items:center;justify-content:center;transition:background .15s;
 }
 #bplay:hover{background:rgba(74,174,255,.22);}
+/* Tableau de bord indicatif — à gauche du panneau zoom, lecture seule */
+#side-dash{
+  position:fixed;
+  bottom:52px;
+  right:110px;
+  width:172px;
+  background:rgba(3,7,24,0.88);
+  border:1px solid rgba(74,174,255,.28);
+  border-radius:10px;
+  padding:9px 11px 10px;
+  z-index:49;
+  pointer-events:all;
+  cursor:pointer;
+  transition:border-color .15s;
+}
+#side-dash:hover{border-color:rgba(74,174,255,.55);}
+#side-dash .sd-prob-label{font-size:.50rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.05em;}
+#side-dash .sd-prob-val{font-family:'Space Mono',monospace;font-size:.95rem;font-weight:700;margin:2px 0 5px;}
+#side-dash .prob-bar-wrap{width:100%;height:5px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;margin-bottom:9px;}
+#side-dash .prob-bar-fill{height:100%;width:0%;border-radius:3px;transition:width .4s,background .4s;}
+#side-dash .sd-row{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:.56rem;color:var(--lbl);padding:3px 0;border-top:1px solid rgba(255,255,255,.06);}
+#side-dash .sd-row:first-of-type{border-top:none;}
+#side-dash .sd-def{display:flex;align-items:center;gap:4px;min-width:0;}
+#side-dash .sd-def span:first-child{flex-shrink:0;color:var(--txt);}
+#side-dash .sd-def small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+#side-dash .sd-val{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--gold);font-weight:700;flex-shrink:0;}
+@media (max-width:1024px){ #side-dash{display:none;} }
 /* Panneau zoom vertical — toujours visible, bas droite */
 #zoom-panel{
   position:fixed;
@@ -575,6 +602,29 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   <button id="fab-info"  onclick="toggleInfo()"   title="En savoir plus">?</button>
   <button id="fab-params" onclick="toggleParams()" title="Paramètres">⚙</button>
   <button id="fab-regen" onclick="doRegen()"       title="Régénérer">↺</button>
+</div>
+
+<!-- Tableau de bord indicatif (lecture seule) — clic = ouvre les paramètres -->
+<div id="side-dash" onclick="toggleParams()" title="Voir / modifier les paramètres">
+  <div class="sd-prob-label">Probabilité de contact</div>
+  <div class="sd-prob-val" id="dash-probval">—</div>
+  <div class="prob-bar-wrap"><div class="prob-bar-fill" id="dash-probbar"></div></div>
+  <div class="sd-row">
+    <span class="sd-def"><span>N</span><span class="pi-btn" tabindex="0" onclick="event.stopPropagation()">i<span class="pi-tip">Nombre total de civilisations technologiques apparues dans la Voie lactée depuis qu'elle est chimiquement capable d'en produire (~9 milliards d'années, Lineweaver et al. 2004). Plus ce nombre est grand, plus de civilisations coexistent à un instant donné.</span></span><small>civs totales</small></span>
+    <span class="sd-val" id="dash-vN">—</span>
+  </div>
+  <div class="sd-row">
+    <span class="sd-def"><span>L</span><span class="pi-btn" tabindex="0" onclick="event.stopPropagation()">i<span class="pi-tip">Durée pendant laquelle une civilisation émet des signaux détectables. Correspond à l'épaisseur des anneaux. Notre civilisation émet depuis ~100 ans.</span></span><small>durée d'émission</small></span>
+    <span class="sd-val" id="dash-vL">—</span>
+  </div>
+  <div class="sd-row">
+    <span class="sd-def"><span>S</span><span class="pi-btn" tabindex="0" onclick="event.stopPropagation()">i<span class="pi-tip">Distance maximale à laquelle un signal reste détectable. Limite le rayon des anneaux. Rayon de la Voie Lactée : 52 000 al.</span></span><small>portée du signal</small></span>
+    <span class="sd-val" id="dash-vS">—</span>
+  </div>
+  <div class="sd-row">
+    <span class="sd-def"><span>U</span><span class="pi-btn" tabindex="0" onclick="event.stopPropagation()">i<span class="pi-tip">Durée pendant laquelle la Terre est capable de recevoir des signaux. Nous écoutons depuis ~1960 (Projet Ozma). Variable la plus incertaine.</span></span><small>fenêtre terrestre</small></span>
+    <span class="sd-val" id="dash-vU">—</span>
+  </div>
 </div>
 
 <!-- Panneau zoom vertical -->
@@ -1095,11 +1145,11 @@ function updateProbDisplay(){
 
   // Pas encore de données
   if(prob === null){
-    ['hprobval','prob-modal-val'].forEach(id=>{
+    ['hprobval','prob-modal-val','dash-probval'].forEach(id=>{
       const el=document.getElementById(id);
       if(el){el.textContent='…';el.style.color='var(--lbl)';}
     });
-    ['hprobbar','prob-modal-bar'].forEach(id=>{
+    ['hprobbar','prob-modal-bar','dash-probbar'].forEach(id=>{
       const el=document.getElementById(id);
       if(el){el.style.width='0%';}
     });
@@ -1112,11 +1162,11 @@ function updateProbDisplay(){
   const pct = (prob * 100).toFixed(prob < 0.001 ? 3 : prob < 0.01 ? 2 : 1) + '%';
   const stabLabel = stable ? '✓ convergé' : `${(trials/1000).toFixed(1)}k tirages…`;
 
-  ['hprobval','prob-modal-val'].forEach(id=>{
+  ['hprobval','prob-modal-val','dash-probval'].forEach(id=>{
     const el=document.getElementById(id);
     if(el){el.textContent=pct;el.style.color=color;}
   });
-  ['hprobbar','prob-modal-bar'].forEach(id=>{
+  ['hprobbar','prob-modal-bar','dash-probbar'].forEach(id=>{
     const el=document.getElementById(id);
     if(el){el.style.width=Math.min(100,prob*100)+'%';el.style.background=color;}
   });
@@ -1449,6 +1499,10 @@ function readP(){
   document.getElementById('vLm').textContent=P.L.toLocaleString('fr-FR');
   document.getElementById('vSm').textContent=P.S.toLocaleString('fr-FR');
   document.getElementById('vUm').textContent=P.U.toLocaleString('fr-FR');
+  document.getElementById('dash-vN').textContent=P.Ntotal.toLocaleString('fr-FR');
+  document.getElementById('dash-vL').textContent=P.L.toLocaleString('fr-FR')+' ans';
+  document.getElementById('dash-vS').textContent=P.S.toLocaleString('fr-FR')+' al';
+  document.getElementById('dash-vU').textContent=P.U.toLocaleString('fr-FR')+' ans';
   // hsimul affiche nActive en temps réel (mis à jour dans drawSim)
   updateEarthMarker();
 }
