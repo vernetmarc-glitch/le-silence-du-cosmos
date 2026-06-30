@@ -133,6 +133,12 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   transition:border-color .15s;
 }
 #side-dash:hover{border-color:rgba(74,174,255,.55);}
+#side-dash .sd-edit-icon{
+  position:absolute;top:7px;right:9px;
+  font-size:.62rem;color:rgba(74,174,255,.55);
+  pointer-events:none;
+}
+#side-dash:hover .sd-edit-icon{color:var(--cyan);}
 #side-dash .sd-prob-label{font-size:.50rem;color:var(--lbl);text-transform:uppercase;letter-spacing:.05em;}
 #side-dash .sd-prob-val{font-family:'Space Mono',monospace;font-size:.95rem;font-weight:700;margin:2px 0 5px;}
 #side-dash .prob-bar-wrap{width:100%;height:5px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;margin-bottom:9px;}
@@ -549,11 +555,6 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <span class="dc" id="hdc">0 détection</span>
       <span class="dlog" id="hdlog">Aucune détection</span>
     </div>
-    <div id="hprob">
-      <span class="prob-label">Prob. contact</span>
-      <span class="prob-val" id="hprobval">—</span>
-      <div class="prob-bar-wrap"><div class="prob-bar-fill" id="hprobbar"></div></div>
-    </div>
   </div>
   <!-- KPI bar : visible uniquement en portrait mobile -->
   <div id="kpi-bar">
@@ -600,12 +601,12 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 <!-- FAB portrait : boutons flottants bas-droite -->
 <div id="fab-col">
   <button id="fab-info"  onclick="toggleInfo()"   title="En savoir plus">?</button>
-  <button id="fab-params" onclick="toggleParams()" title="Paramètres">⚙</button>
   <button id="fab-regen" onclick="doRegen()"       title="Régénérer">↺</button>
 </div>
 
 <!-- Tableau de bord indicatif (lecture seule) — clic = ouvre les paramètres -->
 <div id="side-dash" onclick="toggleParams()" title="Voir / modifier les paramètres">
+  <span class="sd-edit-icon">⚙</span>
   <div class="sd-prob-label">Probabilité de contact</div>
   <div class="sd-prob-val" id="dash-probval">—</div>
   <div class="prob-bar-wrap"><div class="prob-bar-fill" id="dash-probbar"></div></div>
@@ -1145,11 +1146,11 @@ function updateProbDisplay(){
 
   // Pas encore de données
   if(prob === null){
-    ['hprobval','prob-modal-val','dash-probval'].forEach(id=>{
+    ['prob-modal-val','dash-probval'].forEach(id=>{
       const el=document.getElementById(id);
       if(el){el.textContent='…';el.style.color='var(--lbl)';}
     });
-    ['hprobbar','prob-modal-bar','dash-probbar'].forEach(id=>{
+    ['prob-modal-bar','dash-probbar'].forEach(id=>{
       const el=document.getElementById(id);
       if(el){el.style.width='0%';}
     });
@@ -1162,11 +1163,11 @@ function updateProbDisplay(){
   const pct = (prob * 100).toFixed(prob < 0.001 ? 3 : prob < 0.01 ? 2 : 1) + '%';
   const stabLabel = stable ? '✓ convergé' : `${(trials/1000).toFixed(1)}k tirages…`;
 
-  ['hprobval','prob-modal-val','dash-probval'].forEach(id=>{
+  ['prob-modal-val','dash-probval'].forEach(id=>{
     const el=document.getElementById(id);
     if(el){el.textContent=pct;el.style.color=color;}
   });
-  ['hprobbar','prob-modal-bar','dash-probbar'].forEach(id=>{
+  ['prob-modal-bar','dash-probbar'].forEach(id=>{
     const el=document.getElementById(id);
     if(el){el.style.width=Math.min(100,prob*100)+'%';el.style.background=color;}
   });
