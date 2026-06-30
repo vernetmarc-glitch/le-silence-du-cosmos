@@ -368,7 +368,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 #info-panel{
   position:relative;background:rgba(3,7,24,0.98);
   border:1px solid var(--border);border-radius:12px;
-  padding:22px 24px 24px;width:100%;max-width:1020px;
+  padding:22px 24px 24px;width:100%;max-width:620px;
   max-height:85svh;overflow-y:auto;
 }
 #info-close{
@@ -377,9 +377,8 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   font-size:1.1rem;cursor:pointer;padding:4px;transition:color .15s;
 }
 #info-close:hover{color:var(--txt);}
-#info-cols{display:flex;gap:28px;}
-@media(max-width:1024px){#info-cols{flex-direction:column;gap:18px;}}
-.info-col{flex:1;}
+#info-cols{display:flex;flex-direction:column;gap:30px;}
+.info-col{flex:none;}
 #info-panel h2{
   font-family:'Space Mono',monospace;font-size:.78rem;font-weight:700;
   color:var(--cyan);letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px;
