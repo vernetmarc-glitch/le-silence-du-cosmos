@@ -543,7 +543,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
     <div class="hstat"><span class="hv" id="hsimul">—</span><span class="hl">Act.</span></div>
     <div id="hdet">
       <span class="dc" id="hdc">0 détection</span>
-      <span class="dlog" id="hdlog">Aucune détection</span>
+      <span class="dlog" id="hdlog"></span>
     </div>
   </div>
   <!-- Ligne 2 : contrôles temporels -->
@@ -1382,9 +1382,8 @@ function updateDetHUD(activeDet, count){
   el.className='dc'+(activeDet||count>0?' on':'');
 
   const lg=document.getElementById('hdlog');
-  if(!detections.length){lg.textContent='Aucune détection possible avec ces paramètres';return;}
   const visible=detections.filter(d=>d.start<=simTime).slice(-4);
-  if(!visible.length){lg.textContent='Aucune détection encore';return;}
+  if(!visible.length){lg.textContent='';return;}
   lg.textContent=visible.map(d=>{
     const s=Math.round(d.start).toLocaleString('fr-FR');
     const e=Math.round(d.end).toLocaleString('fr-FR');
