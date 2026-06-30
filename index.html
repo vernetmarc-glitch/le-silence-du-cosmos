@@ -621,8 +621,8 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div class="info-col">
         <h2>Les paramètres</h2>
         <div class="param-list">
-          <strong>N</strong> — civilisations apparues sur 200 000 ans
-          <span class="pi-btn" tabindex="0">i<span class="pi-tip">Nombre total de civilisations technologiques apparues dans la galaxie sur les 200 000 ans simulés. Indépendant de leur durée de vie — si L est courte, elles se succèdent rapidement ; si L est longue, elles coexistent davantage.<br><br>Le nombre simultané à tout instant est affiché en temps réel (Act.). Valeurs plausibles : 10–500.</span></span><br>
+          <strong>N</strong> — civilisations apparues depuis l'aube de la galaxie habitable
+          <span class="pi-btn" tabindex="0">i<span class="pi-tip">Nombre total de civilisations technologiques apparues dans la Voie lactée depuis qu'elle est chimiquement capable d'en produire (~9 milliards d'années, d'après Lineweaver et al. 2004). Plus ce nombre est grand, plus de civilisations coexistent à un instant donné (Act.).<br><br>Indépendant de la durée de vie L — si L est courte, elles se succèdent rapidement ; si L est longue, elles coexistent davantage. Valeurs plausibles : 1 000 à plusieurs centaines de millions.</span></span><br>
           <strong>L</strong> — durée d'émission moyenne
           <span class="pi-btn" tabindex="0">i<span class="pi-tip">Durée pendant laquelle une civilisation émet des signaux détectables. Correspond à l'épaisseur des anneaux bleus.<br><br>Notre civilisation émet depuis ~100 ans. Une guerre, une extinction ou une transition technologique pourraient l'arrêter. Valeurs plausibles : 100–10 000 ans.</span></span><br>
           <strong>S</strong> — portée du signal
@@ -636,7 +636,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
         <h2>Détail du modèle</h2>
         <p><strong style="color:var(--cyan)">Distribution spatiale.</strong> Les civilisations ne sont pas réparties uniformément dans la galaxie. Le modèle applique un biais de Zone Habitable Galactique (GHZ) : une gaussienne de pic à 6 000 al du centre galactique (σ = 4 000 al), qui exclut le centre (trop de radiations, perturbations gravitationnelles) et la périphérie (trop peu de métaux lourds pour la chimie du vivant). La Terre est placée à 8 500 al du centre, dans le Bras d'Orion.</p>
         <p><strong style="color:var(--cyan)">Distribution des durées de vie.</strong> La durée d'émission de chaque civilisation suit une loi log-normale de médiane L et d'écart-type logarithmique σ = 0,8. Ce choix reflète l'hypothèse que L est très incertaine et que quelques civilisations durent bien plus longtemps que la médiane. L'espérance réelle est L × e<sup>σ²/2</sup> ≈ 1,38 × L.</p>
-        <p><strong style="color:var(--cyan)">Fenêtre temporelle.</strong> La galaxie n'est chimiquement capable d'héberger des civilisations que depuis ~9 milliards d'années : il faut plusieurs générations d'étoiles mortes pour enrichir le milieu en métaux lourds (carbone, oxygène, fer) nécessaires aux planètes rocheuses (Lineweaver et al. 2004). Le nombre total de civilisations saisi par l'utilisateur est ramené à un taux sur les 200 000 ans simulés (−100 000 à +100 000), calés sur t = 0 = aujourd'hui. Les naissances de civilisations sont tirées uniformément sur cette fenêtre. La Terre émet depuis t = 0 pendant U ans.</p>
+        <p><strong style="color:var(--cyan)">Fenêtre temporelle.</strong> La galaxie n'est chimiquement capable d'héberger des civilisations que depuis ~9 milliards d'années : il faut plusieurs générations d'étoiles mortes pour enrichir le milieu en métaux lourds (carbone, oxygène, fer) nécessaires aux planètes rocheuses (Lineweaver et al. 2004). Le nombre total de civilisations saisi par l'utilisateur est ramené proportionnellement aux 200 000 ans simulés (−100 000 à +100 000), calés sur t = 0 = aujourd'hui. Les naissances de civilisations sont tirées uniformément sur cette fenêtre. La Terre émet depuis t = 0 pendant U ans.</p>
         <p><strong style="color:var(--cyan)">Propagation des signaux.</strong> Un signal émis par une civilisation à distance d met exactement d années à atteindre la Terre. La fenêtre de détection terrestre d'une civ née en t<sub>b</sub> et éteinte en t<sub>b</sub>+L est donc [t<sub>b</sub>+d, t<sub>b</sub>+L+d] ∩ [0, U].</p>
         <p><strong style="color:var(--cyan)">Calcul de la probabilité.</strong> Un Monte Carlo continu tire des civilisations fictives selon les mêmes règles que la simulation. Pour chaque paramètre (N, L, S, U), il estime P(une civ donnée contacte la Terre), puis applique la loi de Poisson : μ = N × P<sub>une</sub>, P(contact) = 1 − e<sup>−μ</sup>. Le calcul converge automatiquement (arrêt quand σ des derniers lots &lt; 0,3 %).</p>
         <p><strong style="color:var(--cyan)">Paramètres fixes.</strong> Rayon galactique : 52 000 al. Nombre d'étoiles simulées : 20 000 (rendu). Profil spiral : 4 bras logarithmiques, pas 13°. La galaxie est inclinée à 40 % (projection sur l'écran).</p>
@@ -655,7 +655,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div class="pm-modal">
         <div class="ph-modal">
           <span class="pn-modal">N — Civilisations apparues depuis l'aube de la galaxie habitable
-            <span class="pi-btn" tabindex="0">i<span class="pi-tip">Nombre total de civilisations technologiques apparues dans la Voie lactée depuis qu'elle est chimiquement capable d'en produire (~9 milliards d'années, d'après Lineweaver et al. 2004 — il faut plusieurs générations d'étoiles pour enrichir le milieu en métaux lourds nécessaires aux planètes rocheuses).<br><br>Ce nombre est automatiquement ramené à un taux sur les 200 000 ans simulés (affiché entre parenthèses), qui pilote le nombre de civilisations simultanées (Act.). Valeurs plausibles&nbsp;: 1 000 à plusieurs centaines de millions.</span></span>
+            <span class="pi-btn" tabindex="0">i<span class="pi-tip">Nombre total de civilisations technologiques apparues dans la Voie lactée depuis qu'elle est chimiquement capable d'en produire (~9 milliards d'années, d'après Lineweaver et al. 2004 — il faut plusieurs générations d'étoiles pour enrichir le milieu en métaux lourds nécessaires aux planètes rocheuses).<br><br>Plus ce nombre est grand, plus de civilisations coexistent à un instant donné dans la simulation (Act.). Valeurs plausibles&nbsp;: 1 000 à plusieurs centaines de millions.</span></span>
           </span>
           <span class="pv-modal" id="vNm">1 000 000</span>
         </div>
@@ -1445,7 +1445,7 @@ function readP(){
   P.S=+document.getElementById('slSm').value;
   P.U=+document.getElementById('slUm').value;
   P.B=1.0;
-  document.getElementById('vNm').textContent=P.Ntotal.toLocaleString('fr-FR')+' (≈'+P.N.toLocaleString('fr-FR')+' / 200 000 ans)';
+  document.getElementById('vNm').textContent=P.Ntotal.toLocaleString('fr-FR');
   document.getElementById('vLm').textContent=P.L.toLocaleString('fr-FR');
   document.getElementById('vSm').textContent=P.S.toLocaleString('fr-FR');
   document.getElementById('vUm').textContent=P.U.toLocaleString('fr-FR');
