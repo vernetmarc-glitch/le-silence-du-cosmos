@@ -797,6 +797,7 @@ const R0_SP     = 2500;
 let P = {N:40, L:1000, S:10000, U:1000, B:1.0};
 let zoomLevel = 3.2; // 1 = vue galactique complète, >1 = zoom sur Terre
 let zoomTarget = 3.2;
+let bottomDeadZone = 0; // hauteur (px) occupée en bas par #controls-cluster, pour recentrer la Terre dans l'espace réellement visible
 let civs=[], gStars=[];
 let simTime=-1000, playing=true, speed=500;
 let lastTS=null, animId=null, scrubbing=false;
@@ -817,6 +818,14 @@ function resize(){
   cg.width=cs.width=wr.clientWidth;
   cg.height=cs.height=wr.clientHeight;
   gCache=null;
+  const cluster=document.getElementById('controls-cluster');
+  if(cluster){
+    const cRect=cluster.getBoundingClientRect();
+    const wRect=wr.getBoundingClientRect();
+    bottomDeadZone=Math.max(0, wRect.bottom - cRect.top);
+  } else {
+    bottomDeadZone=0;
+  }
 }
 
 // ══════════════════════════════════════════════════
@@ -855,13 +864,15 @@ function getScale(W,H){
 // Origine de la caméra : quand zoom > 1, on centre sur la Terre
 function getCamOrigin(W,H){
   const bs = getBaseScale(W,H);
+  // Centre vertical effectif : on exclut l'espace occupé en bas par le panneau de contrôles
+  const cy = (H - bottomDeadZone) / 2;
   // Position de la Terre en coords écran sans zoom
   const ex = W/2 + EARTH_GX * bs;
-  const ey = H/2 + EARTH_GY * bs * 0.40;
+  const ey = cy + EARTH_GY * bs * 0.40;
   // On translate pour que la Terre reste au centre
   return {
     ox: W/2 - (ex - W/2) * (zoomLevel - 1),
-    oy: H/2 - (ey - H/2) * (zoomLevel - 1)
+    oy: cy - (ey - cy) * (zoomLevel - 1)
   };
 }
 function g2c(gx,gy,W,H){
