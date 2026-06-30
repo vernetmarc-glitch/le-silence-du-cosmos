@@ -117,25 +117,35 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
   display:flex;align-items:center;justify-content:center;transition:background .15s;
 }
 #bplay:hover{background:rgba(74,174,255,.22);}
-/* Tableau de bord indicatif — à gauche du panneau zoom, lecture seule */
-#side-dash{
+/* Cluster de contrôles bas-droite : panneau + zoom + FAB, alignés ensemble */
+#controls-cluster{
   position:fixed;
   bottom:52px;
-  right:110px;
+  right:10px;
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  gap:8px;
+  z-index:55;
+}
+/* Tableau de bord indicatif — lecture seule */
+#side-dash{
   width:172px;
+  flex-shrink:0;
   background:rgba(3,7,24,0.88);
   border:1px solid rgba(74,174,255,.28);
   border-radius:10px;
   padding:9px 11px 10px;
-  z-index:49;
   pointer-events:all;
   cursor:pointer;
   transition:border-color .15s;
 }
 #side-dash:hover{border-color:rgba(74,174,255,.55);}
+#side-dash .sd-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px;}
 #side-dash .sd-edit-icon{
-  position:absolute;top:7px;right:9px;
-  font-size:.62rem;color:rgba(74,174,255,.55);
+  font-size:1.35rem;line-height:1;
+  color:rgba(74,174,255,.55);
+  flex-shrink:0;
   pointer-events:none;
 }
 #side-dash:hover .sd-edit-icon{color:var(--cyan);}
@@ -149,31 +159,28 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 #side-dash .sd-def span:first-child{flex-shrink:0;color:var(--txt);}
 #side-dash .sd-def small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 #side-dash .sd-val{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--gold);font-weight:700;flex-shrink:0;}
-@media (max-width:1024px){ #side-dash{display:none;} }
+@media (max-width:480px){
+  #side-dash{width:140px;padding:7px 9px 8px;}
+  #side-dash .sd-prob-val{font-size:.82rem;}
+}
 /* Panneau zoom vertical — toujours visible, bas droite */
 #zoom-panel{
-  position:fixed;
-  bottom:52px;
-  right:68px;
   width:34px;
+  flex-shrink:0;
   background:rgba(3,7,24,0.88);
   border:1px solid rgba(74,174,255,.28);
   border-radius:17px;
   padding:8px 0 6px;
   display:flex;flex-direction:column;align-items:center;gap:6px;
-  z-index:50;
   pointer-events:all;
 }
 /* ── FAB : colonne de boutons bas-droite (toujours visible) ── */
 #fab-col{
   display:flex;
-  position:fixed;
-  bottom:60px;
-  right:10px;
+  flex-shrink:0;
   flex-direction:column;
   align-items:center;
   gap:10px;
-  z-index:55;
 }
 #fab-col button{
   width:48px;height:48px;border-radius:50%;
@@ -186,7 +193,6 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 }
 #fab-col button:active{transform:scale(.92);opacity:.8;}
 #fab-info{ background:var(--cyan);color:#000; }
-#fab-params{ background:var(--cyan);color:#000;border:none !important; }
 #fab-regen{ background:var(--cyan);color:#000;border:none !important; }
 @media (max-width:1024px) and (orientation:portrait){
   /* FAB déjà visible — masquer boutons topbar */
@@ -598,16 +604,15 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   </div>
 </div>
 
-<!-- FAB portrait : boutons flottants bas-droite -->
-<div id="fab-col">
-  <button id="fab-info"  onclick="toggleInfo()"   title="En savoir plus">?</button>
-  <button id="fab-regen" onclick="doRegen()"       title="Régénérer">↺</button>
-</div>
+<!-- Cluster bas-droite : panneau indicatif + zoom + FAB, alignés ensemble -->
+<div id="controls-cluster">
 
 <!-- Tableau de bord indicatif (lecture seule) — clic = ouvre les paramètres -->
 <div id="side-dash" onclick="toggleParams()" title="Voir / modifier les paramètres">
-  <span class="sd-edit-icon">⚙</span>
-  <div class="sd-prob-label">Probabilité de contact</div>
+  <div class="sd-head">
+    <span class="sd-prob-label">Probabilité de contact</span>
+    <span class="sd-edit-icon">⚙</span>
+  </div>
   <div class="sd-prob-val" id="dash-probval">—</div>
   <div class="prob-bar-wrap"><div class="prob-bar-fill" id="dash-probbar"></div></div>
   <div class="sd-row">
@@ -634,6 +639,14 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
   <input type="range" id="szoom" min="1" max="12" step="0.1" value="3.2">
   <span id="zoom-label-min">🌌<br>Voie<br>Lactée</span>
 </div>
+
+<!-- FAB : boutons flottants -->
+<div id="fab-col">
+  <button id="fab-info"  onclick="toggleInfo()"   title="En savoir plus">?</button>
+  <button id="fab-regen" onclick="doRegen()"       title="Régénérer">↺</button>
+</div>
+
+</div><!-- /#controls-cluster -->
 
 <div id="wrap">
   <div id="hint-timeline">
