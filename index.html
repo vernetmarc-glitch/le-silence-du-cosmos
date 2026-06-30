@@ -636,7 +636,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
         <h2>Détail du modèle</h2>
         <p><strong style="color:var(--cyan)">Distribution spatiale.</strong> Les civilisations ne sont pas réparties uniformément dans la galaxie. Le modèle applique un biais de Zone Habitable Galactique (GHZ) : une gaussienne de pic à 6 000 al du centre galactique (σ = 4 000 al), qui exclut le centre (trop de radiations, perturbations gravitationnelles) et la périphérie (trop peu de métaux lourds pour la chimie du vivant). La Terre est placée à 8 500 al du centre, dans le Bras d'Orion.</p>
         <p><strong style="color:var(--cyan)">Distribution des durées de vie.</strong> La durée d'émission de chaque civilisation suit une loi log-normale de médiane L et d'écart-type logarithmique σ = 0,8. Ce choix reflète l'hypothèse que L est très incertaine et que quelques civilisations durent bien plus longtemps que la médiane. L'espérance réelle est L × e<sup>σ²/2</sup> ≈ 1,38 × L.</p>
-        <p><strong style="color:var(--cyan)">Fenêtre temporelle.</strong> La simulation couvre 200 000 ans (−100 000 à +100 000), calée sur t = 0 = aujourd'hui. Les naissances de civilisations sont tirées uniformément sur cette fenêtre. La Terre émet depuis t = 0 pendant U ans.</p>
+        <p><strong style="color:var(--cyan)">Fenêtre temporelle.</strong> La galaxie n'est chimiquement capable d'héberger des civilisations que depuis ~9 milliards d'années : il faut plusieurs générations d'étoiles mortes pour enrichir le milieu en métaux lourds (carbone, oxygène, fer) nécessaires aux planètes rocheuses (Lineweaver et al. 2004). Le nombre total de civilisations saisi par l'utilisateur est ramené à un taux sur les 200 000 ans simulés (−100 000 à +100 000), calés sur t = 0 = aujourd'hui. Les naissances de civilisations sont tirées uniformément sur cette fenêtre. La Terre émet depuis t = 0 pendant U ans.</p>
         <p><strong style="color:var(--cyan)">Propagation des signaux.</strong> Un signal émis par une civilisation à distance d met exactement d années à atteindre la Terre. La fenêtre de détection terrestre d'une civ née en t<sub>b</sub> et éteinte en t<sub>b</sub>+L est donc [t<sub>b</sub>+d, t<sub>b</sub>+L+d] ∩ [0, U].</p>
         <p><strong style="color:var(--cyan)">Calcul de la probabilité.</strong> Un Monte Carlo continu tire des civilisations fictives selon les mêmes règles que la simulation. Pour chaque paramètre (N, L, S, U), il estime P(une civ donnée contacte la Terre), puis applique la loi de Poisson : μ = N × P<sub>une</sub>, P(contact) = 1 − e<sup>−μ</sup>. Le calcul converge automatiquement (arrêt quand σ des derniers lots &lt; 0,3 %).</p>
         <p><strong style="color:var(--cyan)">Paramètres fixes.</strong> Rayon galactique : 52 000 al. Nombre d'étoiles simulées : 20 000 (rendu). Profil spiral : 4 bras logarithmiques, pas 13°. La galaxie est inclinée à 40 % (projection sur l'écran).</p>
@@ -654,12 +654,12 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
     <div class="pgrid-modal">
       <div class="pm-modal">
         <div class="ph-modal">
-          <span class="pn-modal">N — Civs apparues sur 200 000 ans
-            <span class="pi-btn" tabindex="0">i<span class="pi-tip">Nombre total de civilisations technologiques apparues dans la galaxie sur les 200 000 ans simulés. Indépendant de leur durée de vie — si L est courte, elles se succèdent rapidement ; si L est longue, elles coexistent davantage.<br><br>Le nombre simultané à tout instant est affiché en temps réel (Act.). Valeurs plausibles&nbsp;: 10–500.</span></span>
+          <span class="pn-modal">N — Civilisations apparues depuis l'aube de la galaxie habitable
+            <span class="pi-btn" tabindex="0">i<span class="pi-tip">Nombre total de civilisations technologiques apparues dans la Voie lactée depuis qu'elle est chimiquement capable d'en produire (~9 milliards d'années, d'après Lineweaver et al. 2004 — il faut plusieurs générations d'étoiles pour enrichir le milieu en métaux lourds nécessaires aux planètes rocheuses).<br><br>Ce nombre est automatiquement ramené à un taux sur les 200 000 ans simulés (affiché entre parenthèses), qui pilote le nombre de civilisations simultanées (Act.). Valeurs plausibles&nbsp;: 1 000 à plusieurs centaines de millions.</span></span>
           </span>
-          <span class="pv-modal" id="vNm">50</span>
+          <span class="pv-modal" id="vNm">1 000 000</span>
         </div>
-        <input type="range" id="slNm" min="1" max="1000" step="1" value="40">
+        <input type="range" id="slNm" min="3" max="9" step="0.02" value="6">
       </div>
       <div class="pm-modal">
         <div class="ph-modal">
@@ -713,6 +713,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 const SIM_START   = -100000; // civs spawn depuis -100000
 const SIM_END     =   10000;
 const SIM_DUR     =  110000; // durée totale de spawn
+const GHZ_WINDOW  = 9000000000; // ans depuis que la galaxie est capable d'héberger des civs (Lineweaver et al. 2004)
 const MW_R        =  52000;
 const EARTH_GX    =  8500;
 const EARTH_GY    =  0;
@@ -920,8 +921,9 @@ function dist2earth(gx,gy){
 }
 
 function spawnCivs(){
-  // N = nombre total de civilisations apparues sur toute la simulation (~200 000 ans)
-  // Indépendant de L : on spawne exactement N civs, leurs durées varient via log-normale
+  // P.N = nombre de civs sur les 200 000 ans simulés, dérivé de P.Ntotal
+  // (nombre total depuis l'aube de la galaxie habitable) via GHZ_WINDOW.
+  // Indépendant de L : on spawne exactement P.N civs, leurs durées varient via log-normale
   const total = Math.max(1, P.N);
   document.getElementById('hsimul').textContent='—';
   civs=[];
@@ -1429,13 +1431,21 @@ function startLoop(){
 // ══════════════════════════════════════════════════
 // CONTROLS
 // ══════════════════════════════════════════════════
+function roundSig(x,sig){
+  if(x===0) return 0;
+  const d=Math.ceil(Math.log10(Math.abs(x)));
+  const power=sig-d;
+  const m=Math.pow(10,power);
+  return Math.round(x*m)/m;
+}
 function readP(){
-  P.N=+document.getElementById('slNm').value;
+  P.Ntotal=roundSig(Math.pow(10,+document.getElementById('slNm').value),2);
+  P.N=Math.max(1,Math.round(P.Ntotal/GHZ_WINDOW*SIM_DUR));
   P.L=+document.getElementById('slLm').value;
   P.S=+document.getElementById('slSm').value;
   P.U=+document.getElementById('slUm').value;
   P.B=1.0;
-  document.getElementById('vNm').textContent=P.N;
+  document.getElementById('vNm').textContent=P.Ntotal.toLocaleString('fr-FR')+' (≈'+P.N.toLocaleString('fr-FR')+' / 200 000 ans)';
   document.getElementById('vLm').textContent=P.L.toLocaleString('fr-FR');
   document.getElementById('vSm').textContent=P.S.toLocaleString('fr-FR');
   document.getElementById('vUm').textContent=P.U.toLocaleString('fr-FR');
