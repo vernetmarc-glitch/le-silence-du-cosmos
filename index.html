@@ -341,12 +341,8 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 
 /* ── MOBILE/* ── MOBILE : bascule layout ── */
 
-@media (max-width: 1024px) and (orientation: portrait){
-  /* Masquer les KPIs Civs/Ondes/Act de la ligne titre, ne garder que le compteur de détection */
-  #topbar-inner .hstat{ display:none !important; }
-  #hdet{ flex-direction:row;align-items:center;justify-content:flex-end;padding:0 12px;border-left:1px solid var(--border); }
-  #hdet .dlog{ display:none; }
-}
+/* KPIs Civs/Ondes/Act retirés de la ligne titre : ne reste que la détection (compteur + détail) */
+#topbar-inner .hstat{ display:none !important; }
 
 @media (max-width: 1024px){
   #title-text{font-size:.95rem;}
