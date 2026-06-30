@@ -772,6 +772,7 @@ const SPIRAL_W  = 0.60;
 const SPIRAL_SN = 2;
 const H_DISK    = 18000;
 const R0_SP     = 2500;
+const CORE_R    = R0_SP; // rayon (al) de transition douce coeur → bras (pas de coupure nette)
 
 // ══════════════════════════════════════════════════
 // STATE
@@ -870,12 +871,18 @@ function ly2px(ly,W,H){ return ly*getScale(W,H); }
 // GALAXY
 // ══════════════════════════════════════════════════
 function spiralDensity(R,phi){
-  if(R<100) return 1.0;
   const disk=Math.exp(-R/H_DISK);
   const thetaSp=Math.log(Math.max(R,R0_SP)/R0_SP)/TAN_PITCH;
   const phase=(N_ARMS/2)*(thetaSp-phi)+Math.PI/4;
   const s2=Math.sin(phase);
-  return disk*((1-SPIRAL_W)+SPIRAL_W*Math.pow(s2*s2,SPIRAL_SN));
+  const armPattern=(1-SPIRAL_W)+SPIRAL_W*Math.pow(s2*s2,SPIRAL_SN);
+  // Coeur galactique : transition douce (smoothstep) entre une densité
+  // isotrope au centre et la modulation des bras, sur [0, CORE_R].
+  // Au-delà de CORE_R, le résultat est identique à l'ancien comportement.
+  const t=Math.min(1,R/CORE_R);
+  const core=t*t*(3-2*t); // smoothstep 0→1
+  const pattern=(1-core)*1.0+core*armPattern;
+  return disk*pattern;
 }
 function seededRng(seed){
   let s=(seed>>>0)||1;
@@ -895,8 +902,11 @@ function generateGalaxy(){
     const sz=rng()<0.025?rng()*1.2+0.7:rng()*0.45+0.06;
     stars.push({gx,gy,b,sz});
   }
+  // Bulbe central : profil radial exponentiel, sans rayon de coupure —
+  // la densité décroît continûment au lieu de s'arrêter net.
+  const BULGE_SCALE = 1300; // al, échelle radiale du bulbe
   for(let i=0;i<1500;i++){
-    const r=MW_R*0.08*Math.pow(rng(),0.4), a=rng()*Math.PI*2;
+    const r=-BULGE_SCALE*Math.log(1-rng()), a=rng()*Math.PI*2;
     stars.push({gx:Math.cos(a)*r,gy:Math.sin(a)*r,b:0.35+rng()*0.65,sz:rng()*0.8+0.15});
   }
   return stars;
