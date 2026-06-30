@@ -446,6 +446,14 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 }
 .pi-btn:hover .pi-tip,
 .pi-btn:focus .pi-tip{ display:block; }
+#btn-reset-defaults{
+  display:block;width:100%;margin-top:14px;
+  background:transparent;border:1px solid rgba(255,255,255,.18);
+  border-radius:7px;padding:8px;
+  font-family:'Space Mono',monospace;font-size:.58rem;
+  color:var(--lbl);cursor:pointer;transition:border-color .15s,color .15s;
+}
+#btn-reset-defaults:hover{border-color:var(--cyan);color:var(--cyan);}
 .leg-modal{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
 .leg-modal .li{font-size:.60rem;color:var(--lbl);display:flex;align-items:center;gap:5px;}
 .leg-modal .ld{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
@@ -748,6 +756,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <div class="li"><div class="ld" style="background:#f4c430;box-shadow:0 0 5px #f4c430"></div>Onde Terre</div>
       <div class="li"><div class="ld" style="background:#50fa7b;box-shadow:0 0 4px #50fa7b"></div>Contact !</div>
     </div>
+    <button id="btn-reset-defaults" onclick="resetParams()" title="Remettre les paramètres d'origine">↺ Paramètres par défaut</button>
   </div>
 </div>
 
@@ -1559,15 +1568,17 @@ document.addEventListener('touchend',()=>{
 
 // Desktop sliders → trigger sim + sync mobile
 ['slNm','slLm'].forEach(id=>{
-  document.getElementById(id).addEventListener('input',()=>{
+  document.getElementById(id).addEventListener('input',()=>{\
     readP();spawnCivs();simTime=-10000;
     resetProbMC();
+    saveParams();
   });
 });
 ['slSm','slUm'].forEach(id=>{
   document.getElementById(id).addEventListener('input',()=>{
     readP();precomputeDetections();updateEarthMarker();
     resetProbMC();
+    saveParams();
   });
 });
 // Mobile sliders → sync to desktop + trigger sim
@@ -1586,12 +1597,50 @@ document.addEventListener('touchend',()=>{
 
 
 
-// ══════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════
+// ── Persistance des paramètres (localStorage) ──
+const STORAGE_KEY = 'silenceCosmos_params_v1';
+const DEFAULTS = { slNm: '6.48', slLm: '1000', slSm: '10000', slUm: '1000' };
+
+function saveParams(){
+  const saved = {};
+  ['slNm','slLm','slSm','slUm'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) saved[id] = el.value;
+  });
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(saved)); } catch(e){}
+}
+
+function loadParams(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const saved = JSON.parse(raw);
+    ['slNm','slLm','slSm','slUm'].forEach(id => {
+      if(saved[id] !== undefined){
+        const el = document.getElementById(id);
+        if(el) el.value = saved[id];
+      }
+    });
+  } catch(e){}
+}
+
+function resetParams(){
+  ['slNm','slLm','slSm','slUm'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = DEFAULTS[id];
+  });
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
+  readP(); spawnCivs(); simTime = SIM_START;
+  document.getElementById('tscrub').value = SIM_START;
+  playing = true;
+  document.getElementById('bplay').textContent = '⏸';
+  lastTS = null;
+  resetProbMC();
+}
 let uWarningDismissed = false;
 window.addEventListener('resize',()=>{resize();gCache=null;invalidateStarCache();updateEarthMarker();});
 gStars=generateGalaxy();
+loadParams();
 readP();
 resetProbMC();
 resize();
@@ -1835,8 +1884,8 @@ document.addEventListener('click', function(e){
 
 // ── Bouton régénérer (topbar) ──
 function doRegen(){
-  readP(); spawnCivs(); simTime = -100;
-  document.getElementById('tscrub').value = -100;
+  readP(); spawnCivs(); simTime = SIM_START;
+  document.getElementById('tscrub').value = SIM_START;
   playing = true;
   document.getElementById('bplay').textContent = '⏸';
   lastTS = null;
