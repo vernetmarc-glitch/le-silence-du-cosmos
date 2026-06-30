@@ -1630,8 +1630,8 @@ function resetParams(){
     if(el) el.value = DEFAULTS[id];
   });
   try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
-  readP(); spawnCivs(); simTime = SIM_START;
-  document.getElementById('tscrub').value = SIM_START;
+  readP(); spawnCivs(); simTime = -1000;
+  document.getElementById('tscrub').value = -1000;
   playing = true;
   document.getElementById('bplay').textContent = '⏸';
   lastTS = null;
@@ -1884,8 +1884,8 @@ document.addEventListener('click', function(e){
 
 // ── Bouton régénérer (topbar) ──
 function doRegen(){
-  readP(); spawnCivs(); simTime = SIM_START;
-  document.getElementById('tscrub').value = SIM_START;
+  readP(); spawnCivs(); simTime = -1000;
+  document.getElementById('tscrub').value = -1000;
   playing = true;
   document.getElementById('bplay').textContent = '⏸';
   lastTS = null;
