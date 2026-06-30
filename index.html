@@ -1568,7 +1568,7 @@ document.addEventListener('touchend',()=>{
 
 // Desktop sliders → trigger sim + sync mobile
 ['slNm','slLm'].forEach(id=>{
-  document.getElementById(id).addEventListener('input',()=>{\
+  document.getElementById(id).addEventListener('input',()=>{
     readP();spawnCivs();simTime=-10000;
     resetProbMC();
     saveParams();
