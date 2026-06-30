@@ -1045,14 +1045,15 @@ const probMC = {
   stable: false,    // convergence atteinte
   prob: null,       // dernière probabilité calculée
   mu: null,
-  // Pour détection de stabilité : variance glissante sur lots de BATCH_SIZE
-  recentBatchProbs: [], // proba de chaque lot récent
+  // Pour détection de stabilité : on suit la valeur arrondie à 2 chiffres
+  // significatifs et on attend qu'elle reste identique sur plusieurs lots
+  lastRoundedPct: null,
+  stableStreak: 0,
   paramKey: '',     // clé des paramètres courants
   rafId: null,
 };
 const BATCH_SIZE  = 300;  // tirages par tick
-const STABILITY_WINDOW = 30;   // nombre de lots pour estimer la variance
-const STABILITY_THRESHOLD = 0.003; // écart-type < 0.3% => stable
+const STABILITY_STREAK = 15; // nombre de lots consécutifs requis avec les mêmes 2 chiffres significatifs
 
 function probMCParamKey(){
   return `${P.N}_${P.L}_${P.S}_${P.U}`;
@@ -1065,7 +1066,8 @@ function resetProbMC(){
   probMC.stable      = false;
   probMC.prob        = null;
   probMC.mu          = null;
-  probMC.recentBatchProbs = [];
+  probMC.lastRoundedPct = null;
+  probMC.stableStreak   = 0;
   probMC.paramKey    = probMCParamKey();
   updateProbDisplay(); // affiche "calcul…"
   scheduleProbMC();
@@ -1120,18 +1122,17 @@ function runProbMCBatch(){
   probMC.mu   = P.N * pOne;
   probMC.prob = 1 - Math.exp(-probMC.mu);
 
-  // Stabilité : variance sur les STABILITY_WINDOW derniers lots
-  const batchProb = 1 - Math.exp(-P.N * batchHits / BATCH_SIZE);
-  probMC.recentBatchProbs.push(batchProb);
-  if(probMC.recentBatchProbs.length > STABILITY_WINDOW)
-    probMC.recentBatchProbs.shift();
-
-  if(probMC.recentBatchProbs.length >= STABILITY_WINDOW){
-    const mean = probMC.recentBatchProbs.reduce((a,b)=>a+b,0) / STABILITY_WINDOW;
-    const variance = probMC.recentBatchProbs.reduce((a,b)=>a+(b-mean)**2,0) / STABILITY_WINDOW;
-    if(Math.sqrt(variance) < STABILITY_THRESHOLD){
-      probMC.stable = true;
-    }
+  // Stabilité : la probabilité (en %) arrondie à 2 chiffres significatifs
+  // doit rester identique sur STABILITY_STREAK lots consécutifs
+  const roundedPct = roundSig(probMC.prob * 100, 2);
+  if(roundedPct === probMC.lastRoundedPct){
+    probMC.stableStreak++;
+  } else {
+    probMC.lastRoundedPct = roundedPct;
+    probMC.stableStreak = 1;
+  }
+  if(probMC.stableStreak >= STABILITY_STREAK){
+    probMC.stable = true;
   }
 
   updateProbDisplay();
