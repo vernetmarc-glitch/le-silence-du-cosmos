@@ -1802,9 +1802,11 @@ document.addEventListener('click', function(e){
     const newU = pxToU(clientX);
     if(newU === P.U) return;
     P.U = newU;
-    // Synchroniser le slider et le dashboard
+    // Synchroniser le slider, le label modal et le dashboard
     const slUm = document.getElementById('slUm');
     if(slUm) slUm.value = newU;
+    const vUm = document.getElementById('vUm');
+    if(vUm) vUm.textContent = newU.toLocaleString('fr-FR');
     const dashVU = document.getElementById('dash-vU');
     if(dashVU) dashVU.textContent = newU.toLocaleString('fr-FR') + ' ans';
     updateEarthMarker();
