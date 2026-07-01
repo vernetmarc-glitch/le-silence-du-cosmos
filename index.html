@@ -379,6 +379,28 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
 #info-close:hover{color:var(--txt);}
 #info-cols{display:flex;flex-direction:column;gap:30px;}
 .info-col{flex:none;}
+/* ── Section contact / crédits ── */
+#contact-section{margin-top:36px;padding-top:28px;border-top:1px solid var(--border);}
+#contact-section .contact-intro{font-size:.72rem;color:var(--lbl);margin-bottom:20px;line-height:1.6;}
+#contact-section .credit-line{font-size:.60rem;color:rgba(255,255,255,.3);margin-bottom:18px;font-family:'Space Mono',monospace;}
+#contact-form{display:flex;flex-direction:column;gap:10px;}
+#contact-form input,#contact-form textarea{
+  background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:7px;
+  padding:9px 11px;font-family:Inter,sans-serif;font-size:.68rem;
+  color:var(--txt);outline:none;transition:border-color .15s;resize:vertical;
+}
+#contact-form input:focus,#contact-form textarea:focus{border-color:var(--cyan);}
+#contact-form textarea{min-height:90px;}
+#contact-form button[type="submit"]{
+  align-self:flex-start;background:var(--cyan);color:#000;border:none;border-radius:7px;
+  padding:9px 20px;font-family:'Space Mono',monospace;font-size:.62rem;font-weight:700;
+  cursor:pointer;transition:opacity .15s;
+}
+#contact-form button[type="submit"]:hover{opacity:.85;}
+#contact-form button[type="submit"]:disabled{opacity:.45;cursor:default;}
+#contact-status{font-size:.62rem;margin-top:4px;line-height:1.5;display:none;}
+#contact-status.ok{color:var(--green);display:block;}
+#contact-status.err{color:#ff6b35;display:block;}
 #info-panel h2{
   font-family:'Space Mono',monospace;font-size:.78rem;font-weight:700;
   color:var(--cyan);letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px;
@@ -697,6 +719,21 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
         <p>En résumé : cette simulation répond à une question précise — quelle est la probabilité qu'un signal radio omnidirectionnel nous parvienne pendant notre courte fenêtre d'écoute ? — et non à la question plus large du paradoxe de Fermi. Le silence radio observé est compatible avec un cosmos vide… mais aussi avec un cosmos peuplé de civilisations qui, comme nous le faisons déjà, ont cessé de crier dans le vide.</p>
       </div>
     </div>
+
+    <!-- Section contact / crédits -->
+    <div id="contact-section">
+      <h2>Contact</h2>
+      <p class="contact-intro">Des questions, suggestions d'amélioration, ou juste m'envoyer de l'amour ?</p>
+      <p class="credit-line">Simulation réalisée par Marc Vernet · 2025</p>
+      <form id="contact-form">
+        <input type="text"  name="name"    placeholder="Votre nom (optionnel)" autocomplete="name">
+        <input type="email" name="email"   placeholder="Votre email (optionnel)" autocomplete="email">
+        <textarea           name="message" placeholder="Votre message…" required></textarea>
+        <button type="submit" id="contact-submit">Envoyer ✦</button>
+        <div id="contact-status"></div>
+      </form>
+    </div>
+
   </div>
 </div>
 
@@ -1898,6 +1935,43 @@ function doRegen(){
   document.getElementById('bplay').textContent = '⏸';
   lastTS = null;
 }
+
+// ── Formulaire de contact (Formspree) ──
+(function(){
+  const FORMSPREE_ID = 'VOTRE_ID_ICI'; // ← Remplacer par votre ID Formspree (ex: xabcdefg)
+  const form   = document.getElementById('contact-form');
+  const btn    = document.getElementById('contact-submit');
+  const status = document.getElementById('contact-status');
+  if(!form) return;
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    btn.disabled = true;
+    btn.textContent = 'Envoi…';
+    status.className = '';
+    status.style.display = 'none';
+    try {
+      const res = await fetch('https://formspree.io/f/' + FORMSPREE_ID, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new FormData(form)
+      });
+      if(res.ok){
+        status.textContent = '✓ Message envoyé, merci !';
+        status.className = 'ok';
+        form.reset();
+      } else {
+        const data = await res.json();
+        status.textContent = (data.errors || []).map(x=>x.message).join(', ') || 'Erreur lors de l\'envoi.';
+        status.className = 'err';
+      }
+    } catch(err){
+      status.textContent = 'Impossible d\'envoyer le message (vérifiez votre connexion).';
+      status.className = 'err';
+    }
+    btn.disabled = false;
+    btn.textContent = 'Envoyer ✦';
+  });
+})();
 
 // ── Positionnement dynamique des infobulles (fixed, anti-débordement) ──
 document.querySelectorAll('.pi-btn').forEach(function(btn){
