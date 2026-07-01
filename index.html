@@ -580,7 +580,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;bac
       <option value="200">×200</option>
       <option value="1000">×1k</option>
       <option value="5000" selected>×5k</option>
-      <option value="20000">×20k</option>
+      <option value="40000">×40k</option>
     </select>
   </div>
 </div>
@@ -778,7 +778,7 @@ const EARTH_BIRTH =  0;
 // SKIRT spiral
 const N_ARMS    = 4;
 const TAN_PITCH = Math.tan(13 * Math.PI / 180);
-const SPIRAL_W  = 0.60;
+const SPIRAL_W  = 0.42;  // réduit : plus d'étoiles hors bras, fond plus dense
 const SPIRAL_SN = 2;
 const H_DISK    = 18000;
 const R0_SP     = 2500;
@@ -902,7 +902,7 @@ function generateGalaxy(){
   const rng=seededRng(271828);
   const stars=[];
   let att=0;
-  while(stars.length<20000&&att<600000){
+  while(stars.length<40000&&att<1200000){
     att++;
     const R=MW_R*Math.sqrt(rng()), phi=rng()*Math.PI*2;
     const rho=spiralDensity(R,phi);
@@ -915,7 +915,7 @@ function generateGalaxy(){
   // Bulbe central : profil radial exponentiel, sans rayon de coupure —
   // la densité décroît continûment au lieu de s'arrêter net.
   const BULGE_SCALE = 1300; // al, échelle radiale du bulbe
-  for(let i=0;i<1500;i++){
+  for(let i=0;i<2500;i++){
     const r=-BULGE_SCALE*Math.log(1-rng()), a=rng()*Math.PI*2;
     stars.push({gx:Math.cos(a)*r,gy:Math.sin(a)*r,b:0.35+rng()*0.65,sz:rng()*0.8+0.15});
   }
